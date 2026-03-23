@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from "axios";
+import { errorInterceptor, responseInterceptor } from "./interceptors";
 
 const api: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -7,6 +8,9 @@ const api: AxiosInstance = axios.create({
   },
 })
 
-api.interceptors.response.use()
+api.interceptors.response.use(
+  (response) => responseInterceptor(response),
+  (error) => errorInterceptor(error)
+)
 
 export default api;
