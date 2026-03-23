@@ -1,9 +1,12 @@
-import Image from 'next/image';
+
+import Menu from '@/components/lp/Menu';
+import styles from './Page.module.scss';
+
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <h1>E La vamos Nós</h1>
-    </div>
+    <>
+      <Menu />
+    </>
   );
 }
