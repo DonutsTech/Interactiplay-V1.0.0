@@ -1,0 +1,94 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(26, 34, 40, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+  background: $color-obsidian;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+  max-width: 460px;
+  width: 90%;
+  animation: slideUp 0.3s ease-out;
+  border: 1px solid rgba($color-blue-light-2, 0.3);
+  padding: 40px 32px;
+  text-align: center;
+  position: relative;
+}
+
+.modal_header {
+  margin-bottom: 24px;
+
+  &_logo {
+    width: 200px;
+    height: 35px;
+    object-fit: contain;
+    margin-bottom: 8px;
+  }
+
+  &_title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $color-white;
+    margin: 0;
+    font-family: $font-family-title;
+  }
+}
+
+.modal_content {
+  margin-bottom: 24px;
+
+  &_message {
+    font-size: 1.15rem;
+    color: $color-gray-light-1;
+    margin-bottom: 18px;
+    font-family: $font-family-text;
+  }
+}
+
+.loader {
+  width: 3.25em;
+  transform-origin: center;
+  animation: rotate4 2s linear infinite;
+  margin: 0 auto;
+}
+
+:global(circle) {
+  fill: none;
+  stroke: $color-blue-light-1;
+  stroke-width: 2;
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: dash4 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate4 {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash4 {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dashoffset: -125px;
+  }
+}

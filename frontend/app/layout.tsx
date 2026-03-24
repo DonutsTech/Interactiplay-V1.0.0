@@ -1,3 +1,4 @@
+import { AppProvider } from '@/context';
 import type { Metadata } from 'next';
 import { Poppins, Russo_One } from 'next/font/google';
 import './globals.scss';
@@ -29,11 +30,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body
-        className={`${poppins.variable} ${russoOne.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <AppProvider>
+        <body
+          className={`${poppins.variable} ${russoOne.variable} antialiased`}
+        >
+          {children}
+        </body>
+      </AppProvider>
     </html>
   );
 }

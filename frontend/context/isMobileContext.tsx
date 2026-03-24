@@ -1,8 +1,7 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
-import { ReactNode } from 'react';
 
 interface IsMobileContextType {
   isMobile: boolean;
@@ -27,45 +26,40 @@ interface IsMobileProviderProps {
 export const IsMobileProvider = ({ children }: IsMobileProviderProps) => {
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
   const isMobileVideo = useMediaQuery({ query: '(max-width: 426px)' });
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
+  const checkTouchDevice = () => {
+    const hasTouchEvents = 'ontouchstart' in window;
+    const hasTouchPoints = navigator.maxTouchPoints > 0;
+    const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    return hasTouchEvents || hasTouchPoints || hasCoarsePointer;
+  };
+
   useEffect(() => {
-    const checkTouchDevice = () => {
-      
-      const hasTouchEvents = 'ontouchstart' in window;
-      const hasTouchPoints = navigator.maxTouchPoints > 0;
-      const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
-      return hasTouchEvents || hasTouchPoints || hasCoarsePointer;
-    };
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setWidth(window.innerWidth);
+    setHeight(window.innerHeight);
     setIsTouchDevice(checkTouchDevice());
   }, []);
 
+  const value = useMemo(() => ({
+    isMobile,
+    isMobileVideo,
+    isTouchDevice,
+    width,
+    height
+  }), [isMobile, isMobileVideo, isTouchDevice, width, height]);
 
 
   return (
-    <isMobileContext.Provider value={{
-      isMobile,
-      isMobileVideo,
-      isTouchDevice,
-      width,
-      height
-    }}>
+    <isMobileContext.Provider value={value}>
       {children}
     </isMobileContext.Provider>
   );
 };
 
+
 export const useIsMobile = () => {
   return useContext(isMobileContext);
-};
-
-export const useIsMobileVideo = () => {
-  return useContext(isMobileContext).isMobileVideo;
-};
-
-export const useIsTouchDevice = () => {
-  return useContext(isMobileContext).isTouchDevice;
-};
+}
