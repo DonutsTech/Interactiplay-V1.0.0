@@ -51,7 +51,7 @@ const Difference = () => {
         {
           label: "Conclusão",
           value: "≈90%",
-          description: "2× mais pessoas chegam à oferta"
+          description: "2x mais pessoas chegam à oferta"
         },
         {
           label: "Conversão",
@@ -63,7 +63,7 @@ const Difference = () => {
   ];
 
   return (
-    <section className={styles.difference}>
+    <section className={styles.difference} aria-label="Comparativo de desempenho entre VSL Tradicional e ISL InteractiPlay">
         <h2 className={styles.difference_container_title}>
           VSL Tradicional vs ISL InteractiPlay
         </h2>

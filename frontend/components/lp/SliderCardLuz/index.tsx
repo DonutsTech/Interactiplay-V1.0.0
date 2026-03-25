@@ -1,0 +1,104 @@
+'use client';
+
+import { MouseEvent, TouchEvent, useRef, useState } from 'react';
+import styles from './SliderCardLuz.module.scss';
+import BtnDefault from '@/components/globals/BtnDefault';
+
+interface SliderCardLuzProps {
+  dados: { text: string }[];
+  title: string;
+  subtitle?: string;
+  button?: boolean;
+  href?: string;
+  label?: string;
+}
+
+const SliderCardLuz = ({
+  dados,
+  title,
+  subtitle,
+  button,
+  href = '',
+  label = 'Saiba mais',
+}: SliderCardLuzProps) => {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseMove = (
+    e: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>
+  ) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+
+    e.preventDefault();
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+
+    const walk = (clientX - startX) * 1;
+
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseDown = (
+    e: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>
+  ) => {
+    if (scrollContainerRef.current) {
+      setIsDragging(true);
+      e.preventDefault();
+
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      setStartX(clientX);
+      setScrollLeft(scrollContainerRef.current.scrollLeft);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  return (
+    <section
+      id={`${title.toLowerCase().replace(/\s+/g, '-')}`}
+      className={styles.slider}
+      aria-label={`Seção que mostra o ${title} da Interactiplay`}
+    >
+      <div className={styles.slider_container}>
+        <div className={styles.slider_container_text}>
+          <h3>{title}</h3>
+          {subtitle && <p>{subtitle}</p>}
+        </div>
+        <div
+          className={styles.slider_container_content}
+          draggable="true"
+          ref={scrollContainerRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+        >
+          {dados.map((item, index) => (
+            <div key={index} className={styles.slider_container_content_item}>
+              <div className={styles.slider_container_content_item_card}>
+                <p className={styles.slider_container_content_item_card_text}>
+                  {item.text}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+        {button && (
+          <div className={styles.slider_container_content_button}>
+            <BtnDefault href={href} label={label} />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default SliderCardLuz;

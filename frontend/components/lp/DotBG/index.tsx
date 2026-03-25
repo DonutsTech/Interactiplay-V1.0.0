@@ -5,7 +5,7 @@ import { InertiaPlugin } from 'gsap/InertiaPlugin';
 import styles from './DotBG.module.scss';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
-import { hexToRgb } from '@/util/hexToRgb';
+import { hexToRgb } from '@/utils/hexToRgb';
 
 
 

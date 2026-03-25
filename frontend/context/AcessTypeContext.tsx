@@ -1,21 +1,21 @@
 'use client'
 
 import { useState, useContext, createContext, ReactNode } from 'react';
-// import type { PlansProps } from '@/service/plansService';
+import type { Plan } from '@/@types/plan';
 
 
 export type AccessType = 'login' | 'cadastro' | 'forgotPassword' | 'planos' | 'deny' | 'done' | 'newPassword';
 
 
-// export type SelectedPlan = PlansProps;
+export type SelectedPlan = Plan | null;
 
 interface AccessTypeContextProps {
   accessType: AccessType;
     setAccessType: (type: AccessType) => void;
   promo: boolean;
   setPromo: (promo: boolean) => void;
-  // selectedPlan: SelectedPlan | null;
-  // setSelectedPlan: (plan: SelectedPlan | null) => void;
+  selectedPlan: SelectedPlan | null;
+  setSelectedPlan: (plan: SelectedPlan | null) => void;
 }
 
 const AccessTypeContext = createContext<AccessTypeContextProps | undefined>(undefined);
@@ -24,7 +24,7 @@ const AccessTypeContext = createContext<AccessTypeContextProps | undefined>(unde
 export const AccessTypeProvider = ({ children }: { children: ReactNode }) => {
   const [accessType, setAccessType] = useState<AccessType>('login');
   const [promo, setPromo] = useState<boolean>(true);
-  // const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
 
   return (
     <AccessTypeContext.Provider value={{ 
@@ -32,8 +32,8 @@ export const AccessTypeProvider = ({ children }: { children: ReactNode }) => {
       setAccessType, 
       promo, 
       setPromo, 
-      // selectedPlan, 
-      // setSelectedPlan 
+      selectedPlan, 
+      setSelectedPlan 
       }}>
       {children}
     </AccessTypeContext.Provider>
