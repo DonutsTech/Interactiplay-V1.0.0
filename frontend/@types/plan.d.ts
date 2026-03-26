@@ -11,4 +11,6 @@ export interface Plan {
   PRICE: number;
   STATUS: boolean;
   VIDEO_LIMIT: number;
+  STRIPE_PLAN_ID: string;
+  STRIPE_PLAN_PRICE: string;
 }

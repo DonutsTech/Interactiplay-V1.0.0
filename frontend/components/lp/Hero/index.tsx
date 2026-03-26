@@ -2,18 +2,14 @@
 
 import styles from './Hero.module.scss';
 import { useEffect, useState } from 'react';
-import { useAccessType } from '@/context/AcessTypeContext';
 import BtnDefault from '@/components/globals/BtnDefault';
-import { navigate } from 'next/dist/client/components/segment-cache/navigation';
+import { useIsLoading } from '@/context/IsLoadingContext';
 
-interface HeroProps {
-  setLoading?: (loading: boolean) => void;
-}
 
-const Hero = ({ setLoading }: HeroProps) => {
+const Hero = () => {
   const [mounted, setMounted] = useState(false);
 
-  const { setAccessType, setPromo } = useAccessType();
+  const { setIsLoading } = useIsLoading();
 
   useEffect(() => {
     setMounted(true);
@@ -43,11 +39,9 @@ const Hero = ({ setLoading }: HeroProps) => {
               label="Impulsionar as minhas Vendas"
               href="/acess/cadastro"
               onClick={async () => {
-                if (setLoading) setLoading(true);
-                setAccessType("cadastro");
-                setPromo(false);
+                setIsLoading(true);
                 setTimeout(() => {
-                  if (setLoading) setLoading(false);
+                  setIsLoading(false);
                 }, 1200);
               }}
             />
@@ -75,6 +69,12 @@ const Hero = ({ setLoading }: HeroProps) => {
             <BtnDefault
               label="Impulsionar as minhas Vendas"
               href="/acess/cadastro"
+              onClick={async () => {
+                setIsLoading(true);
+                setTimeout(() => {
+                  setIsLoading(false);
+                }, 1200);
+              }}
             />
           </div>
 

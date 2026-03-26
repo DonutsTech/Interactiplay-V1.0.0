@@ -2,7 +2,6 @@
 
 import type { Plan } from '@/@types/plan';
 import styles from './PlanCards.module.scss';
-import { useAccessType } from '@/context/AcessTypeContext';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
@@ -17,7 +16,6 @@ interface PlanCardsProps {
 
 const PlanCards = ({ plan, setLoading, setLoadingMessage }: PlanCardsProps) => {
   const { PLAN, PLAYS, PLAYS_PRICE, PRICE, VIDEO_LIMIT } = plan;
-  const { setSelectedPlan, setAccessType } = useAccessType();
 
   const features = [VIDEO_LIMIT];
   const playsIncluded = PLAYS;
@@ -27,11 +25,10 @@ const PlanCards = ({ plan, setLoading, setLoadingMessage }: PlanCardsProps) => {
     const handleSelectPlan = async () => {
     if (setLoadingMessage) setLoadingMessage("Aguarde, escolhendo plano...");
     if (setLoading) setLoading(true);
-    setSelectedPlan(plan);
-    setAccessType("cadastro");
     setTimeout(() => {
       if (setLoading) setLoading(false);
       if (setLoadingMessage) setLoadingMessage(undefined);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 1200);
   };
 
@@ -85,7 +82,7 @@ const PlanCards = ({ plan, setLoading, setLoadingMessage }: PlanCardsProps) => {
           </li>
         </ul>
       </div>
-      <Link href="/acess" onClick={handleSelectPlan}>
+      <Link href="/acess/cadastro" onClick={handleSelectPlan}>
         Selecionar
       </Link>
     </div>

@@ -2,6 +2,7 @@ import { AppProvider } from '@/context';
 import type { Metadata } from 'next';
 import { Poppins, Russo_One } from 'next/font/google';
 import './globals.scss';
+import FooterComplete from '@/components/globals/FooterComplete';
 
 const poppins = Poppins({
   variable: '--font-poppins',
@@ -35,6 +36,7 @@ export default function RootLayout({
           className={`${poppins.variable} ${russoOne.variable} antialiased`}
         >
           {children}
+          <FooterComplete />
         </body>
       </AppProvider>
     </html>

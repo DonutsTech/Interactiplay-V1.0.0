@@ -13,10 +13,13 @@ import SocialProof from '@/components/lp/SocialProof';
 import Features from '@/components/lp/Features';
 import Plan from '@/components/lp/Plan';
 import Security from '@/components/lp/Security';
+import Contact from '@/components/lp/Contact';
+import FaqLp from '@/components/lp/FaqLp';
+import ClosingCta from '@/components/lp/ClosingCta';
 
 
 export default function Home() {
-  const { setIsLoading, isLoading } = useIsLoading();
+  const { isLoading } = useIsLoading();
 
 
   return (
@@ -24,7 +27,7 @@ export default function Home() {
       <LoadingModal open={isLoading} />
       <DotBG />
       <Menu />
-      <Hero setLoading={setIsLoading} />
+      <Hero />
       <Benefits />
       <Difference />
       <Foryou />
@@ -32,6 +35,9 @@ export default function Home() {
       <Features />
       <Plan />
       <Security />
+      <Contact />
+      <FaqLp />
+      <ClosingCta />
     </>
   );
 }

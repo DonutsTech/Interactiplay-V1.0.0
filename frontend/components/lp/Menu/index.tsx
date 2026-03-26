@@ -3,7 +3,6 @@
 import { MouseEvent, useEffect, useState } from 'react';
 import { useIsMobile } from '@/context/isMobileContext';
 import styles from './Menu.module.scss';
-import { useAccessType } from '@/context/AcessTypeContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import logo from '@/assets/images/logo_white_dg.svg';
@@ -17,7 +16,6 @@ const Menu = () => {
   const { isMobile } = useIsMobile();
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
-  const { setAccessType, setPromo } = useAccessType();
   
 
     useEffect(() => {
@@ -99,7 +97,10 @@ const Menu = () => {
                   key={link.title} 
                   href={link.href} 
                   className={styles.menuMobile_content_link}
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    setOpen(false)
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                 >
                   {link.title}
                 </Link>
@@ -107,23 +108,21 @@ const Menu = () => {
 
               <div className={styles.menuMobile_content_user}>
                 <Link 
-                  href={'/acess'}
+                  href={'/acess/cadastro'}
                   className={styles.menuMobile_content_user_cadastro}
                   onClick={() => {
                     setOpen(false)
-                    setAccessType('cadastro')
-                    setPromo(false)
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                 >
                   Cadastre-se
                 </Link>
                 <Link 
-                  href={'/acess'}
+                  href={'/acess/login'}
                   className={styles.menuMobile_content_user_login}
                   onClick={() => {
                     setOpen(false)
-                    setAccessType('login')
-                    setPromo(false)
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                 >
                   Login
@@ -169,21 +168,19 @@ const Menu = () => {
 
           <div className={styles.menuDesk_acess}>
             <Link
-              href={'/acess'}
+              href={'/acess/cadastro'}
               className={styles.menuDesk_acess_cadastro}
               onClick={() => {
-                setAccessType('cadastro')
-                setPromo(true)
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
               Cadastre-se
             </Link>
             <Link
-              href={'/acess'}
+              href={'/acess/login'}
               className={styles.menuDesk_acess_login}
               onClick={() => {
-                setAccessType('login')
-                setPromo(true)
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
               Login
