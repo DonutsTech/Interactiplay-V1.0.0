@@ -16,7 +16,7 @@ const securityData = [
       text: "LGPD Compliance"
     },
     {
-      text: "Suporte 24/7"
+      text: "Analytics integrado e Testes A/B"
     }
   ];
   return(
