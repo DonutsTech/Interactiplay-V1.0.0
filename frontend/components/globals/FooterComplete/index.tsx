@@ -1,5 +1,6 @@
 'use client';
 
+import { useIsMobile } from '@/context/isMobileContext';
 import styles from './FooterComplete.module.scss';
 import logoInteracti from '@/assets/images/logo_white_dg.svg';
 import Image from 'next/image';
@@ -25,10 +26,7 @@ interface FooterSection {
   links: FooterLink[];
 }
 
-const iconsProps = {
-  size: 48,
-  color: '#f2f2f2',
-};
+
 
 const FooterComplete = () => {
   const pagesLinks: FooterLink[] = [
@@ -37,6 +35,13 @@ const FooterComplete = () => {
     { label: 'Preços', href: '/#plan' },
     { label: 'Contato', href: '/#contact' },
   ];
+
+  const { width } = useIsMobile();
+
+  const iconsProps = {
+  size: width && width < 768 ? 24 : 48,
+  color: '#f2f2f2',
+};
 
   const platformLinks: FooterLink[] = [
     {

@@ -96,10 +96,10 @@
   }
 
   .footer_social {
-    min-width: 150px;
+    min-width: 128px;
     .social_icons {
       display: flex;
-      gap: 15px;
+      gap: 16px;
 
       a {
         color: $color-white;
@@ -146,6 +146,10 @@
         align-items: center;
         font-size: 14px;
         
+    }
+
+    @media (max-width: 768px) {
+      text-align: center;
     }
   }
 }
