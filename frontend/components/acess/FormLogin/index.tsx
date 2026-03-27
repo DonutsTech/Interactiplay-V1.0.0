@@ -8,6 +8,7 @@ import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 import { email } from 'zod';
 import Link from 'next/link';
+import { useIsLoading } from '@/context/IsLoadingContext';
 
 interface LoginData {
   email: string;
@@ -19,6 +20,28 @@ const FormLogin = () => {
     email: '',
     password: '',
   });
+
+  const [messageError, setMessageError] = useState<string>('');
+  const [showModalMensage, setShowModalMessage] = useState<boolean>(false);
+
+  const { isLoading, setIsLoading } = useIsLoading();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (setIsLoading) setIsLoading(true);
+
+    if (!loginPakage.email || !loginPakage.password) {
+      setMessageError('Preencha todos os campos');
+      setTimeout(() => {
+        setMessageError('');
+        if (setIsLoading) setIsLoading(false);
+      }, 3000);
+      return;
+    }
+
+    
+
+  };
 
   return (
     <div className={styles.container}>
@@ -56,26 +79,31 @@ const FormLogin = () => {
             }
           />
         </div>
-        <Link href={'/acess/forgetPassword'} className={styles.form_link}>
-          Esqueceu a senha?
-        </Link>
+        <div className={styles.form_forgotPassword}>
+          <Link
+            href={'/acess/forgetPassword'}
+            className={styles.form_forgotPassword_link}
+          >
+            Esqueceu a senha?
+          </Link>
+          <p className={styles.form_forgotPassword_message}>
+            {messageError !== '' && messageError}
+          </p>
+        </div>
         <button
           type="submit"
           className={styles.form_loginButton}
-          // disabled={isLoading}
+          disabled={isLoading}
         >
-          {/* {isLoading ? 'Entrando...' : 'Login'} */}
+          {isLoading ? 'Entrando...' : 'Login'}
           Login
         </button>
       </form>
       <div className={styles.container_text}>
-        <p>
-          Ainda não possui uma conta?
-        </p>
+        <p>Ainda não possui uma conta?</p>
         <Link href={'/acess/cadastro'} className={styles.container_text_link}>
           Cadastre-se
         </Link>
-
       </div>
     </div>
   );

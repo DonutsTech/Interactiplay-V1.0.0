@@ -1,3 +1,4 @@
+import FormCadastro from "@/components/acess/FormCadastro";
 import { Metadata } from "next";
 
 
@@ -12,7 +13,7 @@ export default function Cadastro() {
 
   return (
     <>
-    
+    <FormCadastro />
     </>
   );
 };
