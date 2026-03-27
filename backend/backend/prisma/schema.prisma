@@ -4,6 +4,7 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -29,27 +30,30 @@ model Plan {
 }
 
 model User {
-  ID                        String          @id @default(uuid())
-  NAME                      String
-  EMAIL                     String          @unique
-  PHONE                     String
-  AVATAR                    String          @default("https://interacti-uploads.s3.us-east-1.amazonaws.com/images/padrao.png")
-  HASHED_PASSWORD           String
-  HASHED_TOKEN              String?
-  CREATED_AT                DateTime?       @default(now()) @db.Timestamp(0)
-  UPDATED_AT                DateTime?       @default(now()) @updatedAt
-  FIRST_ACESS               Boolean         @default(true)
-  VALIDATION_EMAIL          Boolean         @default(false)
-  ROLE                      String          @default("client")
-  ACTIVE                    Boolean         @default(false)
-  STRIPE_CUSTOMER_ID        String?         @unique
-  STRIPE_SUBSCRIPTON_ID     String?
-  STRIPE_SUBSCRIPTON_STATUS String?
-  PLAN                      Plan?           @relation(fields: [PLAN_ID], references: [ID])
-  PLAN_ID                   String?
-  HISTORY_PLAYS             History_Plays[]
-  VIDEOS                    Video[]
-  CAMPAIGNS                 Campaign[]
+  ID                          String          @id @default(uuid())
+  NAME                        String
+  EMAIL                       String          @unique
+  PHONE                       String
+  AVATAR                      String          @default("https://interacti-uploads.s3.us-east-1.amazonaws.com/images/padrao.png")
+  HASHED_PASSWORD             String
+  HASHED_TOKEN                String?
+  CREATED_AT                  DateTime?       @default(now()) @db.Timestamp(0)
+  UPDATED_AT                  DateTime?       @default(now()) @updatedAt
+  FIRST_ACESS                 Boolean         @default(true)
+  VALIDATION_EMAIL            Boolean         @default(false)
+  ROLE                        String          @default("client")
+  ACTIVE                      Boolean         @default(false)
+  STRIPE_CUSTOMER_ID          String?         @unique
+  STRIPE_SUBSCRIPTON_ID       String?
+  STRIPE_SUBSCRIPTON_STATUS   String?
+  STRIPE_TRIAL_END            DateTime?
+  STRIPE_CURRENT_PERIOD_START DateTime?
+  STRIPE_CURRENT_PERIOD_END   DateTime?
+  PLAN                        Plan?           @relation(fields: [PLAN_ID], references: [ID])
+  PLAN_ID                     String?
+  HISTORY_PLAYS               History_Plays[]
+  VIDEOS                      Video[]
+  CAMPAIGNS                   Campaign[]
 
   @@map("users")
 }
