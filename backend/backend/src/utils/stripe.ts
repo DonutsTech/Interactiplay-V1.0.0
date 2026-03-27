@@ -40,6 +40,9 @@ export const createStripeCustomer = async (email: string, name: string) => {
     const customer = await getStripeCustomerByEmail(email);
 
     let plan: Plan | null = null;
+    let periodStart: number | undefined = undefined;
+    let periodEnd: number | undefined = undefined;
+
     if (customer) {
       const subscriptions = await stripe.subscriptions.list({
         customer: customer.id,
@@ -47,20 +50,18 @@ export const createStripeCustomer = async (email: string, name: string) => {
         limit: 1,
       });
 
-      const subscription = subscriptions.data[0];
+      const subscription = subscriptions.data[0] as Stripe.Subscription;
 
       if (subscription && subscription.items && subscription.items.data && subscription.items.data.length > 0) {
         const item = subscription.items.data[0];
         const price = item?.price;
+        periodEnd = item?.current_period_end;
+        periodStart = item?.current_period_start;
         if (price && price.product) {
           plan = await planService.getPlanByStripeId(price.product as string);
         }
       }
-      /*
-      ()STRIPE_TRIAL_END: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
-STRIPE_CURRENT_PERIOD_START: '',
-STRIPE_CURRENT_PERIOD_END: '',
-*/
+
       if (subscription) {
         return {
           STRIPE_CUSTOMER_ID: customer.id,
@@ -68,6 +69,8 @@ STRIPE_CURRENT_PERIOD_END: '',
           STRIPE_SUBSCRIPTON_STATUS: subscription.status,
           ACTIVE: subscription.status === 'active' || subscription.status === 'trialing',
           ...(subscription.trial_end ? { STRIPE_TRIAL_END: formatNummberForDate(subscription.trial_end) } : {}),
+          ...(periodStart ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(periodStart) } : {}),
+          ...(periodEnd ? { STRIPE_CURRENT_PERIOD_END: formatNummberForDate(periodEnd) } : {}),
           ...(plan ? { PLAN: { connect: { ID: plan.ID } } } : {}),
           ...(plan ? { HISTORY_PLAYS: { create: { QTD_PLAYS: 0, PRICE_MONTH: 0 } } } : {}),
         }
@@ -122,6 +125,64 @@ export const generatedCheckout = async ({ email, planId, token, userId, price }:
     });
 
     return session.url;
+  } catch (error) {
+    handleStripeError(error);
+  }
+}
+
+export const handleCheckoutSessionCompleted = async (event: {
+  data: { object: Stripe.Checkout.Session }
+}) => {
+  try {
+    const idUser = event.data.object.client_reference_id as string;
+    const stripeSubscriptionId = event.data.object.subscription as string;
+    const stripeCustumerId = event.data.object.customer as string;
+    const checkoutStatus = event.data.object.status;
+
+    if (event.data.object.metadata && event.data.object.metadata.planId) {
+      const planId = event.data.object.metadata.planId;
+
+      if (checkoutStatus !== 'complete') return;
+
+      if (!idUser || !stripeSubscriptionId || !stripeCustumerId) {
+        throw new Error('idUser, stripeSubscriptionId, stripeCustumerId is required');
+      }
+
+    }
+    /*
+    const userExist = await userService.showId(idUser);
+
+    if (!userExist) {
+      throw new Error('user not found');
+    }
+
+    await userService.update(idUser, {
+      ACTIVE: true,
+      STRIPE_CUSTOMER_ID: stripeCustumerId,
+      STRIPE_SUBSCRIPTON_ID: stripeSubscriptionId,
+      STRIPE_SUBSCRIPTON_STATUS: checkoutStatus,
+      PLAN_ID: planId,
+    });
+    */
+  } catch (error) {
+    handleStripeError(error);
+  }
+}
+
+export const handleSubscriptionSessionCompleted = async (event: {
+  data: { object: Stripe.Subscription }
+}) => {
+  try {
+    const subscriptionStatus = event.data.object.status;
+    const stripeCustumerId = event.data.object.customer as string;
+    const stripeSubscriptionId = event.data.object.id as string;
+    const data = event.data.object.items.data[0];
+
+    const userExist = await userService.user({ STRIPE_CUSTOMER_ID: stripeCustumerId });
+
+    if (!userExist) {
+      throw new CustomError('Usuário não encontrado para o cliente Stripe fornecido', StatusCodes.NOT_FOUND);
+    }
   } catch (error) {
     handleStripeError(error);
   }
