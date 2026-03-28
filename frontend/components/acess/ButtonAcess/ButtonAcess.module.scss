@@ -1,0 +1,39 @@
+.button {
+  width: 100%;
+  padding: 16px;
+  background-color: $color-blue-light-2;
+  color: $color-white;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, scale 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+
+
+
+  &:hover {
+    background-color: $color-blue-dark-2;
+    scale: 0.96;
+  }
+
+  &:disabled {
+    background-color: $color-gray-dark-1;
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+.inline {
+  background-color: transparent;
+  border: $color-white 2px solid;
+
+  &:hover {
+    background-color: $color-white;
+    color: $color-blue-dark-3;
+  }
+}

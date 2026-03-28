@@ -57,7 +57,6 @@ const InputForm: React.FC<InputFormProps> = ({
         >
           <FontAwesomeIcon 
             icon={ isPassowordVisible ? faEyeSlash : faEye } 
-            
           />
         </button>
       )}

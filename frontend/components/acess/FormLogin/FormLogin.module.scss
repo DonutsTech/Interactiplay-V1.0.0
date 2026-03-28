@@ -63,23 +63,7 @@
       }
     }
 
-    &_loginButton {
-      width: 100%;
-      padding: 16px;
-      background-color: $color-blue-light-2;
-      color: $color-white;
-      font-size: 18px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.2s ease-in-out, scale 0.2s ease-in-out;
 
-      &:hover {
-        background-color: $color-blue-dark-2;
-        scale: 0.96;
-      }
-    }
   }
 
   &_text {

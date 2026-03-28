@@ -29,10 +29,11 @@
     width: 100%;
     padding: 16px 16px 16px 3rem;
     background-color: $color-white;
-    border: 1px solid $color-darkBlue-light-2;
+    border: 1px solid $color-darkBlue-dark-2;
     border-radius: 8px;
     color: $color-obsidian;
     font-size: 16px;
+    font-weight: 600;
     outline: none;
 
     &::placeholder {
