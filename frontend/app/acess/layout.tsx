@@ -1,9 +1,8 @@
-import { AppProvider } from '@/context';
+// import { AppProvider } from '@/context';
 import type { Metadata } from 'next';
 import './acess.scss';
 import LottieDoodle from '@/components/acess/LottieDoodle';
 import Menu from '@/components/acess/Menu';
-import { formatAcessTitle } from '@/utils/pathname';
 
 export default function AcessLayout({
   children,
@@ -11,7 +10,7 @@ export default function AcessLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AppProvider>
+    <>
       <Menu />
       <div className="acess_background">
         <div className="left_acess">
@@ -21,6 +20,6 @@ export default function AcessLayout({
         </div>
         <div className="right_page">{children}</div>
       </div>
-    </AppProvider>
+    </>
   );
 }

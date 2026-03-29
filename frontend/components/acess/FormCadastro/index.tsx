@@ -1,19 +1,20 @@
 'use client';
 
 import styles from './FormCadastro.module.scss';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import logo from '@/assets/images/logo_white_dg.svg';
 import Image from 'next/image';
 import InputForm from '@/components/globals/InputForm';
 import { faEnvelope, faPhone, faUser } from '@fortawesome/free-solid-svg-icons';
 import { phoneMask } from '@/utils/PhoneUtils';
 import InputPassword from '../InputPassword';
-import { set } from 'zod';
 import ButtonAcess from '../ButtonAcess';
 import { isPasswordValid } from '@/utils/isPasswordValid';
 import { useIsLoading } from '@/context/IsLoadingContext';
 import Link from 'next/link';
 import ModalTermos from './ModalTermos';
+import { UserContext } from '@/context/UserContext';
+import { useRouter } from 'next/router';
 
 interface RegisterPackage {
   name: string;
@@ -30,7 +31,8 @@ const FormCadastro = () => {
   const [checked, setChecked] = useState(false);
   const [firstCheck, setFirstCheck] = useState(true);
   const [showTerms, setShowTerms] = useState(false);
-  const { isLoading, setIsLoading } = useIsLoading();
+  const { setIsLoading } = useIsLoading();
+  const { setUser } = useContext(UserContext);
   const [registerPackage, setRegisterPackage] = useState<RegisterPackage>({
     name: '',
     email: '',
@@ -38,6 +40,8 @@ const FormCadastro = () => {
     password: '',
     confirmPassword: '',
   });
+
+  // const router = useRouter();
 
   const disabled = () => {
     if (
@@ -61,6 +65,27 @@ const FormCadastro = () => {
     return false;
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      // Aqui você pode adicionar a lógica para enviar os dados de registro para o servidor
+
+      setUser((prevUser) => ({
+        ...prevUser,
+        name: registerPackage.name,
+        email: registerPackage.email,
+      }));
+
+      // router.push('/acess/plans');
+      window.location.href = '/acess/plans';
+    } catch (error) {
+      console.error('Erro ao registrar:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <section className={styles.container}>
       <Image src={logo} alt="Logo Interactiplay" className={styles.logo} />
@@ -68,7 +93,7 @@ const FormCadastro = () => {
         <h2>Cadastro</h2>
         <p>Cadastre-se para ter acesso a todos os recursos.</p>
       </div>
-      <form className={styles.form}>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <InputForm
           icon={faUser}
           type="text"
@@ -140,7 +165,7 @@ const FormCadastro = () => {
           text="Cadastrar"
           type="submit"
           disabled={disabled()}
-          goClick={() => setIsLoading(true)}
+          goClick={() => console.log('Clicou para cadastrar')}
         />
       </form>
       <div className={styles.container_text}>
@@ -149,9 +174,7 @@ const FormCadastro = () => {
           Faça o login
         </Link>
       </div>
-      {showTerms && (
-        <ModalTermos onClose={() => setShowTerms(false)} />
-      )}
+      {showTerms && <ModalTermos onClose={() => setShowTerms(false)} />}
     </section>
   );
 };

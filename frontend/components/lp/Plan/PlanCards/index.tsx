@@ -6,6 +6,9 @@ import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
+import { useContext } from 'react';
+import { UserContext, UserProvider } from '@/context/UserContext';
+
 
 
 interface PlanCardsProps {
@@ -16,6 +19,7 @@ interface PlanCardsProps {
 
 const PlanCards = ({ plan, setLoading, setLoadingMessage }: PlanCardsProps) => {
   const { PLAN, PLAYS, PLAYS_PRICE, PRICE, VIDEO_LIMIT } = plan;
+  const { setUser } = useContext(UserContext);
 
   const features = [VIDEO_LIMIT];
   const playsIncluded = PLAYS;
@@ -25,6 +29,10 @@ const PlanCards = ({ plan, setLoading, setLoadingMessage }: PlanCardsProps) => {
     const handleSelectPlan = async () => {
     if (setLoadingMessage) setLoadingMessage("Aguarde, escolhendo plano...");
     if (setLoading) setLoading(true);
+    setUser((prevUser) => ({
+      ...prevUser,
+      selectedPlan: plan.ID,
+    }));
     setTimeout(() => {
       if (setLoading) setLoading(false);
       if (setLoadingMessage) setLoadingMessage(undefined);
