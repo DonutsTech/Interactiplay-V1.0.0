@@ -86,6 +86,7 @@ const Plan = () => {
       id="plan"
       className={styles.section}
       aria-label="Seção de Planos do site Interactiplay"
+      data-scroll-behavior="smooth"
     >
       <div className={styles.header}>
         <h2>Planos {mockado && '(Mockado)'}</h2>

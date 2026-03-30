@@ -14,6 +14,7 @@ const Contact = () => {
       className={styles.contact}
       id="contact"
       aria-label="Seção de Contato"
+      data-scroll-behavior="smooth"
     >
       <div className={styles.contact_container}>
         <div className={styles.contact_container_left}>

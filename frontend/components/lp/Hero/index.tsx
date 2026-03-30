@@ -1,38 +1,40 @@
-"use client";
+'use client';
 
 import styles from './Hero.module.scss';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import BtnDefault from '@/components/globals/BtnDefault';
 import { useIsLoading } from '@/context/IsLoadingContext';
-
+import { UserContext } from '@/context/UserContext';
 
 const Hero = () => {
   const [mounted, setMounted] = useState(false);
 
   const { setIsLoading } = useIsLoading();
+  const { setUserState, user } = useContext(UserContext);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  return(
-    <section 
+  return (
+    <section
       className={styles.hero}
-      id='hero'
-      aria-label='Seção Hero do site Interactiplay'
+      id="hero"
+      aria-label="Seção Hero do site Interactiplay"
+      data-scroll-behavior="smooth"
     >
       <div className={styles.hero_container}>
         <div className={styles.hero_container_left}>
           <h1 className={styles.hero_container_left_title}>
             Crie vídeos de vendas interativos que convertem 5x mais em relação a
             vídeos estáticos
-          </h1>{" "}
+          </h1>{' '}
           <br />
           <h3 className={styles.hero_container_left_description}>
             Apresentamos a ISL - Interacti Sales Letter: uma nova geração de
             vídeos de vendas que adaptam a mensagem à dor do seu cliente levá-lo
             direto à ação em tempo real.
-          </h3>{" "}
+          </h3>{' '}
           <br />
           <div className={styles.hero_container_left_btn}>
             <BtnDefault
@@ -40,6 +42,10 @@ const Hero = () => {
               href="/acess/cadastro"
               onClick={async () => {
                 setIsLoading(true);
+                setUserState({
+                  ...user,
+                  selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
+                });
                 setTimeout(() => {
                   setIsLoading(false);
                 }, 1200);
@@ -50,19 +56,18 @@ const Hero = () => {
 
         <div className={styles.hero_container_right}>
           <div className={styles.hero_container_right_videoWrapper}>
-            {mounted &&
-              (
-            //Mockup provisório, substituir depois por Campanha interativo
-            <video
-              src="/media/videos/VHero_mockup.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              className={styles.hero_container_videoMobile}
-            >
-              Seu navegador não suporta vídeo.
-            </video>
+            {mounted && (
+              //Mockup provisório, substituir depois por Campanha interativo
+              <video
+                src="/media/videos/VHero_mockup.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                className={styles.hero_container_videoMobile}
+              >
+                Seu navegador não suporta vídeo.
+              </video>
             )}
           </div>
           <div className={styles.hero_container_right_btn}>
@@ -71,6 +76,10 @@ const Hero = () => {
               href="/acess/cadastro"
               onClick={async () => {
                 setIsLoading(true);
+                setUserState({
+                  ...user,
+                  selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
+                });
                 setTimeout(() => {
                   setIsLoading(false);
                 }, 1200);
@@ -92,7 +101,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-
     </section>
   );
 };

@@ -1,7 +1,14 @@
 import BtnDefault from '@/components/globals/BtnDefault';
 import styles from './ClosingCta.module.scss';
+import { UserContext } from '@/context/UserContext';
+import { useContext } from 'react';
+import { useIsLoading } from '@/context/IsLoadingContext';
 
 const ClosingCta = () => {
+  const { setIsLoading } = useIsLoading();
+  const { user, setUserState } = useContext(UserContext);
+
+
   return (
     <section
       className={styles.closingCta}
@@ -22,6 +29,16 @@ const ClosingCta = () => {
           <BtnDefault 
             label="Experimentar Grátis"
             href='/acess/cadastro'
+            onClick={async () => {
+                setIsLoading(true);
+                setUserState({
+                  ...user,
+                  selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
+                });
+                setTimeout(() => {
+                  setIsLoading(false);
+                }, 1200);
+              }}
           />
         </div>
       </div>

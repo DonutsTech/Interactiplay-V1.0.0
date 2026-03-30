@@ -89,7 +89,7 @@ const Menu = () => {
           </div>
         </>
       ) : (
-        <div className={styles.menuDesk}>
+        <div className={styles.menuDesk} data-scroll-behavior="smooth">
           <Link
             href={"/"}
             onClick={(e: MouseEvent<HTMLAnchorElement>) => {

@@ -1,8 +1,10 @@
 'use client';
 
-import { MouseEvent, TouchEvent, useRef, useState } from 'react';
+import { MouseEvent, TouchEvent, useContext, useRef, useState } from 'react';
 import styles from './SliderCardLuz.module.scss';
 import BtnDefault from '@/components/globals/BtnDefault';
+import { useIsLoading } from '@/context/IsLoadingContext';
+import { UserContext } from '@/context/UserContext';
 
 interface SliderCardLuzProps {
   dados: { text: string }[];
@@ -25,6 +27,9 @@ const SliderCardLuz = ({
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+
+  const { setIsLoading } = useIsLoading();
+  const { user, setUserState } = useContext(UserContext);
 
   const handleMouseMove = (
     e: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>
@@ -93,7 +98,16 @@ const SliderCardLuz = ({
         </div>
         {button && (
           <div className={styles.slider_container_content_button}>
-            <BtnDefault href={href} label={label} />
+            <BtnDefault href={href} label={label} onClick={async () => {
+                setIsLoading(true);
+                setUserState({
+                  ...user,
+                  selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
+                });
+                setTimeout(() => {
+                  setIsLoading(false);
+                }, 1200);
+              }}/>
           </div>
         )}
       </div>
