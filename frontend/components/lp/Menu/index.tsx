@@ -132,6 +132,7 @@ const Menu = () => {
                     height={24}
                     alt='Icon de usuario'
                     draggable={false}
+                    loading='lazy'
                   />
                 </Link>
               </div>

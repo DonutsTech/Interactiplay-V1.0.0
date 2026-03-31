@@ -40,7 +40,7 @@ export default function RootLayout({
           className={`${poppins.variable} ${russoOne.variable} antialiased`}
         >
           {children}
-          <FooterComplete />
+
         </body>
       </AppProvider>
     </html>

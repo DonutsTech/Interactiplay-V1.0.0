@@ -55,6 +55,8 @@ export default function Policy() {
             alt="InteractiPlay Logo"
             className={styles.nav_logo_image}
             height={40}
+            loading='lazy'
+            draggable={false}
           />
         </Link>
         <div className={styles.nav_right}>

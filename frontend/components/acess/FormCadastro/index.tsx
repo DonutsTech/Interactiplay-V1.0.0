@@ -88,7 +88,13 @@ const FormCadastro = () => {
 
   return (
     <section className={styles.container}>
-      <Image src={logo} alt="Logo Interactiplay" className={styles.logo} />
+      <Image 
+        src={logo} 
+        alt="Logo Interactiplay" 
+        className={styles.logo} 
+        loading="lazy"
+        draggable={false}
+      />
       <div className={styles.headline}>
         <h2>Cadastro</h2>
         <p>Cadastre-se para ter acesso a todos os recursos.</p>

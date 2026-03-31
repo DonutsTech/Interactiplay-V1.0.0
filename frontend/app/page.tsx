@@ -16,11 +16,25 @@ import Security from '@/components/lp/Security';
 import Contact from '@/components/lp/Contact';
 import FaqLp from '@/components/lp/FaqLp';
 import ClosingCta from '@/components/lp/ClosingCta';
-
+import { use, useContext, useEffect } from 'react';
+import { UserContext } from '@/context/UserContext';
+import FooterComplete from '@/components/globals/FooterComplete';
 
 export default function Home() {
   const { isLoading } = useIsLoading();
+  const { user, setUserState } = useContext(UserContext);
 
+  useEffect(() => {
+    if (user.id === '') {
+      setUserState({
+        id: '',
+        name: '',
+        email: '',
+        selectedPlan: '',
+      });
+      return;
+    }
+  }, []);
 
   return (
     <>
@@ -38,8 +52,7 @@ export default function Home() {
       <Contact />
       <FaqLp />
       <ClosingCta />
+      <FooterComplete />
     </>
   );
 }
-
-

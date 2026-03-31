@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import './acess.scss';
 import LottieDoodle from '@/components/acess/LottieDoodle';
 import Menu from '@/components/acess/Menu';
+import FooterComplete from '@/components/globals/FooterComplete';
 
 export default function AcessLayout({
   children,
@@ -20,6 +21,7 @@ export default function AcessLayout({
         </div>
         <div className="right_page">{children}</div>
       </div>
+      <FooterComplete />
     </>
   );
 }

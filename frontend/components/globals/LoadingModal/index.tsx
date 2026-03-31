@@ -23,6 +23,7 @@ const LoadingModal: FC<LoadingModalProps> = ({ open, message = "" }) => {
             width={200}
             height={35}
             draggable={false}
+            loading="lazy"
           />
           <h3 className={styles.modal_header_title}>Aguarde...</h3>
         </div>

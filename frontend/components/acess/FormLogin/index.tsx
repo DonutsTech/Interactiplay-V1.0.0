@@ -54,6 +54,7 @@ const FormLogin = () => {
           width={300}
           height={50}
           loading="lazy"
+          draggable={false}
         />
         <div className={styles.headline}>
           <h2>Login</h2>

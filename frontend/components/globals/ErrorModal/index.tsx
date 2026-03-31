@@ -33,6 +33,7 @@ const ErrorModal = ({ isOpen, mensagem, type = 'error' }: ErrorModalProps) => {
           height={157}
           className={styles.modal_logo}
           draggable={false}
+          loading="lazy"
         />
         <h3 className={styles.modal_title}>
           {type === 'error' ? 'Ocorreu um erro!' : type === 'success' ? 'Sucesso!' : 'Atenção!'}

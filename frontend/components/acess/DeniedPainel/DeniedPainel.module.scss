@@ -1,0 +1,42 @@
+.container {
+  width: 100%;
+  height: auto;
+  min-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 24px;
+
+  .head {
+    width: 80%;
+    min-width: 300px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+
+    h2 {
+      font-size: 3rem;
+      color: $color-white;
+    }
+
+    p {
+      width: 60%;
+      margin: 0 auto;
+      min-width: 280px;
+      color: $color-gray-light-1;
+      font-size: 1.2rem;
+    }
+  }
+
+  .btn {
+    width: 30%;
+    min-width: 280px;
+    margin: 24px auto;
+  }
+
+}

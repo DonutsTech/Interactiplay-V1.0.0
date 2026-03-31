@@ -1,4 +1,3 @@
-import FormForgotPassword from "@/components/acess/FormForgotPassword";
 import SelectPlans from "@/components/acess/SelectPlans";
 import { Metadata } from "next";
 

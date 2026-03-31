@@ -18,6 +18,7 @@ const FormForgotPassword = () => {
         alt="Logo Interactiplay"
         className={styles.logo}
         draggable={false}
+        loading="lazy"
       />
       <div className={styles.headline}>
         <h2 className={styles.headline_title}>Esqueceu sua senha?</h2>
