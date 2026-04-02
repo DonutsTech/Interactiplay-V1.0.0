@@ -2,56 +2,31 @@ import FaqItem from '@/components/globals/FaqItem';
 import styles from './Faq.module.scss';
 
 const FaqLp = () => {
-
   const faq = [
     {
-      question: 'Como calcular quantos Plays vou precisar?',
+      question: 'O que exatamente é a Interactiplay?',
       answer:
-        'Multiplique seus acessos mensais pela taxa de play dos seus vídeos (geralmente entre 30-50%). Exemplo: 10.000 acessos × 40% = 4.000 plays. Na dúvida, comece pelo Essencial e faça upgrade quando precisar.',
+        'A Interactiplay é uma plataforma de hospedagem de vídeos de vendas interativos — as ISLs (Interactive Sales Letters). Diferente de uma VSL tradicional, ela permite segmentar o lead dentro do vídeo, entregar ofertas personalizadas e aumentar drasticamente sua taxa de conversão.',
     },
     {
-      question: 'Como funciona a cobrança por play?',
-      answer: 'Cada visitante que dá play conta como 1 uso. Simples assim.',
+      question: 'Posso testar sem risco antes de assinar?',
+      answer:
+        'Sim! Você tem 14 dias grátis ou até 1.000 plays (o que acabar primeiro). Ao final, o plano escolhido é cobrado automaticamente. Se não quiser continuar, basta cancelar antes — sem cobrança e sem burocracia.',
     },
     {
-      question: 'Vídeos interativos gastam plays extras?',
+      question: 'Preciso saber programar para usar?',
       answer:
-        'Não. O play é contado uma única vez, no vídeo inicial. Todas as ramificações e interações estão incluídas.',
+        'Não. Basta fazer upload do vídeo, configurar as interações no painel visual e colar o embed na sua página. Se você já publica páginas de venda, consegue usar a Interactiplay sem nenhuma dificuldade técnica.',
     },
     {
-      question: 'E se eu ultrapassar meu limite de plays?',
+      question: 'Por que investir em uma ISL se já tenho uma VSL funcionando?',
       answer:
-        'Seus vídeos continuam funcionando. Você pode comprar plays extras ou fazer upgrade do plano a qualquer momento pelo painel.',
+        'Porque a ISL não apenas apresenta sua oferta, ela segmenta o lead dentro do vídeo e entrega uma solução personalizada para a dor dele. Isso significa que você não desperdiça tráfego pago e aumenta drasticamente sua taxa de conversão.',
     },
     {
-      question: 'Posso fazer upgrade de plano?',
+      question: 'Consigo medir a efetividade real das minhas campanhas?',
       answer:
-        'Sim, a qualquer momento. Você paga só a diferença proporcional e o acesso é imediato. Seus dados e métricas são preservados.',
-    },
-    {
-      question: 'Como funciona o Teste Grátis?',
-      answer:
-        '14 dias ou 1.000 plays (o que acabar primeiro). Ao final, o plano escolhido é cobrado automaticamente. Cancele antes se preferir não continuar — sem cobrança.',
-    },
-    {
-      question: 'Qual a diferença para um player comum?',
-      answer:
-        'Players tradicionais reproduzem vídeos lineares. O InteractiPlay transforma seu vídeo em uma experiência interativa (ISL), onde o espectador escolhe caminhos e recebe conteúdo personalizado — gerando mais engajamento e conversão.',
-    },
-    {
-      question: 'Preciso saber programar?',
-      answer:
-        'Não. Você faz upload, configura as interações no painel visual e cola o embed na sua página. Se já publica páginas de venda, consegue usar.',
-    },
-    {
-      question: 'Como funciona o suporte?',
-      answer:
-        'Chat e e-mail em horário comercial (seg-sex), com resposta em até 24h úteis. Também temos uma base de conhecimento com tutoriais.',
-    },
-    {
-      question: 'Como funciona o reembolso?',
-      answer:
-        'Reembolso integral em até 7 dias após a contratação, sem burocracia. Basta solicitar ao suporte.',
+        'Sim. Com o Analytics integrado e os testes A/B da Interactiplay, você mensura com exatidão quais interações e caminhos geram mais vendas. Isso transforma dados em decisões práticas para otimizar seu funil e aumentar o ROI.',
     },
   ];
 
