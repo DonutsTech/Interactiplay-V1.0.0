@@ -76,6 +76,10 @@ class UserService {
 
       const user = await userModel.findBy({ where: { ID: id }, include: { PLAN: true, HISTORY_PLAYS: true } });
 
+      if (!user) {
+        throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
+      }
+
       return user;
     } catch (error) {
       throw new CustomError('Erro ao buscar o usuário', StatusCodes.INTERNAL_SERVER_ERROR);

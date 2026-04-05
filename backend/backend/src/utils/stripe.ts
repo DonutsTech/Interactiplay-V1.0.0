@@ -177,12 +177,6 @@ export const handleSubscriptionSessionCompleted = async (event: {
     const stripeCustumerId = event.data.object.customer as string;
     const stripeSubscriptionId = event.data.object.id as string;
     const data = event.data.object.items.data[0];
-
-    const userExist = await userService.user({ STRIPE_CUSTOMER_ID: stripeCustumerId });
-
-    if (!userExist) {
-      throw new CustomError('Usuário não encontrado para o cliente Stripe fornecido', StatusCodes.NOT_FOUND);
-    }
   } catch (error) {
     handleStripeError(error);
   }

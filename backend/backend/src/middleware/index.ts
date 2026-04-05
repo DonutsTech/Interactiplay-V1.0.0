@@ -1,4 +1,6 @@
 import { setErrors } from "./error";
+import { isAuthenticateToken } from "./isAuthenticateToken";
+import { isAuthenticateTokenDb } from "./isAuthenticateTokenDb";
 import { schemaValidator } from "./validatorSchema";
 
-export { schemaValidator, setErrors };
+export { isAuthenticateToken, isAuthenticateTokenDb, schemaValidator, setErrors };

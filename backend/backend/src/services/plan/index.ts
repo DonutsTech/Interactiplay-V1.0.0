@@ -1,11 +1,28 @@
+import { StatusCodes } from "http-status-codes";
+import { CustomError } from "../../error";
 import type { Plan } from "../../generated/prisma/client";
 import { planModel } from "../../models/plan";
 
 class PlanService {
+  async existsById(id: string) {
+    if (!(await planModel.count({ ID: id }))) {
+      throw new CustomError('Plano não encontrado, por favor verifique o seu  email', StatusCodes.NOT_FOUND)
+    }
+  }
+
   async getPlans(): Promise<Plan[]> {
     try {
       const plan = await planModel.findMany({});
       return plan;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getPlansByStatusTrue(): Promise<Plan[]> {
+    try {
+      const plans = await planModel.findMany({ where: { STATUS: true } });
+      return plans;
     } catch (error) {
       throw error;
     }
@@ -18,6 +35,22 @@ class PlanService {
           STRIPE_PLAN_ID: stripePlanId,
         },
       });
+      return plan;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async showId(id: string): Promise<Plan> {
+    try {
+      await this.existsById(id);
+
+      const plan = await planModel.findBy({ where: { ID: id } });
+
+      if (!plan) {
+        throw new CustomError('Plano não encontrado', StatusCodes.NOT_FOUND);
+      }
+
       return plan;
     } catch (error) {
       throw error;
