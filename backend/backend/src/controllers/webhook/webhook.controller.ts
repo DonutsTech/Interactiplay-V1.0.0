@@ -1,4 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
+import { userService } from '../../services/user';
 import {
   handleCancelPlan,
   handleCheckoutSessionCompleted,
@@ -7,7 +8,7 @@ import {
   handleSubscriptionSessionCompleted,
   stripe,
 } from '../../utils/stripe';
-import { userService } from '../user/user.service';
+
 
 class WebhookController {
   async webhook(request: Request, response: Response, next: NextFunction) {
@@ -29,7 +30,7 @@ class WebhookController {
     const getUserFromEvent = async () => {
       const obj = event.data.object as any;
       const customerId =  obj.customer || obj.customerId || obj.client || obj?.subscription_details?.customer || '';
-      return await userService.user({STRIPE_CUSTOMER_ID: customerId});
+      return await userService.showCustomerId(customerId);
     }
 
     const user = await getUserFromEvent();
@@ -42,7 +43,7 @@ class WebhookController {
       case 'customer.subscription.updated':
         if (!user) {
           // Atualize os detalhes da assinatura do usuário no banco de dados, se necessário
-            console.warn("⚠️ User não encontrado, ignorando evento até receber customerId.");
+            console.log("⚠️ User não encontrado, ignorando evento até receber customerId.");
           break;
         }
 
@@ -51,7 +52,7 @@ class WebhookController {
       case 'customer.subscription.deleted': // deleta o plano
         if (!user) {
           // Atualize os detalhes da assinatura do usuário no banco de dados, se necessário
-            console.warn("⚠️ User não encontrado, ignorando evento até receber customerId.");
+            console.log("⚠️ User não encontrado, ignorando evento até receber customerId.");
           break;
         }
         await handleCancelPlan(event);
@@ -59,7 +60,7 @@ class WebhookController {
       case 'invoice.paid': // cada ciclo de cobrança gera uma nova invoice
         if (!user) {
           // Atualize os detalhes da assinatura do usuário no banco de dados, se necessário
-            console.warn("⚠️ User não encontrado, ignorando evento até receber customerId.");
+            console.log("⚠️ User não encontrado, ignorando evento até receber customerId.");
           break;
         }
         await handleInvoicePaid(event);

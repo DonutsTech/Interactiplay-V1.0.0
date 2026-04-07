@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "db:deploy": "yarn prisma migrate deploy && yarn prisma generate",
-    "dev:full": "yarn run db:deploy && yarn run dev"
+    "db:push": "yarn prisma db push && yarn prisma generate",
+    "dev:full": "yarn run db:push && yarn run dev"
   },
   "type": "module",
   "devDependencies": {

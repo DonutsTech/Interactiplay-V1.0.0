@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import http from 'http';
 import path from 'path';
 import App from './config/app';
+import { initPlan } from './utils/initPlan';
 //import { initADM } from './utils/initAdmin';
 
 dotenv.config({
@@ -16,6 +17,7 @@ const server = http.createServer(app);
 
 server.listen(PORT, () => {
   //initADM();
+  initPlan();
   console.log(`Server is running on port ${PORT}`);
 });
 

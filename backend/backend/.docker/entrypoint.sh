@@ -1,6 +1,6 @@
 #!/bin/bash
 
 yarn install
-npx prisma migrate dev --name init
-npx prisma migrate deploy
-yarn run start
+yarn prisma migrate dev --name init
+yarn prisma migrate deploy
+yarn run dev:full

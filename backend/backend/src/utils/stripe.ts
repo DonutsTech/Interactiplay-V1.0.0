@@ -139,6 +139,8 @@ export const handleCheckoutSessionCompleted = async (event: {
     const stripeCustumerId = event.data.object.customer as string;
     const checkoutStatus = event.data.object.status;
 
+    console.log('handleCheckoutSessionCompleted', JSON.stringify(event));
+
     if (event.data.object.metadata && event.data.object.metadata.planId) {
       const planId = event.data.object.metadata.planId;
 
@@ -177,7 +179,27 @@ export const handleSubscriptionSessionCompleted = async (event: {
     const stripeCustumerId = event.data.object.customer as string;
     const stripeSubscriptionId = event.data.object.id as string;
     const data = event.data.object.items.data[0];
+
+    console.log('handleSubscriptionSessionCompleted', JSON.stringify(event));
   } catch (error) {
     handleStripeError(error);
   }
+}
+
+export const handleCancelPlan = async (event: {
+  data: { object: Stripe.Subscription }
+}) => {
+  console.log('handleCancelPlan', JSON.stringify(event));
+}
+
+export const handleInvoicePaid = async (event: {
+  data: { object: Stripe.Invoice }
+}) => {
+  console.log('handleInvoicePaid', JSON.stringify(event));
+}
+
+export const handleInvoicePaymentFailed = async (event: {
+  data: { object: Stripe.Invoice }
+}) => {
+  console.log('handleInvoicePaymentFailed', JSON.stringify(event));
 }

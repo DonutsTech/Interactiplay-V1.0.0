@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import type { MulterS3File } from '../../@types/file';
 import { CustomError } from '../../error';
 import type { Prisma } from "../../generated/prisma/client";
+import type { UserGetPayload } from '../../generated/prisma/models';
 import { userModel } from "../../models/user";
 import { photoService } from '../photo';
 
@@ -83,6 +84,14 @@ class UserService {
       return user;
     } catch (error) {
       throw new CustomError('Erro ao buscar o usuário', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async showCustomerId(customerId: string): Promise<UserGetPayload<{include: { PLAN: true, HISTORY_PLAYS: true }}> | null> {
+    try {
+      return await userModel.findBy({ where: { STRIPE_CUSTOMER_ID: customerId }, include: { PLAN: true, HISTORY_PLAYS: true } }) as UserGetPayload<{include: { PLAN: true, HISTORY_PLAYS: true }}> | null;
+    } catch (error) {
+      return null;
     }
   }
 

@@ -1,4 +1,5 @@
 import { StatusCodes } from "http-status-codes";
+import type { createPlan } from "../../@types/interface/plan";
 import { CustomError } from "../../error";
 import type { Plan } from "../../generated/prisma/client";
 import { planModel } from "../../models/plan";
@@ -51,6 +52,24 @@ class PlanService {
         throw new CustomError('Plano não encontrado', StatusCodes.NOT_FOUND);
       }
 
+      return plan;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async countPlans(): Promise<number> {
+    try {
+      const count = await planModel.count({});
+      return count;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async createPlan(data: createPlan): Promise<Plan> {
+    try {
+      const plan = await planModel.create({ data });
       return plan;
     } catch (error) {
       throw error;

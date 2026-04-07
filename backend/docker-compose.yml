@@ -24,7 +24,7 @@ services:
     restart: always
     volumes:
       - ./backend:/api
-      - /api/node_modules
+      - backend_node_modules:/api/node_modules
     tty: true
     ports:
       - "4000:4000"
@@ -67,4 +67,6 @@ networks:
 
 volumes:
   pgdata:
+    driver: local
+  backend_node_modules:
     driver: local

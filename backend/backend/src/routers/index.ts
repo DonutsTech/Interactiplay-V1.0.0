@@ -1,8 +1,8 @@
 import { Router } from "express";
 import type { IRouter } from "../@types/interface/router";
 import AuthRouter from "./auth";
-import WebhookRouter from "./webhook";
 import PlanRouter from "./plan";
+import WebhookRouter from "./webhook";
 
 const applyRouters = (router: Router, routers: IRouter[]): void => {
   routers.forEach((route) => route.create(router));
