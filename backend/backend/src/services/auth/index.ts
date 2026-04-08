@@ -39,7 +39,7 @@ class AuthService {
 
   async register(data: RegisterUser) {
     try {
-      await validateEmail(data.EMAIL);
+      //await validateEmail(data.EMAIL);
 
       const user = await userModel.findBy({ where: { EMAIL: data.EMAIL } });
 
@@ -83,7 +83,7 @@ class AuthService {
 
   async login(body: LoginUser) {
     try {
-      await validateEmail(body.EMAIL);
+      //await validateEmail(body.EMAIL);
 
       let user = await userModel.findBy({ where: { EMAIL: body.EMAIL } });
 
