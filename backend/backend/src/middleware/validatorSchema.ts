@@ -19,15 +19,18 @@ export const schemaValidator = (path: string): RequestHandler => {
     throw new CustomError(`Schema not found for path: ${path}`);
   }
 
-  return (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const method = req.method.toLowerCase();
 
       if (!supportedMethods.includes(method)) {
-        next();
+        return next();
       }
 
-      const { error, value } = schema.validate(req.body, validationOptions);
+      const { error, value } = await schema.validateAsync(req.body, {
+        ...validationOptions,
+        allowUnknown: true,
+      });
 
       if (error) {
         const messages = error.details.map((err) =>
@@ -39,6 +42,7 @@ export const schemaValidator = (path: string): RequestHandler => {
 
       req.body = value;
       next();
+
     } catch (error) {
       next(error);
     }

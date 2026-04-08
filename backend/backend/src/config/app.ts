@@ -1,6 +1,7 @@
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
 import path from 'path';
+import { setErrors } from '../middleware';
 import { applyApiRouters, applyPublicRouters, applyWebHookRouters } from '../routers';
 import { corsOpenConfig, corsRestrictedConfig } from './cors';
 
@@ -12,6 +13,7 @@ export default class App {
     this.webhook();
     this.midleware();
     this.routes();
+    this.errorHandler();
     this.notFound();
   }
 
@@ -34,6 +36,10 @@ export default class App {
 
     this.express.use('/public', publicRouter);
     this.express.use('/api', privateRouter);
+  }
+
+  private errorHandler(): void {
+    this.express.use(setErrors);
   }
 
   private webhook(): void {

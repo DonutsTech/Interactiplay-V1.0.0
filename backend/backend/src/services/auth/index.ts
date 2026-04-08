@@ -8,6 +8,7 @@ import { CustomError } from "../../error";
 import type { User } from "../../generated/prisma/client";
 import { userModel } from "../../models/user";
 import { createStripeCustomer, generatedCheckout } from "../../utils/stripe";
+import { validateEmail } from "../../utils/validate";
 import { mailService } from "../mail";
 import { planService } from "../plan";
 import { userService } from "../user";
@@ -38,6 +39,8 @@ class AuthService {
 
   async register(data: RegisterUser) {
     try {
+      await validateEmail(data.EMAIL);
+
       const user = await userModel.findBy({ where: { EMAIL: data.EMAIL } });
 
       if (user && !(user.STRIPE_SUBSCRIPTON_ID === "")) {
@@ -51,6 +54,8 @@ class AuthService {
       if (!(create.STRIPE_SUBSCRIPTON_STATUS === "")) {
         throw new CustomError('Email já cadastrado, por favor utilize outro email', StatusCodes.CONFLICT);
       }
+
+      return create;
     } catch (error) {
       throw error;
     }
@@ -78,6 +83,8 @@ class AuthService {
 
   async login(body: LoginUser) {
     try {
+      await validateEmail(body.EMAIL);
+
       let user = await userModel.findBy({ where: { EMAIL: body.EMAIL } });
 
       if (!user) {
@@ -124,6 +131,8 @@ class AuthService {
 
   async forgotPassword(email: string) {
     try {
+      await validateEmail(email);
+
       const user = await userService.showEmail(email);
 
       if (!user) {

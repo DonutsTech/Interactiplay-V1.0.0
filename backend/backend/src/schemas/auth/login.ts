@@ -1,8 +1,10 @@
 import Joi from "joi";
-import { customJoi } from "../CustomJoi";
 
 const loginAuth = Joi.object().keys({
-  EMAIL: customJoi.emailMix().required(),
+  EMAIL: Joi.string().email().required().messages({
+      "string.empty": "O email é obrigatório.",
+      "string.email": "Formato de email inválido.",
+    }),
   HASHED_PASSWORD: Joi.string().required(),
 });
 
