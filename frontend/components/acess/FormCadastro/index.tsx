@@ -16,9 +16,9 @@ import ModalTermos from './ModalTermos';
 import { UserContext } from '@/context/UserContext';
 import { Register } from '@/@types/auth';
 import { postRegister } from '@/service/auth';
-import { setToken } from '@/service/token';
 import ErrorModal from '@/components/globals/ErrorModal';
 import { ErrorMessage } from '@/@types/error';
+import { sanitizeByRegex } from '@/utils/stringUtils';
 
 interface RegisterPackage {
   name: string;
@@ -50,12 +50,6 @@ const isErrorResponse = (response: unknown): response is ErrorMessage => {
     typeof (response as ErrorMessage).MESSAGE === 'string'
   );
 };
-
-interface RegisterSuccessResponse {
-  TOKEN?: string;
-  token?: string;
-};
-
 
 
 const FormCadastro = () => {
@@ -196,9 +190,10 @@ const FormCadastro = () => {
           type="text"
           placeholder="Nome completo"
           value={registerPackage.name}
-          onChange={(e) =>
-            setRegisterPackage({ ...registerPackage, name: e.target.value })
-          }
+          onChange={(e) =>{
+            const sanitized = sanitizeByRegex(e.target.value, /[^A-Za-zÀ-ÖØ-öø-ÿ' ]/g);
+            setRegisterPackage({ ...registerPackage, name: sanitized });
+          }}
         />
         <InputForm
           icon={faEnvelope}

@@ -18,7 +18,7 @@
     justify-content: center;
 
     p {
-      width: 60%;
+      width: 80%;
       min-width: 280px;
       text-align: center;
       color: $color-gray-dark-1;
@@ -26,16 +26,20 @@
   }
 
   .body {
-    width: 55%;
-    min-width: 300px;
+    width: 450px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: space-between;
+    @media (max-width: 1200px) {
+      width: 70%;
+      min-width: 300px;
+    }
 
     &_list {
       width: 100%;
+      margin: 0 auto;
       height: auto;
       display: flex;
       flex-direction: column;

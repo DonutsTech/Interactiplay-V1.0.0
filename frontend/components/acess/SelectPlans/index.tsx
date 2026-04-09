@@ -21,7 +21,13 @@ const SelectPlans = () => {
   const [planos, setPlanos] = useState<Plan[]>([]);
   const [selectPlanStatus, setSelectPlanStatus] = useState<string>(
     user.selectedPlan
-  ); // Estado para armazenar o plano selecionado
+  ); 
+
+
+
+  const handleAssinPlan = async () => {
+
+  }
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -34,7 +40,7 @@ const SelectPlans = () => {
     };
 
     fetchPlans();
-  }, []); // Log para verificar os planos no estado
+  }, []); 
 
   if (planos.length === 0) {
     return (
@@ -55,7 +61,7 @@ const SelectPlans = () => {
           loading="eager"
         />
         <div className={styles.header}>
-          <h3>Bem-vindo, {user?.name}!</h3>
+          <h3>Bem-vindo, {(user?.name).split(' ')[0]}!</h3>
           <p>Escolha o plano que melhor se encaixa para o seu Negócio.</p>
         </div>
         <div className={styles.body}>
