@@ -4,19 +4,19 @@ import SliderCardLuz from '../SliderCardLuz';
 const Benefits = () => {
   const benefitsData = [
     {
-      text: 'Maior engajamento até o pitch',
+      text: 'Mais leads chegam até a oferta',
     },
     {
-      text: 'Maior conversão',
+      text: 'Conversão maior sem gastar mais',
     },
     {
-      text: 'Mensagens personalizadas',
+      text: 'Cada lead ouve a mensagem certa',
     },
     {
-      text: 'Redução do CAC e maior ROI',
+      text: 'Menor CAC e ROI maior',
     },
     {
-      text: 'Possibilidade de criar um funil personalizado de upsell / downsell',
+      text: 'Funil personalizado de upsell e downsell',
     },
   ];
 
@@ -26,7 +26,7 @@ const Benefits = () => {
       dados={benefitsData}
       button
       href="/acess/cadastro"
-      label="Experimente 14 dias grátis"
+      label="Experimente até 14 dias grátis"
     />
   );
 };

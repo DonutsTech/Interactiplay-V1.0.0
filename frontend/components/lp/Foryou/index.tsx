@@ -40,7 +40,7 @@ const Foryou = () => {
           text: "Quem não usa vídeo de vendas"
         },
         {
-          text: "Quem busca copiar scripts prontos e não tem criatividade para construir uma mensagem própria."
+          text: "Quem espera resultados sem testar e otimizar."
         },
         {
           text: "Quem procura atalhos milagrosos em vez de estruturar um funil sólido."

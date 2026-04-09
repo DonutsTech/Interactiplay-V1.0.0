@@ -95,7 +95,7 @@ const FooterComplete = () => {
             />
           </div>
           <p className={styles.footer_description}>
-            Plataforma intuitiva para edição de vídeos para vendas.
+            Plataforma de hospedagem de vídeos interativos de vendas.
           </p>
         </div>
         {sections.map((section, index) => (
@@ -131,7 +131,7 @@ const FooterComplete = () => {
 
       </div>
       <div className={styles.footer_copyright}>
-        <p>&copy;InteractPlay - 2025 -Todos os direitos reservados</p>
+        <p>&copy;InteractiPlay - 2025 -Todos os direitos reservados</p>
         <a
           title="Acessar site da DonutsTech"
           target="__blank"

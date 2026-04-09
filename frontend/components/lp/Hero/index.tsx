@@ -31,14 +31,14 @@ const Hero = () => {
           </h1>{' '}
           <br />
           <h3 className={styles.hero_container_left_description}>
-            Apresentamos a ISL - Interacti Sales Letter: uma nova geração de
-            vídeos de vendas que adaptam a mensagem à dor do seu cliente levá-lo
-            direto à ação em tempo real.
+            Apresentamos a ISL — Interacti Sales Letter: uma nova geração de
+            vídeos de vendas que adaptam a mensagem à dor do seu cliente e o
+            levam direto à ação.
           </h3>{' '}
           <br />
           <div className={styles.hero_container_left_btn}>
             <BtnDefault
-              label="Impulsionar as minhas Vendas"
+              label="Teste gratis por até 14 dias"
               href="/acess/cadastro"
               onClick={async () => {
                 setIsLoading(true);

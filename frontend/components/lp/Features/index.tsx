@@ -88,14 +88,14 @@ const Features = () => {
           ))}
         </div>
         <div className={styles.features_container_cta}>
-          <h2>Engaje 66% Mais com Vídeos Interativos!</h2>
+          <h2>Engaje 47% Mais com Vídeos Interativos!</h2>
           <p>
-            Leve seus prospects à ação de forma mais eficiente e direta, com
-            Calls to Action otimizados e uma jornada de compra sem fricção.
-            Converta mais leads em vendas com menos esforço e em menos tempo.
+            Leve seus leads a ação de forma mais eficiente e direta com CTAS
+            otimizados e uma jornada de compra com zero fricção. Converta mais
+            leads em vendas com menos esforço.
           </p>
           <BtnDefault
-            label="Conversões Aceleradas"
+            label="Criar minha primeira ISL"
             href="/acess/cadastro"
             onClick={async () => {
               setIsLoading(true);

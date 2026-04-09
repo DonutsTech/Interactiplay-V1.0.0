@@ -14,7 +14,10 @@ import { useIsLoading } from '@/context/IsLoadingContext';
 import Link from 'next/link';
 import ModalTermos from './ModalTermos';
 import { UserContext } from '@/context/UserContext';
-import { useRouter } from 'next/router';
+import { Register } from '@/@types/auth';
+import { postRegister } from '@/service/auth';
+import { setToken } from '@/service/token';
+
 
 interface RegisterPackage {
   name: string;
@@ -41,7 +44,6 @@ const FormCadastro = () => {
     confirmPassword: '',
   });
 
-  // const router = useRouter();
 
   const disabled = () => {
     if (
@@ -65,20 +67,44 @@ const FormCadastro = () => {
     return false;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
       // Aqui você pode adicionar a lógica para enviar os dados de registro para o servidor
 
+      const body: Register = {
+        NAME: registerPackage.name,
+        EMAIL: registerPackage.email,
+        PHONE: registerPackage.phone.replace(/\D/g, ''),
+        HASHED_PASSWORD: registerPackage.password,
+      };
+
+      console.log('Dados para registro:', body);
+
+      const response = await postRegister(body);
+
+      console.log('Resposta do registro:', response);
+
+      if ('STATUS' in response && response.STATUS === 'ERROR') {
+        throw new Error(response.MESSAGE || 'Erro desconhecido ao registrar');
+      }
+
+      if (response.token || response.TOKEN) {
+        setToken(response.token || response.TOKEN);
+      }
+
+
+
       setUser((prevUser) => ({
         ...prevUser,
+        id: response.TOKEN,
         name: registerPackage.name,
         email: registerPackage.email,
       }));
 
       // router.push('/acess/plans');
-      window.location.href = '/acess/plans';
+      // window.location.href = '/acess/plans';
     } catch (error) {
       console.error('Erro ao registrar:', error);
     } finally {

@@ -45,12 +45,12 @@ const Difference = () => {
       stats: [
         {
           label: "Exposição",
-          value: "+47%",
+          value: "+44%",
           description: "Mais tempo de exposição ao vídeo"
         },
         {
           label: "Conclusão",
-          value: "≈90%",
+          value: "≈80%",
           description: "2x mais pessoas chegam à oferta"
         },
         {

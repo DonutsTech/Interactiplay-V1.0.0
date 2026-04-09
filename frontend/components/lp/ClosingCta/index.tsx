@@ -18,10 +18,10 @@ const ClosingCta = () => {
       <div className={styles.closingCta_container}>
         <div className={styles.closingCta_container_head}>
           <h2 className={styles.closingCta_container_head_title}>
-            Experimente Gratuitamente por 14 Dias
+            Experimente Gratuitamente por até 14 Dias
           </h2>
           <p className={styles.closingCta_container_head_text}>
-            No final dos 14 dias, você já verá um aumento expressivo nos seus
+            No final do teste, você já verá um aumento expressivo nos seus
             resultados.
           </p>
           </div>

@@ -18,18 +18,18 @@ const statsData: Stat[] = [
     },
     {
       number: "+41%",
-      description: "de engajamento comparado aos vídeos tradicionais",
+      description: " engajamento porque o lead participa e não só assiste",
       highlight: "mais"
     },
     {
-      number: "+47%",
-      description: "mais tempo de atenção do que os tradicionais",
+      number: "+44%",
+      description: " tempo de atenção do que os tradicionais",
       highlight: "mais"
     },
     {
       number: "5×",
-      description: "mais conversões quando o público assiste até o fim",
-      highlight: "até"
+      description: "mais conversões quando a mensagem é personalizada",
+      highlight: ""
     }
   ];
 
@@ -38,10 +38,10 @@ const statsData: Stat[] = [
       <div className={styles.socialProof_container}>
         <div className={styles.socialProof_container_header}>
           <h2 className={styles.socialProof_container_header_title}>
-            Comprovado por Estudos e Pesquisas
+            Por que vídeos interativos funcionam ?
           </h2>
           <p className={styles.socialProof_container_header_subtitle}>
-            Dados independentes que comprovam a eficácia dos vídeos interativos
+            A lógica é simples, quando o lead participa, ele presta atenção e quem presta atenção compra!
           </p>
         </div>
 
