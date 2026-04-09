@@ -18,10 +18,10 @@ COPY . .
 RUN yarn prisma generate
 
 # Tornar o entrypoint executável
-RUN chmod +x .docker/entrypoint.sh
+# RUN chmod +x .docker/entrypoint.sh
 
 # Expor porta (ajuste conforme necessário)
-EXPOSE 3000
+EXPOSE 4000
 
 # Usar o entrypoint.sh como ponto de entrada
-ENTRYPOINT [".docker/entrypoint.sh"]
+ENTRYPOINT ["sh", "-c", "yarn install && yarn prisma migrate dev --name init && yarn prisma migrate deploy && yarn run dev:full"]
