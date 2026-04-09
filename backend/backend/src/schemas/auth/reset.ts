@@ -1,10 +1,11 @@
 import Joi from "joi";
 
 const resetAuth = Joi.object().keys({
-  EMAIL: Joi.string().email().required().messages({
-      "string.empty": "O email é obrigatório.",
-      "string.email": "Formato de email inválido.",
-    }),
+  CODE: Joi.string().required().messages({
+    "string.base": "O código deve ser um texto.",
+    "string.empty": "O código é obrigatório.",
+    "any.required": "O código é obrigatório.",
+  }),
 
   HASHED_PASSWORD: Joi.string().required().messages({
     "string.base": "A senha deve ser um texto.",

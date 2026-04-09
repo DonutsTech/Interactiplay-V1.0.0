@@ -1,10 +1,8 @@
 import Joi from "joi";
+import { emailJoi } from "../customJoi";
 
 const registerAuth = Joi.object().keys({
-  EMAIL: Joi.string().email().required().messages({
-      "string.empty": "O email é obrigatório.",
-      "string.email": "Formato de email inválido.",
-    }),
+  EMAIL: emailJoi.emailMx().required(),
   HASHED_PASSWORD: Joi.string().min(6).required().messages({
     "string.base": "A senha deve ser um texto.",
     "string.empty": "A senha é obrigatória.",

@@ -1,6 +1,6 @@
 import { resolveMx } from 'dns/promises';
 import { StatusCodes } from 'http-status-codes';
-import { CustomError } from '../error';
+import { CustomError } from '../../error';
 
 export async function validateEmail(email: string) {
    const domain = email.split("@")[1];

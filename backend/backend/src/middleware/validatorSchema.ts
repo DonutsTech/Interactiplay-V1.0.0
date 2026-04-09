@@ -7,7 +7,7 @@ import schemas from '../schemas';
 const supportedMethods = ['post', 'put', 'patch', 'delete'];
 
 const validationOptions = {
-  abortEarly: false,
+  abortEarly: true,
   allowUnknown: false,
   stripUnknown: false,
 };
@@ -23,14 +23,12 @@ export const schemaValidator = (path: string): RequestHandler => {
     try {
       const method = req.method.toLowerCase();
 
+
       if (!supportedMethods.includes(method)) {
         return next();
       }
 
-      const { error, value } = await schema.validateAsync(req.body, {
-        ...validationOptions,
-        allowUnknown: true,
-      });
+      const { error, value } = schema.validate(req.body, validationOptions);
 
       if (error) {
         const messages = error.details.map((err) =>
