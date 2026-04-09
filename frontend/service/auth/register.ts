@@ -9,6 +9,7 @@ export const postRegister = async (body: Register) => {
   try {
     const { data } = await api.post(URL_REGISTER, body);
 
+
     if (!data) {
       throw MESSEGE_VALIDITY;
     }
@@ -18,3 +19,12 @@ export const postRegister = async (body: Register) => {
     return messageError(error) as ErrorMessage;
   }
 };
+
+// export const postRegister = async (body: Register) => {
+//   const { data } = await api.post(URL_REGISTER, body);
+//   console.log(data)
+//   if ('MESSAGE' in data) {
+//     return data as ErrorMessage;
+//   }
+//   return data;
+// };

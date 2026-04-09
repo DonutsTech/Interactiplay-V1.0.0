@@ -4,14 +4,20 @@ import styles from './ErrorModal.module.scss';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import logo from '@/assets/images/logo_white_dg.svg';
 import Image from 'next/image';
+import ButtonAcess from '@/components/acess/ButtonAcess';
 
 interface ErrorModalProps {
   isOpen: (show: boolean) => void;
   mensagem: string;
   type?: 'error' | 'success' | 'warning';
+  statusCode?: number;
+  butonProps?: {
+    text: string;
+    goClick: () => void;
+  };
 };
 
-const ErrorModal = ({ isOpen, mensagem, type = 'error' }: ErrorModalProps) => {
+const ErrorModal = ({ isOpen, mensagem, type = 'error', statusCode, butonProps }: ErrorModalProps) => {
   return (
     <>
       <div 
@@ -42,6 +48,11 @@ const ErrorModal = ({ isOpen, mensagem, type = 'error' }: ErrorModalProps) => {
         <p className={styles.modal_message}>
           {mensagem}
         </p>
+        {(statusCode === 409) && butonProps && (
+          <ButtonAcess 
+            {...butonProps}
+          />
+        )}
       </div>
     </>
   );

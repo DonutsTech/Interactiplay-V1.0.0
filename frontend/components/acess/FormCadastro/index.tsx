@@ -6,7 +6,7 @@ import logo from '@/assets/images/logo_white_dg.svg';
 import Image from 'next/image';
 import InputForm from '@/components/globals/InputForm';
 import { faEnvelope, faPhone, faUser } from '@fortawesome/free-solid-svg-icons';
-import { phoneMask } from '@/utils/PhoneUtils';
+import { phoneMask, validarCelularBRCompleto } from '@/utils/PhoneUtils';
 import InputPassword from '../InputPassword';
 import ButtonAcess from '../ButtonAcess';
 import { isPasswordValid } from '@/utils/isPasswordValid';
@@ -17,7 +17,7 @@ import { UserContext } from '@/context/UserContext';
 import { Register } from '@/@types/auth';
 import { postRegister } from '@/service/auth';
 import { setToken } from '@/service/token';
-
+import ErrorModal from '@/components/globals/ErrorModal';
 
 interface RegisterPackage {
   name: string;
@@ -34,8 +34,17 @@ const FormCadastro = () => {
   const [checked, setChecked] = useState(false);
   const [firstCheck, setFirstCheck] = useState(true);
   const [showTerms, setShowTerms] = useState(false);
+  const [phoneError, setPhoneError] = useState('');
+  const [modalMessage, setModalMessage] = useState(false);
   const { setIsLoading } = useIsLoading();
   const { setUser } = useContext(UserContext);
+  const [errorProps, setErrorProps] = useState({
+    isOpen: (show: boolean) => setModalMessage(show),
+    mensagem: '',
+    type: 'warning' as 'error' | 'success' | 'warning',
+    statusCode: undefined as number | undefined,
+    butonProps: undefined as { text: string; goClick: () => void } | undefined,
+  });
   const [registerPackage, setRegisterPackage] = useState<RegisterPackage>({
     name: '',
     email: '',
@@ -44,14 +53,14 @@ const FormCadastro = () => {
     confirmPassword: '',
   });
 
-
   const disabled = () => {
     if (
       registerPackage.name.trim() === '' ||
       registerPackage.email.trim() === '' ||
       registerPackage.phone.trim() === '' ||
       registerPackage.password.trim() === '' ||
-      registerPackage.confirmPassword.trim() === ''
+      registerPackage.confirmPassword.trim() === '' ||
+      phoneError
     ) {
       return true;
     }
@@ -80,11 +89,27 @@ const FormCadastro = () => {
         HASHED_PASSWORD: registerPackage.password,
       };
 
-      console.log('Dados para registro:', body);
-
       const response = await postRegister(body);
 
-      console.log('Resposta do registro:', response);
+      console.log('Resposta do registro:', response.STATUS);
+
+      if (response.MESSAGE && response.STATUS) {
+        setModalMessage(true);
+        setErrorProps({
+          isOpen: (show: boolean) => setModalMessage(show),
+          mensagem: response.MESSAGE || 'Erro desconhecido ao registrar',
+          type: 'warning',
+          statusCode: response.STATUS as number || undefined,
+          butonProps: {
+            text: 'Login',
+            goClick: () => {
+              setModalMessage(false);
+              window.location.href = '/acess/login';
+            },
+          }
+
+        });
+      }
 
       if ('STATUS' in response && response.STATUS === 'ERROR') {
         throw new Error(response.MESSAGE || 'Erro desconhecido ao registrar');
@@ -93,8 +118,6 @@ const FormCadastro = () => {
       if (response.token || response.TOKEN) {
         setToken(response.token || response.TOKEN);
       }
-
-
 
       setUser((prevUser) => ({
         ...prevUser,
@@ -114,10 +137,15 @@ const FormCadastro = () => {
 
   return (
     <section className={styles.container}>
-      <Image 
-        src={logo} 
-        alt="Logo Interactiplay" 
-        className={styles.logo} 
+      {modalMessage && 
+        <ErrorModal 
+          {...errorProps}
+        />
+      }
+      <Image
+        src={logo}
+        alt="Logo Interactiplay"
+        className={styles.logo}
         loading="lazy"
         draggable={false}
       />
@@ -149,10 +177,26 @@ const FormCadastro = () => {
           type="tel"
           placeholder="Telefone"
           value={phoneMask(registerPackage.phone)}
-          onChange={(e) =>
-            setRegisterPackage({ ...registerPackage, phone: e.target.value })
-          }
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value.length >= 10 && validarCelularBRCompleto(value)) {
+              setPhoneError('');
+              34;
+            }
+            setRegisterPackage({ ...registerPackage, phone: value });
+          }}
+          onBlur={(e) => {
+            const isValid = validarCelularBRCompleto(e.target.value);
+            if (!isValid) {
+              setPhoneError('Número de telefone inválido. Por favor verifique');
+            } else {
+              setPhoneError('');
+            }
+          }}
         />
+        {phoneError && registerPackage.phone.length > 0 && (
+          <p className={styles.phoneError}>{phoneError}</p>
+        )}
         <InputPassword
           password={registerPackage.password}
           setPassword={(p: string) =>
