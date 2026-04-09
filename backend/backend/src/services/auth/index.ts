@@ -39,13 +39,10 @@ class AuthService {
 
   async register(data: RegisterUser) {
     try {
-      console.log('aqui e o services do register');
-      await validateEmail(data.EMAIL);
-
       const user = await userModel.findBy({ where: { EMAIL: data.EMAIL } });
 
-      if (user && !(user.STRIPE_SUBSCRIPTON_ID === "")) {
-        throw new CustomError('Email já cadastrado, por favor utilize outro email', StatusCodes.CONFLICT);
+      if (user) {
+        throw new CustomError('Parece que você já possui uma conta. Por favor, acesse usando seu login.', StatusCodes.CONFLICT);
       }
 
       const stripe = await createStripeCustomer(data.EMAIL, data.NAME);
@@ -53,7 +50,7 @@ class AuthService {
       const create = await userService.create({ ...data, ...stripe});
 
       if (!(create.STRIPE_SUBSCRIPTON_STATUS === "")) {
-        throw new CustomError('Email já cadastrado, por favor utilize outro email', StatusCodes.CONFLICT);
+        throw new CustomError('Parece que você já possui uma conta. Por favor, acesse usando seu login.', StatusCodes.CONFLICT);
       }
 
       return create;
