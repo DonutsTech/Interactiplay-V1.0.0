@@ -8,6 +8,7 @@ import ButtonAcess from '@/components/acess/ButtonAcess';
 
 interface ErrorModalProps {
   isOpen: (show: boolean) => void;
+  onClose?: () => void;
   mensagem: string;
   type?: 'error' | 'success' | 'warning';
   statusCode?: number;
@@ -15,24 +16,32 @@ interface ErrorModalProps {
     text: string;
     goClick: () => void;
   };
-};
+}
 
-const ErrorModal = ({ isOpen, mensagem, type = 'error', statusCode, butonProps }: ErrorModalProps) => {
+const ErrorModal = ({
+  isOpen,
+  onClose,
+  mensagem,
+  type = 'error',
+  statusCode,
+  butonProps,
+}: ErrorModalProps) => {
   return (
     <>
-      <div 
-        className={styles.overlay}
-      />
-      <div 
-        className={styles.modal}
-      >
-        <FontAwesomeIcon 
-          icon={faClose} 
-          className={styles.closeIcon} 
-          onClick={() => isOpen(false)}
+      <div className={styles.overlay} />
+      <div className={styles.modal}>
+        <FontAwesomeIcon
+          icon={faClose}
+          className={styles.closeIcon}
+          onClick={() => {
+            isOpen(false);
+            if (onClose) {
+              onClose();
+            }
+          }}
           width={16}
         />
-        <Image 
+        <Image
           src={logo}
           alt="Logo"
           width={936}
@@ -42,16 +51,22 @@ const ErrorModal = ({ isOpen, mensagem, type = 'error', statusCode, butonProps }
           loading="lazy"
         />
         <h3 className={styles.modal_title}>
-          {type === 'error' ? 'Ocorreu um erro!' : type === 'success' ? 'Sucesso!' : 'Atenção!'}
+          {type === 'error'
+            ? 'Ocorreu um erro!'
+            : type === 'success'
+              ? 'Sucesso!'
+              : 'Atenção!'}
         </h3>
 
-        <p className={styles.modal_message}>
-          {mensagem}
-        </p>
-        {(statusCode === 409) && butonProps && (
-          <ButtonAcess 
-            {...butonProps}
-          />
+        <p className={styles.modal_message}>{mensagem}</p>
+        {statusCode === 409 && butonProps && (
+          <button 
+            onClick={butonProps.goClick}
+            disabled={false}
+            className={styles.button}
+          >
+            {butonProps.text}
+          </button>
         )}
       </div>
     </>

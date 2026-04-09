@@ -14,6 +14,7 @@ interface InputFormProps {
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   maxLength?: number;
   viewPassword?: boolean;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
 };
 
 const InputForm: React.FC<InputFormProps> = ({
@@ -24,7 +25,9 @@ const InputForm: React.FC<InputFormProps> = ({
   onChange,
   onBlur,
   maxLength,
-  viewPassword
+  viewPassword,
+  inputMode
+
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isPassowordVisible, setIsPasswordVisible] = useState(false);
@@ -46,6 +49,7 @@ const InputForm: React.FC<InputFormProps> = ({
         maxLength={maxLength}
         required
         className={styles.form_inputGroup_input}
+        inputMode={inputMode}
       />
       {viewPassword && (
         <button 

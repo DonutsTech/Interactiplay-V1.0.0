@@ -1,7 +1,7 @@
 'use client';
 
 import styles from './FormCadastro.module.scss';
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import logo from '@/assets/images/logo_white_dg.svg';
 import Image from 'next/image';
 import InputForm from '@/components/globals/InputForm';
@@ -18,6 +18,7 @@ import { Register } from '@/@types/auth';
 import { postRegister } from '@/service/auth';
 import { setToken } from '@/service/token';
 import ErrorModal from '@/components/globals/ErrorModal';
+import { ErrorMessage } from '@/@types/error';
 
 interface RegisterPackage {
   name: string;
@@ -25,123 +26,159 @@ interface RegisterPackage {
   phone: string;
   password: string;
   confirmPassword: string;
-}
+};
+
+interface ErrorModalState {
+  mensagem: string;
+  type: 'error' | 'success' | 'warning';
+  statusCode?: number;
+  butonProps?: {
+    text: string;
+    goClick: () => void;
+    disabled?: boolean;
+  };
+  onClose?: () => void;
+};
+
+const isErrorResponse = (response: unknown): response is ErrorMessage => {
+  return (
+    typeof response === 'object' &&
+    response !== null &&
+    'STATUS' in response &&
+    'MESSAGE' in response &&
+    typeof (response as ErrorMessage).STATUS === 'number' &&
+    typeof (response as ErrorMessage).MESSAGE === 'string'
+  );
+};
+
+interface RegisterSuccessResponse {
+  TOKEN?: string;
+  token?: string;
+};
+
+
 
 const FormCadastro = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [passwordFocus, setPasswordFocus] = useState(false);
   const [checked, setChecked] = useState(false);
-  const [firstCheck, setFirstCheck] = useState(true);
   const [showTerms, setShowTerms] = useState(false);
   const [phoneError, setPhoneError] = useState('');
   const [modalMessage, setModalMessage] = useState(false);
   const { setIsLoading } = useIsLoading();
   const { setUser } = useContext(UserContext);
-  const [errorProps, setErrorProps] = useState({
-    isOpen: (show: boolean) => setModalMessage(show),
-    mensagem: '',
-    type: 'warning' as 'error' | 'success' | 'warning',
-    statusCode: undefined as number | undefined,
-    butonProps: undefined as { text: string; goClick: () => void } | undefined,
-  });
-  const [registerPackage, setRegisterPackage] = useState<RegisterPackage>({
+
+  const EMPTY_FORM: RegisterPackage = {
     name: '',
     email: '',
     phone: '',
     password: '',
     confirmPassword: '',
+  };
+
+  const [errorModal, setErrorModal] = useState<ErrorModalState>({
+    mensagem: '',
+    type: 'warning',
   });
 
-  const disabled = () => {
-    if (
+  const [registerPackage, setRegisterPackage] = useState<RegisterPackage>({
+    ...EMPTY_FORM,
+  });
+
+  const isDisabled = useMemo(() => {
+    const hasEmptyField =
       registerPackage.name.trim() === '' ||
       registerPackage.email.trim() === '' ||
       registerPackage.phone.trim() === '' ||
       registerPackage.password.trim() === '' ||
-      registerPackage.confirmPassword.trim() === '' ||
-      phoneError
-    ) {
-      return true;
-    }
-    if (
+      registerPackage.confirmPassword.trim() === '';
+
+    const invalidPassword =
       registerPackage.password !== registerPackage.confirmPassword ||
-      !isPasswordValid(registerPackage.password)
-    ) {
-      return true;
-    }
-    if (!checked) {
-      return true;
-    }
-    return false;
-  };
+      !isPasswordValid(registerPackage.password);
+
+    return hasEmptyField || !!phoneError || invalidPassword || !checked;
+  }, [registerPackage, phoneError, checked]);
+
+  const handleModalClose = () => {
+    setModalMessage(false);
+    setIsLoading(false);
+    setRegisterPackage({ ...EMPTY_FORM });
+    setChecked(false);
+    setPhoneError('');
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    try {
-      // Aqui você pode adicionar a lógica para enviar os dados de registro para o servidor
 
+    try {
       const body: Register = {
-        NAME: registerPackage.name,
-        EMAIL: registerPackage.email,
+        NAME: registerPackage.name.trim(),
+        EMAIL: registerPackage.email.trim(),
         PHONE: registerPackage.phone.replace(/\D/g, ''),
         HASHED_PASSWORD: registerPackage.password,
       };
 
       const response = await postRegister(body);
 
-      console.log('Resposta do registro:', response.STATUS);
+      console.log('Resposta do registro:', response.ID);
 
-      if (response.MESSAGE && response.STATUS) {
-        setModalMessage(true);
-        setErrorProps({
-          isOpen: (show: boolean) => setModalMessage(show),
+      if (isErrorResponse(response)) {
+        setErrorModal({
           mensagem: response.MESSAGE || 'Erro desconhecido ao registrar',
           type: 'warning',
-          statusCode: response.STATUS as number || undefined,
-          butonProps: {
-            text: 'Login',
-            goClick: () => {
-              setModalMessage(false);
-              window.location.href = '/acess/login';
-            },
-          }
-
+          statusCode: response.STATUS,
+          onClose: handleModalClose,
+          butonProps:
+            response.STATUS === 409
+              ? {
+                  text: 'Login',
+                  goClick: () => {
+                    setModalMessage(false);
+                    window.location.href = '/acess/login';
+                  },
+                }
+              : undefined,
         });
+        setModalMessage(true);
+        return;
       }
 
-      if ('STATUS' in response && response.STATUS === 'ERROR') {
-        throw new Error(response.MESSAGE || 'Erro desconhecido ao registrar');
-      }
-
-      if (response.token || response.TOKEN) {
-        setToken(response.token || response.TOKEN);
-      }
 
       setUser((prevUser) => ({
         ...prevUser,
-        id: response.TOKEN,
+        id: response.ID,
         name: registerPackage.name,
         email: registerPackage.email,
       }));
 
-      // router.push('/acess/plans');
-      // window.location.href = '/acess/plans';
+      setIsLoading(false);
+      window.location.href = '/acess/plans';
     } catch (error) {
       console.error('Erro ao registrar:', error);
-    } finally {
-      setIsLoading(false);
-    }
+      setErrorModal({
+        mensagem: 'Erro desconhecido ao registrar',
+        type: 'error',
+        onClose: handleModalClose,
+      });
+      setModalMessage(true);
+    } 
   };
 
   return (
     <section className={styles.container}>
-      {modalMessage && 
-        <ErrorModal 
-          {...errorProps}
+      {modalMessage && (
+        <ErrorModal
+          isOpen={(show: boolean) => setModalMessage(show)}
+          mensagem={errorModal.mensagem}
+          type={errorModal.type}
+          statusCode={errorModal.statusCode}
+          butonProps={errorModal.butonProps}
+          onClose={errorModal.onClose}
         />
-      }
+      )}
       <Image
         src={logo}
         alt="Logo Interactiplay"
@@ -177,11 +214,11 @@ const FormCadastro = () => {
           type="tel"
           placeholder="Telefone"
           value={phoneMask(registerPackage.phone)}
+          inputMode="numeric"
           onChange={(e) => {
             const value = e.target.value;
             if (value.length >= 10 && validarCelularBRCompleto(value)) {
               setPhoneError('');
-              34;
             }
             setRegisterPackage({ ...registerPackage, phone: value });
           }}
@@ -217,10 +254,7 @@ const FormCadastro = () => {
           <input
             checked={checked}
             onChange={() => {
-              if (firstCheck) {
-                setFirstCheck(false);
-              }
-              setChecked(!checked);
+              setChecked((prev) => !prev);
             }}
             type="checkbox"
             id="terms"
@@ -230,7 +264,6 @@ const FormCadastro = () => {
             onClick={() => {
               setShowTerms(true);
               setChecked(true);
-              setFirstCheck(true);
             }}
             className={styles.form_checkbox_term}
           >
@@ -240,7 +273,7 @@ const FormCadastro = () => {
         <ButtonAcess
           text="Cadastrar"
           type="submit"
-          disabled={disabled()}
+          disabled={isDisabled}
           goClick={() => console.log('Clicou para cadastrar')}
         />
       </form>
