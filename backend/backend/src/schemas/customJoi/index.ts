@@ -1,32 +1,68 @@
 import { resolveMx } from 'dns/promises';
-import JoiBase from 'joi';
 
-export const emailJoi = JoiBase.extend((joi) => ({
-  type: 'emailMx',
-  base: joi.string(),
-  messages: {
-    "string.empty": "O email é obrigatório.",
-    'emailMx.email': 'Formato de email inválido.',
-    'emailMx.invalid': 'Um erro ocorreu ao validar o email.',
-    'emailMx.noMx': 'Domínio do email não existe',
-  },
-  async validate(value, helpers) {
-    const domain = value.split('@')[1];
+interface CustomJoi {
+  errors: string | undefined
+  values: any
+}
 
-    if (!domain) {
-      return { value, errors: helpers.error('emailMx.email') };
+export const mxRecords = async (email: string): Promise<CustomJoi> => {
+  const domain = email.split('@')[1];
+
+  if (!domain) {
+    return {
+      errors: 'O email deve conter um domínio válido.',
+      values: email,
     }
+  }
 
-    try {
-      const mxRecords = await resolveMx(domain);
+  try {
+    const mxRecords = await resolveMx(domain);
 
-      if (!mxRecords.length) {
-        return { value, errors: helpers.error('emailMx.noMx') };
+    if (!mxRecords.length) {
+      return {
+        errors: 'O domínio do email não possui registros válidos.',
+        values: email,
       }
-
-      return { value };
-    } catch {
-      return { value, errors: helpers.error('emailMx.invalid') };
     }
-  },
-}));
+
+    return {
+      errors: undefined,
+      values: email,
+    }
+  } catch {
+    return {
+      errors: 'O domínio do email não possui registros válidos.',
+      values: email,
+    }
+  }
+};
+
+const switchFunctions = async (key: string, values: any) => {
+  switch (key) {
+    case 'EMAIL':
+      return await mxRecords(values);
+    default:
+      return {
+        errors: undefined,
+        values,
+      }
+  }
+}
+
+export const customJoiAsync = async (data: any): Promise<CustomJoi> => {
+  const keys = Object.keys(data);
+  for (const key of keys) {
+    const result = await switchFunctions(key, data[key]);
+    if (result.errors) {
+      return {
+        errors: result.errors,
+        values: data,
+      }
+    }
+  }
+
+  return {
+    errors: undefined,
+    values: data,
+  }
+}

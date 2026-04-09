@@ -4,8 +4,8 @@ import { isAuthenticateToken, isAuthenticateTokenDb, schemaValidator } from "../
 
 class AuthRouter {
   public static create(router: Router): void {
-    router.post("/register", 
-      // schemaValidator('auth/register'), 
+    router.post("/register",
+      schemaValidator('auth/register'),
       authController.register);
     router.post("/login", authController.login);
     router.get("/me", isAuthenticateTokenDb, authController.me);

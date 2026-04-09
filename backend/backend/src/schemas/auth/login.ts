@@ -1,11 +1,12 @@
 import Joi from "joi";
-import { emailJoi } from "../customJoi";
 
 const loginAuth = Joi.object().keys({
-  EMAIL: emailJoi.emailMx().required().messages({
-    'emailMx.invalid': 'Email inválido',
-    'emailMx.noMx': 'Domínio do email não existe',
-  }),
+  EMAIL: Joi.string().email().messages({
+      "string.base": "O email deve ser um texto.",
+      "string.empty": "O email é obrigatório.",
+      "string.email": "O email deve ser um formato válido.",
+      "any.required": "O email é obrigatório.",
+    }),
   HASHED_PASSWORD: Joi.string().required(),
 });
 
