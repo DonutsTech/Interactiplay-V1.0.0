@@ -2,33 +2,64 @@
 
 import { UserContext } from '@/context/UserContext';
 import styles from './SucessPainel.module.scss';
-import { useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import logo from '@/assets/images/logo_white_dg.svg';
 import Image from 'next/image';
 import ButtonAcess from '../ButtonAcess';
 import { useIsLoading } from '@/context/IsLoadingContext';
+import { setToken } from '@/service/token';
+import { getMe } from '@/service/auth/me';
+import { useSearchParams } from 'next/navigation';
+import { AuthUserContext } from '@/context/AuthUserContext';
 
 
 
 
 const SucessPainel = () => {
-
-  const { user, setUserState } = useContext(UserContext);  
+  const { user, setUser } = useContext(UserContext);  
+  const { setAuthUser, authUser } = useContext(AuthUserContext);
   const { setIsLoading, isLoading } = useIsLoading();
+  const [tokenSet, setTokenSet] = useState(false);
 
-  // if (user.id === '') {
-  //   window.location.href = '/acess/login';
-  // }
+  const token = useSearchParams().get('token');
 
+  useEffect(() => {
+    const handleToken = async () => {
+      if (token && !tokenSet) {
+        setIsLoading(true);
+        setToken(token);
+        const response = await getMe();
+        if (response && 'USER' in response) {
+          console.log(response);
+          setAuthUser(response);
+          setUser({
+            ...user,
+            id: response.USER.ID,
+            name: response.USER.NAME,
+            email: response.USER.EMAIL,
 
-  const onAcess = () => {
+          });
+          setTokenSet(true);
+        }
+        setIsLoading(false);
+      }
+    };
+
+    handleToken();
+  }, []);
+
+  const handleAcessPlatform = useCallback(() => {
     setIsLoading(true);
-    // window.location.href = '/dashboard';
-
-    setTimeout(() => {
+    if (authUser?.USER.ID === user.id) {
+      window.location.href = '/dashboard';
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+    } else {
+      console.log('Usuário não autenticado');
       setIsLoading(false);
-    }, 2000);
-  }
+    }
+  }, []);
 
 
   return (
@@ -49,7 +80,7 @@ const SucessPainel = () => {
       <div className={styles.btn}>
         <ButtonAcess 
           text="Acessar a plataforma"
-          goClick={() => onAcess()}
+          goClick={handleAcessPlatform}
         />
       </div>
     </div>

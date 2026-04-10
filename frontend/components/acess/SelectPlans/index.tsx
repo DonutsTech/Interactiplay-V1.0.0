@@ -15,19 +15,57 @@ import {
   faPhotoVideo,
   faPlayCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import { useIsLoading } from '@/context/IsLoadingContext';
+import { postPaymentCheckout } from '@/service/auth';
+import { ErrorMessage } from '@/@types/error';
 
 const SelectPlans = () => {
   const { user, setUserState } = useContext(UserContext);
+  const { setIsLoading } = useIsLoading();
+  const [error, setError] = useState<string>('');
   const [planos, setPlanos] = useState<Plan[]>([]);
   const [selectPlanStatus, setSelectPlanStatus] = useState<string>(
     user.selectedPlan
   ); 
 
-
-
   const handleAssinPlan = async () => {
+    if (!selectPlanStatus) {
+      setError('Selecione um plano para prosseguir.');
+      return;
+    }
 
-  }
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await postPaymentCheckout({
+        ID_PLAN: selectPlanStatus,
+        ID_USER: user.id,
+      });
+
+      console.log('Resposta do checkout:', response);
+
+      if ('STATUS' in response && 'MESSAGE' in response) {
+        const errorResponse = response as ErrorMessage;
+        setError(errorResponse.MESSAGE || 'Erro ao seguir para o checkout.');
+        setIsLoading(false);
+        return;
+      }
+
+      if ('CHECKOUT_URL' in response && response.CHECKOUT_URL) {
+        setIsLoading(false);
+        window.location.href = response.CHECKOUT_URL;
+      } else {
+        setIsLoading(false);
+        setError('Erro ao seguir para o checkout. URL de checkout inválida.');
+      }
+
+    } catch (error) {
+      console.error('Erro ao seguir para o checkout:', error);
+      setIsLoading(false);
+      setError('Erro ao seguir para o checkout.');
+    }
+  };
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -40,7 +78,11 @@ const SelectPlans = () => {
     };
 
     fetchPlans();
-  }, []); 
+
+    if (user.selectedPlan) {
+      setSelectPlanStatus(user.selectedPlan);
+    }
+  }, [user.selectedPlan]); 
 
   if (planos.length === 0) {
     return (
@@ -49,6 +91,13 @@ const SelectPlans = () => {
       </div>
     );
   }
+
+  if (!user || !user.name || !user.id || !user.email) {
+    window.location.href = '/acess/login';
+    return null;
+  };
+
+
 
   return (
     <>
@@ -157,12 +206,8 @@ const SelectPlans = () => {
             text="Assinar"
             type="button"
             disabled={selectPlanStatus === ''}
-            goClick={() => {
-              setUserState({
-                ...user,
-                selectedPlan: selectPlanStatus,
-              })
-            }}
+            goClick={handleAssinPlan}
+            
           />
         </div>
       </div>

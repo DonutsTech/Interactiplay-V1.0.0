@@ -1,13 +1,14 @@
 import { Login } from '@/@types/auth';
 import { ErrorMessage } from '@/@types/error';
 import { messageError, MESSEGE_VALIDITY } from '@/utils/error';
-import axios from 'axios';
+import api from '../config';
+
 
 export const URL_LOGIN = `/login`;
 
 export const postLogin = async (body: Login) => {
   try {
-    const { data } = await axios.post(URL_LOGIN, body);
+    const { data } = await api.post(URL_LOGIN, body);
 
     if (!data) {
       throw MESSEGE_VALIDITY;
