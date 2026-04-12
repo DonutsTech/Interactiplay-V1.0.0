@@ -47,6 +47,7 @@ model User {
   STRIPE_SUBSCRIPTON_ID       String?
   STRIPE_SUBSCRIPTON_STATUS   String?
   STRIPE_TRIAL_END            DateTime?
+  STRIPE_TRIAL_START          DateTime?
   STRIPE_CURRENT_PERIOD_START DateTime?
   STRIPE_CURRENT_PERIOD_END   DateTime?
   PLAN                        Plan?           @relation(fields: [PLAN_ID], references: [ID])
@@ -332,4 +333,14 @@ model Pixel {
   UPDATED_AT                  DateTime? @default(now()) @updatedAt
 
   @@map("pixels")
+}
+
+model Stripe_events {
+  ID                String    @id
+  TYPE              String
+  CUSTOMER_ID       String
+  CREATED_AT        DateTime? @default(now()) @db.Timestamp(0)
+  UPDATED_AT        DateTime? @default(now()) @updatedAt
+
+  @@map("stripe_events")
 }

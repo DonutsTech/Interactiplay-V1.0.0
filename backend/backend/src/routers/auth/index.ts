@@ -11,7 +11,7 @@ class AuthRouter {
     router.get("/me", isAuthenticateTokenDb, authController.me);
     router.get("/validate-email", isAuthenticateToken, authController.validateEmail);
     router.post("/forgot-password", schemaValidator('auth/forget'), authController.forgotPassword);
-    router.post("/reset-password", isAuthenticateToken, schemaValidator('auth/reset'), authController.resetPassword);
+    router.post("/reset-password", isAuthenticateTokenDb, schemaValidator('auth/reset'), authController.resetPassword);
     router.post("/payment-checkout", schemaValidator('auth/payment'), authController.paymentCheckout);
     router.post("/send-email-validate-email", isAuthenticateTokenDb, authController.sendEmailForValidateEmail);
   }

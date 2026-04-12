@@ -160,7 +160,7 @@ class AuthService {
       const user = await userService.showId(ID);
 
       if (user && user.HASHED_TOKEN && !(await bcrypt.compare(CODE, user.HASHED_TOKEN)) ) {
-        throw new CustomError('Código de verificação inválido', StatusCodes.UNAUTHORIZED);
+        throw new CustomError('Código de verificação inválido', StatusCodes.CONFLICT);
       }
 
       await userService.update(ID, { HASHED_PASSWORD, HASHED_TOKEN: "" });

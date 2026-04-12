@@ -105,17 +105,11 @@ export const createStripeFreeCustomer = async ({ email, planId, userId, price }:
 
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
-      client_reference_id: userId,
-      items: [{ price: price, quantity: 1 }],
-      payment_behavior: 'default_incomplete',
-      collection_method: 'charge_automatically',
-      subscription_data: {
-        trial_period_days: 14,
-        metadata: {
-          userId,
-          planId,
-          price,
-        }
+      items: [{ price, quantity: 1 }],
+      metadata: {
+        userId,
+        planId,
+        price,
       }
     });
 
@@ -152,7 +146,7 @@ export const generatedCheckout = async ({ email, planId, token, userId, price }:
           userId,
           planId,
           price,
-
+          type: 'monthly_subscription',
         }
       }
     });
@@ -167,7 +161,7 @@ export const handleCheckoutSessionCompleted = async (event: {
   data: { object: Stripe.Checkout.Session }
 }) => {
   try {
-    console.log('handleCheckoutSessionCompleted', event.data.object);
+    console.log('handleCheckoutSessionCompleted - 1 ?', JSON.stringify(event.data.object));
     const idUser = event.data.object.client_reference_id as string;
     const stripeSubscriptionId = event.data.object.subscription as string;
     const stripeCustumerId = event.data.object.customer as string;
@@ -187,6 +181,7 @@ export const handleCheckoutSessionCompleted = async (event: {
     }
 
     await userService.update(idUser, {
+      ACTIVE: true,
       STRIPE_CUSTOMER_ID: stripeCustumerId,
       STRIPE_SUBSCRIPTON_ID: stripeSubscriptionId,
       ...(planId ? { PLAN: { connect: { ID: planId } } } : {}),
@@ -197,23 +192,28 @@ export const handleCheckoutSessionCompleted = async (event: {
 }
 
 export const handleSubscriptionSessionCompleted = async (event: {
-  data: { object: Stripe.Subscription }
+  data: { object: Stripe.Subscription & {
+    current_period_start?: number;
+    current_period_end?: number;
+    trial_start?: number | null;
+    trial_end?: number | null;
+   } }
 }) => {
   try {
-    console.log('handleSubscriptionSessionCompleted', event.data.object);
+    console.log('handleSubscriptionSessionCompleted - 2 ?', JSON.stringify(event.data.object));
     const subscriptionStatus = event.data.object.status;
     const stripeCustumerId = event.data.object.customer as string;
     const stripeSubscriptionId = event.data.object.id as string;
-    const stripePriceId = event.data.object.items.data[0].price.id;
     const trialEnd = event.data.object.trial_end as number | null;
     const trialStart = event.data.object.trial_start as number | null;
+    const metadata = event.data.object.metadata as { userId: string, planId: string, price: string } || undefined;
     const currentPeriodStart = event.data.object.current_period_start as number | null;
     const currentPeriodEnd = event.data.object.current_period_end as number | null;
 
     const user = await userService.showStripeCustomerId(stripeCustumerId);
 
-    if (user) {
-      const plan = await planService.getPlanByStripeId(stripePriceId);
+    if (user && metadata) {
+      const plan = await planService.showId(metadata.planId);
 
       await userService.update(user.ID, {
         STRIPE_SUBSCRIPTON_ID: stripeSubscriptionId,
@@ -236,7 +236,6 @@ export const handleCancelPlan = async (event: {
   data: { object: Stripe.Subscription }
 }) => {
   try {
-    console.log('handleCancelPlan', event.data.object);
     const stripeCustumerId = event.data.object.customer as string;
     const subscriptionStatus = event.data.object.status;
 
@@ -255,10 +254,13 @@ export const handleCancelPlan = async (event: {
 }
 
 export const handleInvoicePaid = async (event: {
-  data: { object: Stripe.Invoice }
+  data: { object: Stripe.Invoice & {
+    paid: boolean;
+    subscription?: string | null;
+   }}
 }) => {
   try {
-    console.log('handleInvoicePaid', event.data.object);
+    console.log('handleInvoicePaid - 3 ?', JSON.stringify(event.data.object));
     const stripeCustumerId = event.data.object.customer as string;
     const subscriptionId = event.data.object.subscription as string | null;
     const paid = event.data.object.paid as boolean;
@@ -301,11 +303,6 @@ export const handleInvoicePaid = async (event: {
               }
             });
 
-            await stripe.invoices.create({
-              customer: stripeCustumerId,
-              auto_advance: true,
-            });
-
             await historyPlaysService.update(currentPlays.ID, {
               STATUS: 'aguardando pagamento',
               PRICE_MONTH: value,
@@ -345,7 +342,7 @@ export const handleInvoicePaymentFailed = async (event: {
   data: { object: Stripe.Invoice }
 }) => {
   try {
-    console.log('handleInvoicePaymentFailed', event.data.object);
+    console.log('handleInvoicePaymentFailed - falhou', event.data.object);
     const stripeCustumerId = event.data.object.customer as string;
 
     const user = await userService.showStripeCustomerId(stripeCustumerId);

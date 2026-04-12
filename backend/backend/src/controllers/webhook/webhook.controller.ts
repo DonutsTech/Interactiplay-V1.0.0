@@ -27,9 +27,30 @@ class WebhookController {
       return;
     }
 
+    const getCustomerId = (event: any): string | null => {
+      const object = event.data.object as any;
+
+      if ('customer' in object) {
+        return object.customer as string;
+      }
+
+      if ('customer_id' in object) {
+        return object.customer_id as string;
+      }
+
+      return null;
+    }
+
     const getUserFromEvent = async () => {
       const obj = event.data.object as any;
-      const customerId =  obj.customer || obj.customerId || obj.client || obj?.subscription_details?.customer || '';
+
+      const customerId = getCustomerId(event);
+
+      if (!customerId) {
+        console.warn("⚠️ Customer ID não encontrado no evento, ignorando.");
+        return null;
+      }
+
       return await userService.showStripeCustomerId(customerId);
     }
 
@@ -41,7 +62,7 @@ class WebhookController {
         break;
       case 'customer.subscription.created': // sempre que uma nova assinatura é criada para um cliente na Stripe.
       case 'customer.subscription.updated':
-        if (user) {
+        if (!user) {
           // Atualize os detalhes da assinatura do usuário no banco de dados, se necessário
             console.log("⚠️ User não encontrado, ignorando evento até receber customerId.");
           break;
@@ -57,7 +78,7 @@ class WebhookController {
         }
         await handleCancelPlan(event);
         break;
-      case 'invoice.paid': // cada ciclo de cobrança gera uma nova invoice
+      case 'invoice.payment_succeeded': // cada ciclo de cobrança gera uma nova invoice
         if (!user) {
           // Atualize os detalhes da assinatura do usuário no banco de dados, se necessário
             console.log("⚠️ User não encontrado, ignorando evento até receber customerId.");
