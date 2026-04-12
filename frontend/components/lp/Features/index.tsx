@@ -1,15 +1,15 @@
 'use client';
 
 import BtnDefault from '@/components/globals/BtnDefault';
-import styles from './Features.module.scss';
-import classNames from 'classnames';
 import { useIsLoading } from '@/context/IsLoadingContext';
-import { useContext } from 'react';
 import { UserContext } from '@/context/UserContext';
+import classNames from 'classnames';
+import { useContext } from 'react';
+import styles from './Features.module.scss';
 
 const Features = () => {
   const { setIsLoading } = useIsLoading();
-  const { user, setUserState } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const featuresData = [
     {
@@ -99,7 +99,7 @@ const Features = () => {
             href="/acess/cadastro"
             onClick={async () => {
               setIsLoading(true);
-              setUserState({
+              setUser({
                 ...user,
                 selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
               });

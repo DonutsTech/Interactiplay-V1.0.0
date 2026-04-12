@@ -77,9 +77,9 @@ const FormResetPassword = () => {
 
     try {
       setIsLoading(true);
-      console.log('Pacote de reset de senha:', resetPackage);
+      // console.log('Pacote de reset de senha:', resetPackage);
       const response = await postResetPassword(resetPackage);
-      console.log('Resposta do reset de senha:', response);
+      // console.log('Resposta do reset de senha:', response);
 
       if (response && 'MESSAGE' in response && 'STATUS' in response ) {
         setShowErrorModal(true);
@@ -176,9 +176,6 @@ const FormResetPassword = () => {
             text="Resetar Senha"
             type="submit"
             disabled={isDisabled}
-            goClick={() => {
-              console.log('resetou a senha');
-            }}
           />
         </form>
       </section>

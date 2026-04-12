@@ -1,8 +1,9 @@
-import { messageError, MESSEGE_VALIDITY } from "@/utils/error";
-import api from "../config";
-import { ErrorMessage } from "@/@types/error";
+import { ErrorMessage } from '@/@types/error';
+import { Plan } from '@/@types/plan';
+import { messageError, MESSEGE_VALIDITY } from '@/utils/error';
+import api from '../config';
 
-export const URL_PLAN = "/plans";
+export const URL_PLAN = '/plans';
 
 export const getPlan = async () => {
   try {
@@ -12,7 +13,7 @@ export const getPlan = async () => {
       throw MESSEGE_VALIDITY;
     }
 
-    return data;
+    return data as Plan[];
   } catch (error: ErrorMessage | unknown) {
     return messageError(error) as ErrorMessage;
   }

@@ -10,7 +10,6 @@ import {
   useState,
 } from 'react';
 
-
 export interface UserData {
   id: string;
   name: string;
@@ -21,7 +20,6 @@ export interface UserData {
 interface UserContextType {
   user: UserData;
   setUser: Dispatch<SetStateAction<UserData>>;
-  setUserState: (userData: UserData) => void;
 }
 
 const DEFAULT_USER: UserData = {
@@ -34,34 +32,34 @@ const DEFAULT_USER: UserData = {
 const UserContext = createContext<UserContextType>({
   user: DEFAULT_USER,
   setUser: () => {},
-  setUserState: () => {},
 });
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<UserData>(DEFAULT_USER);
-
-  useEffect(() => {
-    const userTemp = localStorage.getItem('userTemp');
-    if (userTemp) {
-      setUser(JSON.parse(userTemp));
+  const [user, setUser] = useState<UserData>(() => {
+    if (typeof window === 'undefined') {
+      return DEFAULT_USER;
     }
-  }, []);
+
+    const userTemp = localStorage.getItem('userTemp');
+    if (!userTemp) {
+      return DEFAULT_USER;
+    }
+
+    try {
+      return JSON.parse(userTemp) as UserData;
+    } catch {
+      return DEFAULT_USER;
+    }
+  });
 
   useEffect(() => {
     localStorage.setItem('userTemp', JSON.stringify(user));
-    console.log('User state updated:', user);
   }, [user]);
-
-  const setUserState = (userData: UserData) => {
-    setUser(userData);
-    localStorage.setItem('userTemp', JSON.stringify(userData));
-  };
 
   const value = useMemo(
     () => ({
       user,
       setUser,
-      setUserState,
     }),
     [user]
   );

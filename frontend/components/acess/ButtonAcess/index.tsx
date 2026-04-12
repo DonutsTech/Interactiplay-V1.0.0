@@ -6,7 +6,7 @@ import { AnimatedLogo } from '@/components/globals/AnimateLogo';
 
 interface ButtonAcessProps {
   text: string;
-  goClick: () => void;
+  goClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   inline?: boolean;

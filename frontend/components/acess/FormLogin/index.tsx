@@ -11,27 +11,15 @@ import { useIsLoading } from '@/context/IsLoadingContext';
 import ButtonAcess from '../ButtonAcess';
 import { useRouter } from 'next/navigation';
 import { postLogin } from '@/service/auth';
-import { ErrorMessage } from '@/@types/error';
+import { ErrorMessage, ErrorModalState } from '@/@types/error';
 import { setToken } from '@/service/token';
 import { AuthUserContext } from '@/context/AuthUserContext';
 import { UserContext } from '@/context/UserContext';
 import ErrorModal from '@/components/globals/ErrorModal';
 
-
 interface LoginData {
   email: string;
   password: string;
-}
-
-interface ErrorModalState {
-  mensagem: string;
-  type: 'error' | 'success' | 'warning';
-  statusCode?: number;
-  butonProps?: {
-    text: string;
-    goClick: () => void;
-  };
-  onClose?: () => void;
 }
 
 const isErrorResponse = (response: unknown): response is ErrorMessage => {
@@ -69,13 +57,12 @@ const FormLogin = () => {
 
   const isDesabled = useMemo(() => {
     return !loginPackage.email.trim() || !loginPackage.password.trim();
-  },[loginPackage]);
+  }, [loginPackage]);
 
   const handleModalClose = () => {
     setModalMessage(false);
     setIsLoading(false);
-  }
-
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,34 +73,87 @@ const FormLogin = () => {
         EMAIL: loginPackage.email,
         HASHED_PASSWORD: loginPackage.password,
       });
-      console.log('Resposta do login:', response);
+      // console.log('Resposta do login:', response);
 
+      if (response && 'MESSAGE' in response && 'STATUS' in response) {
+        if (response.STATUS === 403) {
+          setUser({
+            id: response.USER.ID,
+            name: response.USER.NAME,
+            email: response.USER.EMAIL,
+            selectedPlan: '',
+          });
+          setModalMessage(true);
+          setErrorModal({
+            mensagem: response.MESSAGE,
+            type: 'warning',
+            statusCode: response.STATUS,
+            onClose: handleModalClose,
+            butonProps: {
+              text: 'Escolher o Plano',
+              goClick: () => {
+                setIsLoading(false);
+                setModalMessage(false);
+                router.push('/acess/plans');
+              },
+            },
+          });
+        }
 
-      if (response.STATUS === 403) {
-        setUser({
-          id: response.USER.ID,
-          name: response.USER.NAME,
-          email: response.USER.EMAIL,
-          selectedPlan: '',
-        })
+        if (response.STATUS === 402) {
+          setModalMessage(true);
+          setErrorModal({
+            mensagem: response.MESSAGE,
+            type: 'warning',
+            statusCode: response.STATUS,
+            onClose: handleModalClose,
+            butonProps: {
+              text: 'Renovar Plano',
+              goClick: () => {
+                handleModalClose();
+                window.open(`${response.PORTAL}`, '_blank');
+              },
+            },
+          });
+        }
 
+        if (response.STATUS === 401) {
+          setModalMessage(true);
+          setErrorModal({
+            mensagem: response.MESSAGE,
+            type: 'warning',
+            statusCode: response.STATUS,
+            onClose: handleModalClose,
+          });
+          setModalMessage(true);
+          setTimeout(() => {
+            handleModalClose();
+          }, 5000);
+        }
+      }
+
+      if (
+        response &&
+        'ACCESTOKEN' in response &&
+        !('MESSAGE' in response || 'STATUS' in response)
+      ) {
+        setToken(response.ACCESTOKEN);
+        await loadAuthUser();
         setModalMessage(true);
-
         setErrorModal({
-          mensagem: response.MESSAGE,
-          type: 'warning',
-          statusCode: response.STATUS,
-          butonProps: {
-            text: 'Escolher o Plano', 
-            goClick: () => {
-              setIsLoading(false);
-              router.push('/acess/plans')
-            }
-          }
-        })
-
-
-      };
+          mensagem: 'Login realizado com sucesso!',
+          type: 'success',
+          onClose: () => {
+            router.push('/dashboard');
+            handleModalClose();
+          },
+        });
+        setTimeout(() => {
+          router.push('/dashboard');
+          handleModalClose();
+        }, 3000);
+      }
+      
     } catch (error) {
       console.error('Erro ao fazer login:', error);
       setErrorModal({
@@ -125,17 +165,16 @@ const FormLogin = () => {
     }
   };
 
-
   return (
     <div className={styles.container}>
       {modalMessage && (
-        <ErrorModal 
+        <ErrorModal
           isOpen={(show: boolean) => setModalMessage(show)}
           mensagem={errorModal.mensagem}
           type={errorModal.type}
           statusCode={errorModal.statusCode}
           butonProps={errorModal.butonProps}
-          onClose={handleModalClose}
+          onClose={errorModal.onClose}
         />
       )}
       <Image
@@ -159,7 +198,10 @@ const FormLogin = () => {
             placeholder="Digite seu email"
             value={loginPackage.email}
             onChange={(e) =>
-              setLoginPackage((prev : LoginData) => ({ ...prev, email: e.target.value }))
+              setLoginPackage((prev: LoginData) => ({
+                ...prev,
+                email: e.target.value,
+              }))
             }
           />
           <InputForm
@@ -169,7 +211,7 @@ const FormLogin = () => {
             value={loginPackage.password}
             viewPassword
             onChange={(e) =>
-              setLoginPackage((prev : LoginData) => ({
+              setLoginPackage((prev: LoginData) => ({
                 ...prev,
                 password: e.target.value,
               }))
@@ -189,7 +231,6 @@ const FormLogin = () => {
         </div>
         <ButtonAcess
           text="Entrar"
-          goClick={() => handleSubmit}
           disabled={isDesabled}
         />
       </form>

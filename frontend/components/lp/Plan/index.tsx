@@ -1,8 +1,16 @@
-import { useEffect, useState } from 'react';
+// import { isErrorMessage } from '@/@types/error';
+import { ErrorMessage } from '@/@types/error';
 import type { Plan } from '@/@types/plan';
-import styles from './Plan.module.scss';
 import { getPlan } from '@/service/plan';
+import { useEffect, useState } from 'react';
+import styles from './Plan.module.scss';
 import PlanCards from './PlanCards';
+
+const isErrorMessage = (value: unknown): value is ErrorMessage =>
+  typeof value === 'object' &&
+  value !== null &&
+  'STATUS' in value &&
+  'MESSAGE' in value;
 
 const Plan = () => {
   const [planos, setPlanos] = useState<Plan[]>([]);
@@ -60,18 +68,15 @@ const Plan = () => {
     const fetchPlans = async () => {
       try {
         const data = await getPlan();
-        console.log(data);
 
-        // #apagar remover esse bloco antes do deploy
-          if (!data || data.length === 0) {
-            setMockado(true);
-            setPlanos(mockPlan);
-            return;
-          } else {
-            setPlanos(data.reverse());
-            setMockado(false);
-          }
-        // #apagar remover esse bloco antes do deploy
+        if (isErrorMessage(data) || data.length === 0) {
+          setMockado(true);
+          setPlanos(mockPlan);
+          return;
+        }
+
+        setPlanos([...data].reverse());
+        setMockado(false);
       } catch (error) {
         console.error('Erro ao buscar planos:', error);
         setMockado(true);

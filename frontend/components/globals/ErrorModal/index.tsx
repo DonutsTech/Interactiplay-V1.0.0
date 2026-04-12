@@ -1,10 +1,9 @@
 'use client';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import styles from './ErrorModal.module.scss';
-import { faClose } from '@fortawesome/free-solid-svg-icons';
 import logo from '@/assets/images/logo_white_dg.svg';
+import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
-import ButtonAcess from '@/components/acess/ButtonAcess';
+import styles from './ErrorModal.module.scss';
 
 interface ErrorModalProps {
   isOpen: (show: boolean) => void;
@@ -59,15 +58,16 @@ const ErrorModal = ({
         </h3>
 
         <p className={styles.modal_message}>{mensagem}</p>
-        {(statusCode === 409 || statusCode === 403) && butonProps && (
-          <button 
-            onClick={butonProps.goClick}
-            disabled={false}
-            className={styles.button}
-          >
-            {butonProps.text}
-          </button>
-        )}
+        {(statusCode === 409 || statusCode === 403 || statusCode === 402) &&
+          butonProps && (
+            <button
+              onClick={butonProps.goClick}
+              disabled={false}
+              className={styles.button}
+            >
+              {butonProps.text}
+            </button>
+          )}
       </div>
     </>
   );

@@ -33,7 +33,7 @@ const FormForgotPassword = () => {
 
     try {
       const response = await postForgotPassword({ EMAIL: email });
-      console.log(response);
+      // console.log(response);
 
       if (response && 'MESSAGE' in response && 'STATUS' in response) {
         setShowErrorModal(true);

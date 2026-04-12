@@ -1,67 +1,73 @@
 'use client';
 
-import styles from './ValidateEmail.module.scss';
-import LoadingModal from '@/components/globals/LoadingModal';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import type { ErrorMessage } from '@/@types/error';
 import logo from '@/assets/images/logo_white_dg.svg';
+import LoadingModal from '@/components/globals/LoadingModal';
+import { AuthUserContext } from '@/context/AuthUserContext';
+import { useIsLoading } from '@/context/IsLoadingContext';
+import { UserContext } from '@/context/UserContext';
+import { getValidateEmail } from '@/service/auth/validateemail';
 import Image from 'next/image';
-import ButtonAcess from '../ButtonAcess';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useContext, useEffect, useRef } from 'react';
-import { AuthUserContext } from '@/context/AuthUserContext';
-import { UserContext, UserData } from '@/context/UserContext';
-import { MeResponse } from '@/@types/auth';
-import { getMe } from '@/service/auth/me';
-import { getValidateEmail } from '@/service/auth/validateemail';
+import ButtonAcess from '../ButtonAcess';
+import styles from './ValidateEmail.module.scss';
+
+const isErrorResponse = (value: unknown): value is ErrorMessage =>
+  typeof value === 'object' &&
+  value !== null &&
+  'STATUS' in value &&
+  'MESSAGE' in value;
 
 const ValidateEmail = () => {
   const mountedRef = useRef(true);
   const { isLoading, setIsLoading } = useIsLoading();
-  const { loadAuthUser, authUser, setAuthUser } = useContext(AuthUserContext);
-  const { user, setUser } = useContext(UserContext);
+  const { loadAuthUser } = useContext(AuthUserContext);
+  const { user } = useContext(UserContext);
   const router = useRouter();
   const token = useSearchParams().get('token');
 
   useEffect(() => {
-    setIsLoading(true);
     return () => {
       mountedRef.current = false;
     };
   }, []);
 
-  // Verificar se o token existe e é válido
-  if (!token) {
-    router.push('/acess/login');
-    return null;
-  }
+  useEffect(() => {
+    if (!token) {
+      router.replace('/acess/login');
+    }
+  }, [token, router]);
 
   useEffect(() => {
+    if (!token) return;
+
     const handleToken = async () => {
-      if (!token || '') return;
+      setIsLoading(true);
 
       try {
-        
-      setIsLoading(true);
-      const data = await getValidateEmail(token);
-      if (!mountedRef.current || !data) return;
-      console.log('data:', data);
-      loadAuthUser();
+        const data = await getValidateEmail(token);
+        if (!mountedRef.current) return;
 
-      } catch (error) {
-        console.error('Erro ao validar email:', error);
-        setIsLoading(false);
-        router.push('/acess/login');
+        if (isErrorResponse(data)) {
+          router.replace('/acess/login');
+          return;
+        }
+
+        await loadAuthUser();
+      } catch {
+        if (mountedRef.current) {
+          router.replace('/acess/login');
+        }
       } finally {
-        setIsLoading(false);
+        if (mountedRef.current) {
+          setIsLoading(false);
+        }
       }
     };
 
     handleToken();
-
-  }, []);
-
-  // Aqui você pode fazer uma chamada à API para validar o token
-  // Se o token for inválido, você pode redirecionar o usuário para uma página de erro ou exibir uma mensagem
+  }, [token, router, loadAuthUser, setIsLoading]);
 
   return (
     <>
@@ -75,7 +81,7 @@ const ValidateEmail = () => {
           loading="lazy"
         />
         <div className={styles.header}>
-          <h4>{(user.name).split(' ')[0]}</h4>
+          <h4>{(user.name || 'Usuário').split(' ')[0]}</h4>
           <h3>Obrigado por validar seu email!</h3>
           <p>
             Agora você pode acessar sua conta e aproveitar todos os benefícios
@@ -85,9 +91,7 @@ const ValidateEmail = () => {
         <div className={styles.btn}>
           <ButtonAcess
             text="Acessar minha conta"
-            goClick={() => {
-              router.push('/acess/login');
-            }}
+            goClick={() => router.push('/acess/login')}
           />
         </div>
       </section>

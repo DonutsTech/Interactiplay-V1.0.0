@@ -1,16 +1,16 @@
 'use client';
 
-import styles from './Hero.module.scss';
-import { useContext, useEffect, useState } from 'react';
 import BtnDefault from '@/components/globals/BtnDefault';
 import { useIsLoading } from '@/context/IsLoadingContext';
 import { UserContext } from '@/context/UserContext';
+import { useContext, useEffect, useState } from 'react';
+import styles from './Hero.module.scss';
 
 const Hero = () => {
   const [mounted, setMounted] = useState(false);
 
   const { setIsLoading } = useIsLoading();
-  const { setUserState, user } = useContext(UserContext);
+  const { setUser, user } = useContext(UserContext);
 
   useEffect(() => {
     setMounted(true);
@@ -42,7 +42,7 @@ const Hero = () => {
               href="/acess/cadastro"
               onClick={async () => {
                 setIsLoading(true);
-                setUserState({
+                setUser({
                   ...user,
                   selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
                 });
@@ -76,7 +76,7 @@ const Hero = () => {
               href="/acess/cadastro"
               onClick={async () => {
                 setIsLoading(true);
-                setUserState({
+                setUser({
                   ...user,
                   selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
                 });

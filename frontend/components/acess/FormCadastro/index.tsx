@@ -109,7 +109,7 @@ const FormCadastro = () => {
 
       const response = await postRegister(body);
 
-      console.log('Resposta do registro:', response.ID);
+      // console.log('Resposta do registro:', response.ID);
 
       if (isErrorResponse(response)) {
         setErrorModal({
@@ -141,7 +141,7 @@ const FormCadastro = () => {
       }));
 
       setIsLoading(false);
-      window.location.href = '/acess/plans';
+      router.push('/acess/plans');
     } catch (error) {
       console.error('Erro ao registrar:', error);
       setErrorModal({
@@ -261,7 +261,6 @@ const FormCadastro = () => {
           text="Cadastrar"
           type="submit"
           disabled={isDisabled}
-          goClick={() => console.log('Clicou para cadastrar')}
         />
       </form>
       <div className={styles.container_text}>

@@ -1,13 +1,12 @@
 import BtnDefault from '@/components/globals/BtnDefault';
-import styles from './ClosingCta.module.scss';
+import { useIsLoading } from '@/context/IsLoadingContext';
 import { UserContext } from '@/context/UserContext';
 import { useContext } from 'react';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import styles from './ClosingCta.module.scss';
 
 const ClosingCta = () => {
   const { setIsLoading } = useIsLoading();
-  const { user, setUserState } = useContext(UserContext);
-
+  const { user, setUser } = useContext(UserContext);
 
   return (
     <section
@@ -24,21 +23,21 @@ const ClosingCta = () => {
             No final do teste, você já verá um aumento expressivo nos seus
             resultados.
           </p>
-          </div>
-          <div className={styles.closingCta_container_btn}>
-          <BtnDefault 
+        </div>
+        <div className={styles.closingCta_container_btn}>
+          <BtnDefault
             label="Experimentar Grátis"
-            href='/acess/cadastro'
+            href="/acess/cadastro"
             onClick={async () => {
-                setIsLoading(true);
-                setUserState({
-                  ...user,
-                  selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
-                });
-                setTimeout(() => {
-                  setIsLoading(false);
-                }, 1200);
-              }}
+              setIsLoading(true);
+              setUser({
+                ...user,
+                selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
+              });
+              setTimeout(() => {
+                setIsLoading(false);
+              }, 1200);
+            }}
           />
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { AppProvider } from '@/context';
 import type { Metadata } from 'next';
 import './dashboard.scss';
+import RotaCheck from '@/components/plataform/RotaCheck';
 
 export const metadata: Metadata = {
   title: 'Interactiplay - Plataforma',
@@ -16,11 +17,5 @@ export default function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="pt-BR">
-      <AppProvider>
-        <body className="antialiased">{children}</body>
-      </AppProvider>
-    </html>
-  );
+  return <RotaCheck>{children}</RotaCheck>;
 }

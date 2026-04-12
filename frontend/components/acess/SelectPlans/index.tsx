@@ -1,62 +1,64 @@
 'use client';
 
-import { useContext, useEffect, useState } from 'react';
-import styles from './SelectPlans.module.scss';
-import { UserContext, UserData } from '@/context/UserContext';
-import logo from '@/assets/images/logo_white_dg.svg';
-import Image from 'next/image';
-import ButtonAcess from '../ButtonAcess';
+import { ErrorMessage, isErrorMessage } from '@/@types/error';
 import { Plan } from '@/@types/plan';
+import logo from '@/assets/images/logo_white_dg.svg';
+import { useIsLoading } from '@/context/IsLoadingContext';
+import { UserContext, UserData } from '@/context/UserContext';
+import { postPaymentCheckout } from '@/service/auth';
 import { getPlan } from '@/service/plan';
-import classNames from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGift,
   faPhotoVideo,
   faPlayCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import { useIsLoading } from '@/context/IsLoadingContext';
-import { postPaymentCheckout } from '@/service/auth';
-import { ErrorMessage } from '@/@types/error';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import classNames from 'classnames';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useContext, useEffect, useState } from 'react';
+import ButtonAcess from '../ButtonAcess';
+import styles from './SelectPlans.module.scss';
 
 const SelectPlans = () => {
-  const { user, setUserState } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const { setIsLoading } = useIsLoading();
   const [error, setError] = useState<string>('');
   const [planos, setPlanos] = useState<Plan[]>([]);
   const [selectPlanStatus, setSelectPlanStatus] = useState<string>(
     user.selectedPlan
-  ); 
+  );
   const router = useRouter();
 
   const handleAssinPlan = async () => {
-    if (!selectPlanStatus) {
+    const planId = selectPlanStatus?.trim();
+
+    if (!planId) {
       setError('Selecione um plano para prosseguir.');
       return;
     }
 
-    setUserState({
-      ...user,
-      selectedPlan: selectPlanStatus,
-    } as UserData);
     setIsLoading(true);
     setError('');
 
+    setUser({
+      ...user,
+      selectedPlan: planId,
+    } as UserData);
+
     try {
       const response = await postPaymentCheckout({
-        ID_PLAN: user.selectedPlan,
+        ID_PLAN: planId,
         ID_USER: user.id,
       });
 
-      
       if ('STATUS' in response && 'MESSAGE' in response) {
         const errorResponse = response as ErrorMessage;
         setError(errorResponse.MESSAGE || 'Erro ao seguir para o checkout.');
         setIsLoading(false);
         return;
       }
-      
+
       if ('LINK' in response && response.LINK) {
         console.log('Resposta do checkout:', response.LINK);
         setIsLoading(false);
@@ -65,7 +67,6 @@ const SelectPlans = () => {
         setIsLoading(false);
         setError('Erro ao seguir para o checkout. URL de checkout inválida.');
       }
-
     } catch (error) {
       console.error('Erro ao seguir para o checkout:', error);
       setIsLoading(false);
@@ -77,6 +78,16 @@ const SelectPlans = () => {
     const fetchPlans = async () => {
       try {
         const data = await getPlan();
+        if (isErrorMessage(data)) {
+          setError(data.MESSAGE || 'Erro ao buscar planos.');
+          return;
+        }
+
+        if (data.length === 0) {
+          setError('Nenhum plano disponível no momento.');
+          return;
+        }
+
         setPlanos(data.reverse());
       } catch (error) {
         console.error('Erro ao buscar planos:', error);
@@ -88,7 +99,7 @@ const SelectPlans = () => {
     if (user.selectedPlan) {
       setSelectPlanStatus(user.selectedPlan);
     }
-  }, [user.selectedPlan]); 
+  }, [user.selectedPlan]);
 
   if (planos.length === 0) {
     return (
@@ -99,11 +110,9 @@ const SelectPlans = () => {
   }
 
   if (!user || !user.name || !user.id || !user.email) {
-    window.location.href = '/acess/login';
+    router.push('/acess/login');
     return null;
-  };
-
-
+  }
 
   return (
     <>
@@ -166,7 +175,7 @@ const SelectPlans = () => {
                       return;
                     }
                     setSelectPlanStatus(plan.ID);
-                    setUserState({
+                    setUser({
                       ...user,
                       selectedPlan: plan.ID,
                     } as UserData);
@@ -217,7 +226,6 @@ const SelectPlans = () => {
             type="button"
             disabled={selectPlanStatus === ''}
             goClick={handleAssinPlan}
-            
           />
         </div>
       </div>

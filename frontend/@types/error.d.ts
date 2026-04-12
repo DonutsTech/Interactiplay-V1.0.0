@@ -1,11 +1,10 @@
-import { MeResponse } from "./auth";
+import { MeResponse } from './auth';
 
 export interface ErrorMessage {
   STATUS: number;
   MESSAGE: string;
   DATA?: MeResponse['USER'] | null;
 }
-
 
 export interface ErrorModalState {
   mensagem: string;
@@ -17,4 +16,10 @@ export interface ErrorModalState {
     disabled?: boolean;
   };
   onClose?: () => void;
-};
+}
+
+export const isErrorMessage = (value: unknown): value is ErrorMessage =>
+  typeof value === 'object' &&
+  value !== null &&
+  'STATUS' in value &&
+  'MESSAGE' in value;

@@ -1,22 +1,22 @@
 'use client';
 
+import { MeResponse } from '@/@types/auth';
+import { ErrorMessage } from '@/@types/error';
+import { getMe } from '@/service/auth/me';
+import { hasToken, removeToken } from '@/service/token';
 import {
   createContext,
   ReactNode,
-  useMemo,
-  useState,
   useCallback,
   useEffect,
+  useMemo,
+  useState,
 } from 'react';
-import { MeResponse } from '@/@types/auth';
-import { ErrorMessage } from '@/@types/error';
-import { hasToken, removeToken } from '@/service/token';
-import { getMe } from '@/service/auth/me';
 
 interface AuthUserContextType {
   authUser: MeResponse | null;
   setAuthUser: (userData: MeResponse | null) => void;
-  loadAuthUser: () => Promise<boolean>;
+  loadAuthUser: () => Promise<MeResponse | null>;
   logout: () => void;
   isLoading: boolean;
   error: string | null;
@@ -26,7 +26,7 @@ interface AuthUserContextType {
 const AuthUserContext = createContext<AuthUserContextType>({
   authUser: null,
   setAuthUser: () => {},
-  loadAuthUser: async () => false,
+  loadAuthUser: async () => null,
   logout: () => {},
   isLoading: false,
   error: null,
@@ -38,9 +38,8 @@ const AuthUserProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-
   const isAuthenticated = useMemo(() => {
-    console.log('Usuario Altenticado:', authUser);
+    // console.log('Usuario Altenticado:', authUser);
     return hasToken() && authUser !== null;
   }, [authUser]);
 
@@ -49,12 +48,10 @@ const AuthUserProvider = ({ children }: { children: ReactNode }) => {
     setAuthUserState(userData);
     setError(null);
   }, []);
-
-  // Função para buscar usuário da API usando o token
-  const loadAuthUser = useCallback(async (): Promise<boolean> => {
+  const loadAuthUser = useCallback(async (): Promise<MeResponse | null> => {
     if (!hasToken()) {
       setError('Token não encontrado');
-      return false;
+      return null;
     }
 
     setIsLoading(true);
@@ -67,29 +64,27 @@ const AuthUserProvider = ({ children }: { children: ReactNode }) => {
         const errorResponse = response as ErrorMessage;
         setError(errorResponse.MESSAGE);
         setIsLoading(false);
-        
-        // Se o token for inválido, remove o usuário
+
         if (errorResponse.STATUS === 401) {
           setAuthUserState(null);
           removeToken();
         }
-        
-        return false;
 
+        return null;
       }
 
-      setAuthUserState(response as MeResponse);
+      const authenticatedUser = response as MeResponse;
+      setAuthUserState(authenticatedUser);
       setIsLoading(false);
-      return true;
+      return authenticatedUser;
     } catch (err) {
       console.error('Erro ao carregar usuário autenticado:', err);
       setError('Erro ao carregar dados do usuário.');
       setIsLoading(false);
-      return false;
+      return null;
     }
   }, []);
 
-  // Função para fazer logout (remove token e limpa dados)
   const logout = useCallback(() => {
     setAuthUserState(null);
     setError(null);
@@ -113,7 +108,15 @@ const AuthUserProvider = ({ children }: { children: ReactNode }) => {
       error,
       isAuthenticated,
     }),
-    [authUser, setAuthUser, loadAuthUser, logout, isLoading, error, isAuthenticated]
+    [
+      authUser,
+      setAuthUser,
+      loadAuthUser,
+      logout,
+      isLoading,
+      error,
+      isAuthenticated,
+    ]
   );
 
   return (
