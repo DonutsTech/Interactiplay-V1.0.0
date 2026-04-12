@@ -17,7 +17,7 @@ import { UserContext } from '@/context/UserContext';
 import { Register } from '@/@types/auth';
 import { postRegister } from '@/service/auth';
 import ErrorModal from '@/components/globals/ErrorModal';
-import { ErrorMessage } from '@/@types/error';
+import { ErrorMessage, ErrorModalState } from '@/@types/error';
 import { sanitizeByRegex } from '@/utils/stringUtils';
 import { useRouter } from 'next/navigation';
 
@@ -29,17 +29,7 @@ interface RegisterPackage {
   confirmPassword: string;
 };
 
-interface ErrorModalState {
-  mensagem: string;
-  type: 'error' | 'success' | 'warning';
-  statusCode?: number;
-  butonProps?: {
-    text: string;
-    goClick: () => void;
-    disabled?: boolean;
-  };
-  onClose?: () => void;
-};
+
 
 const isErrorResponse = (response: unknown): response is ErrorMessage => {
   return (

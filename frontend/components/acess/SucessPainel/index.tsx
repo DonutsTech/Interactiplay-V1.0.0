@@ -53,7 +53,7 @@ const SucessPainel = () => {
 
         setTokenSet(true);
 
-        router.replace('/acess/sucess', { scroll: false });
+        router.replace('/acess/success', { scroll: false });
       }else {
         setError('Erro ao carregar dados do usuário. Por favor, tente novamente.');
       }

@@ -86,7 +86,7 @@ const FormLogin = () => {
         EMAIL: loginPackage.email,
         HASHED_PASSWORD: loginPackage.password,
       });
-      console.log('Resposta do login:', response.USER.ID);
+      console.log('Resposta do login:', response);
 
 
       if (response.STATUS === 403) {
@@ -135,7 +135,7 @@ const FormLogin = () => {
           type={errorModal.type}
           statusCode={errorModal.statusCode}
           butonProps={errorModal.butonProps}
-          onClose={errorModal.onClose}
+          onClose={handleModalClose}
         />
       )}
       <Image

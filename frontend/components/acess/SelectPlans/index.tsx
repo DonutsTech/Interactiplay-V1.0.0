@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from 'react';
 import styles from './SelectPlans.module.scss';
-import { UserContext } from '@/context/UserContext';
+import { UserContext, UserData } from '@/context/UserContext';
 import logo from '@/assets/images/logo_white_dg.svg';
 import Image from 'next/image';
 import ButtonAcess from '../ButtonAcess';
@@ -18,6 +18,7 @@ import {
 import { useIsLoading } from '@/context/IsLoadingContext';
 import { postPaymentCheckout } from '@/service/auth';
 import { ErrorMessage } from '@/@types/error';
+import { useRouter } from 'next/navigation';
 
 const SelectPlans = () => {
   const { user, setUserState } = useContext(UserContext);
@@ -27,6 +28,7 @@ const SelectPlans = () => {
   const [selectPlanStatus, setSelectPlanStatus] = useState<string>(
     user.selectedPlan
   ); 
+  const router = useRouter();
 
   const handleAssinPlan = async () => {
     if (!selectPlanStatus) {
@@ -34,27 +36,31 @@ const SelectPlans = () => {
       return;
     }
 
+    setUserState({
+      ...user,
+      selectedPlan: selectPlanStatus,
+    } as UserData);
     setIsLoading(true);
     setError('');
 
     try {
       const response = await postPaymentCheckout({
-        ID_PLAN: selectPlanStatus,
+        ID_PLAN: user.selectedPlan,
         ID_USER: user.id,
       });
 
-      console.log('Resposta do checkout:', response);
-
+      
       if ('STATUS' in response && 'MESSAGE' in response) {
         const errorResponse = response as ErrorMessage;
         setError(errorResponse.MESSAGE || 'Erro ao seguir para o checkout.');
         setIsLoading(false);
         return;
       }
-
-      if ('CHECKOUT_URL' in response && response.CHECKOUT_URL) {
+      
+      if ('LINK' in response && response.LINK) {
+        console.log('Resposta do checkout:', response.LINK);
         setIsLoading(false);
-        window.location.href = response.CHECKOUT_URL;
+        router.push(response.LINK);
       } else {
         setIsLoading(false);
         setError('Erro ao seguir para o checkout. URL de checkout inválida.');
@@ -160,6 +166,10 @@ const SelectPlans = () => {
                       return;
                     }
                     setSelectPlanStatus(plan.ID);
+                    setUserState({
+                      ...user,
+                      selectedPlan: plan.ID,
+                    } as UserData);
                   }}
                 >
                   <h4>{plan.PLAN}</h4>

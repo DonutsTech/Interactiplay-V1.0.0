@@ -40,6 +40,7 @@ const AuthUserProvider = ({ children }: { children: ReactNode }) => {
 
 
   const isAuthenticated = useMemo(() => {
+    console.log('Usuario Altenticado:', authUser);
     return hasToken() && authUser !== null;
   }, [authUser]);
 
@@ -74,6 +75,7 @@ const AuthUserProvider = ({ children }: { children: ReactNode }) => {
         }
         
         return false;
+
       }
 
       setAuthUserState(response as MeResponse);

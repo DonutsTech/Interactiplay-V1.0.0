@@ -13,8 +13,10 @@ interface InputFormProps {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   maxLength?: number;
+  minLength?: number;
   viewPassword?: boolean;
   inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
+  className?: string;
 };
 
 const InputForm: React.FC<InputFormProps> = ({
@@ -25,8 +27,10 @@ const InputForm: React.FC<InputFormProps> = ({
   onChange,
   onBlur,
   maxLength,
+  minLength,
   viewPassword,
-  inputMode
+  inputMode,
+  className
 
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,8 +51,9 @@ const InputForm: React.FC<InputFormProps> = ({
         onChange={onChange}
         onBlur={onBlur}
         maxLength={maxLength}
+        minLength={minLength}
         required
-        className={styles.form_inputGroup_input}
+        className={`${styles.form_inputGroup_input} ${className || ''}`}
         inputMode={inputMode}
       />
       {viewPassword && (

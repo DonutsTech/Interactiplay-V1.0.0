@@ -3,6 +3,12 @@ export interface Login {
   HASHED_PASSWORD: string;
 }
 
+export interface ResetPassword {
+  TOKEN: string;
+  HASHED_PASSWORD: string;
+  CODE: string;
+}
+
 export interface Register extends Login {
   NAME: string;
   PHONE: string;

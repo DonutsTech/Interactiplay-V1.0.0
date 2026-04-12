@@ -1,14 +1,13 @@
-import { ErrorMessage } from "@/@types/error";
-import { CheckoutPlanRegister } from "@/@types/plan";
-import api from "../config";
-import { MESSEGE_VALIDITY } from "@/utils/error";
-
+import { ErrorMessage } from '@/@types/error';
+import { CheckoutPlanRegister } from '@/@types/plan';
+import api from '../config';
+import { MESSEGE_VALIDITY } from '@/utils/error';
 
 export const URL_PAYMENT_CHECKOUT = '/payment-checkout';
 
 export interface PaymentCheckoutResponse {
-  CHECKOUT_URL: string;
-};
+  LINK: string;
+}
 
 export const postPaymentCheckout = async (
   body: CheckoutPlanRegister
@@ -20,13 +19,12 @@ export const postPaymentCheckout = async (
       throw MESSEGE_VALIDITY;
     }
 
-    if (typeof data !== 'string' || data.trim() === '') {
+    if (!(typeof data === 'object')) {
       throw MESSEGE_VALIDITY;
     }
 
-    return {
-      CHECKOUT_URL: data,
-    };
+    return data;
+
   } catch (error: ErrorMessage | unknown) {
     return error as ErrorMessage;
   }
