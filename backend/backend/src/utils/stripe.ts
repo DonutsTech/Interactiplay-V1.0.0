@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import Stripe from "stripe";
-import type { FunctionCheckout, FunctionCheckoutFree } from "../@types/interface/function";
+import type { FunctionCheckout, FunctionCheckoutFree, FunctionUpdateFinishTrial } from "../@types/interface/function";
 import { CustomError } from "../error";
 import { handleStripeError } from "../error/errorStripe";
 import type { Plan } from "../generated/prisma/client";
@@ -26,10 +26,11 @@ export const getStripeProducts = async () => {
 
 export const getStripeCustomerByEmail = async (email: string) => {
   try {
-    const customers = await stripe.customers.list({
-      email,
-      limit: 1,
+    const customers = await stripe.customers.search({
+      query: `email:'${email}'`,
     });
+
+    console.log('getStripeCustomerByEmail ?', customers);
 
     return customers.data[0] || null;
   } catch (error) {
@@ -79,10 +80,15 @@ export const createStripeCustomer = async (email: string, name: string) => {
       }
     }
 
+    // para teste clock tirar depois (tirar depois) aqui clock_1TLV5GHs4q3jg2YIfvnEZAAl
+
     const createCustomer = await stripe.customers.create({
       email,
       name,
+      test_clock: 'clock_1TLV5GHs4q3jg2YIfvnEZAAl',
     });
+
+    console.log('createStripeCustomer ?', createCustomer);
 
     return {
       STRIPE_CUSTOMER_ID: createCustomer.id,
@@ -191,6 +197,31 @@ export const handleCheckoutSessionCompleted = async (event: {
   }
 }
 
+export const handleSubscriptionFinishedTrial = async ({ email, stripeSubscriptionId, planId, userId, price }: FunctionUpdateFinishTrial) => {
+  try {
+    const customer = await getStripeCustomerByEmail(email);
+
+    if (!customer) {
+      throw new CustomError('Cliente não encontrado para o email fornecido', StatusCodes.NOT_FOUND);
+    }
+
+    const finishTrial = await stripe.subscriptions.update(stripeSubscriptionId, {
+      trial_end: 'now',
+      billing_cycle_anchor: 'now',
+      proration_behavior: 'create_prorations',
+      metadata: {
+        userId,
+        planId,
+        price,
+      },
+    });
+
+    return finishTrial;
+  } catch (error) {
+    handleStripeError(error);
+  }
+}
+
 export const handleSubscriptionSessionCompleted = async (event: {
   data: { object: Stripe.Subscription & {
     current_period_start?: number;
@@ -255,7 +286,7 @@ export const handleCancelPlan = async (event: {
 
 export const handleInvoicePaid = async (event: {
   data: { object: Stripe.Invoice & {
-    paid: boolean;
+    paid?: boolean;
     subscription?: string | null;
    }}
 }) => {
@@ -264,12 +295,13 @@ export const handleInvoicePaid = async (event: {
     const stripeCustumerId = event.data.object.customer as string;
     const subscriptionId = event.data.object.subscription as string | null;
     const paid = event.data.object.paid as boolean;
+    const line = event.data.object.lines.data[0];
 
     const user = await userService.showStripeCustomerId(stripeCustumerId);
 
-    if (subscriptionId) {
-      const periodend = event.data.object.period_end as number | null;
-      const periodStart = event.data.object.period_start as number | null;
+    if (subscriptionId && line) {
+      const periodend = line.period.end as number | null;
+      const periodStart = line.period.start as number | null;
 
       if (user && user.PLAN) {
         await userService.update(user.ID, {
@@ -352,6 +384,65 @@ export const handleInvoicePaymentFailed = async (event: {
     await userService.update(user.ID, {
       ACTIVE: false,
     });
+  } catch (error) {
+    handleStripeError(error);
+  }
+}
+
+// Test Clock Functions
+
+// Função para avançar o test clock
+export const advanceTestClock = async (clockId: string, targetTimestamp?: number) => {
+  try {
+    const clock = await stripe.testHelpers.testClocks.retrieve(clockId);
+    
+    // Se não especificar uma data, avança para o próximo mês
+    const currentTime = clock.frozen_time;
+    const targetTime = targetTimestamp || getNextMonthTimestamp(currentTime);
+    
+    const advancedClock = await stripe.testHelpers.testClocks.advance(clockId, {
+      frozen_time: targetTime,
+    });
+    
+    console.log('Test clock avançado para:', new Date(targetTime * 1000));
+    return advancedClock;
+  } catch (error) {
+    handleStripeError(error);
+  }
+}
+
+// Função auxiliar para calcular o próximo mês
+export const getNextMonthTimestamp = (currentTimestamp: number) => {
+  const currentDate = new Date(currentTimestamp * 1000);
+  const nextMonth = new Date(currentDate);
+  nextMonth.setMonth(nextMonth.getMonth() + 1);
+  
+  return Math.floor(nextMonth.getTime() / 1000);
+}
+
+// Função para obter informações do test clock
+export const getTestClockInfo = async (clockId: string) => {
+  try {
+    const clock = await stripe.testHelpers.testClocks.retrieve(clockId);
+    
+    console.log('Test Clock Info:', {
+      id: clock.id,
+      currentTime: new Date(clock.frozen_time * 1000),
+      status: clock.status,
+      name: clock.name
+    });
+    
+    return clock;
+  } catch (error) {
+    handleStripeError(error);
+  }
+}
+
+// Função para avançar test clock para uma data específica 
+export const advanceTestClockToDate = async (clockId: string, targetDate: Date) => {
+  try {
+    const targetTimestamp = Math.floor(targetDate.getTime() / 1000);
+    return await advanceTestClock(clockId, targetTimestamp);
   } catch (error) {
     handleStripeError(error);
   }

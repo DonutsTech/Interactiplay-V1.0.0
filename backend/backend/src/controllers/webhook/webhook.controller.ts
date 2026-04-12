@@ -8,6 +8,7 @@ import {
   handleSubscriptionSessionCompleted,
   stripe,
 } from '../../utils/stripe';
+import { stripeEventService } from '../../services/stripeEvent';
 
 
 class WebhookController {
@@ -25,6 +26,12 @@ class WebhookController {
     } catch (error) {
       response.status(400).send('Webhook Error');
       return;
+    }
+
+    const isNewEvent = await stripeEventService.createIfNotExists(event);
+
+    if (!isNewEvent) {
+      return response.json({ received: true });
     }
 
     const getCustomerId = (event: any): string | null => {

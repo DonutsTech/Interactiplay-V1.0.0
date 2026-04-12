@@ -7,7 +7,7 @@ import type { Payload } from "../../@types/payload";
 import { CustomError } from "../../error";
 import type { User } from "../../generated/prisma/client";
 import { userModel } from "../../models/user";
-import { createStripeCustomer, generatedCheckout } from "../../utils/stripe";
+import { createStripeCustomer, generatedCheckout, handleSubscriptionFinishedTrial } from "../../utils/stripe";
 import { validateEmail } from "../../utils/validate";
 import { mailService } from "../mail";
 import { planService } from "../plan";
@@ -70,7 +70,7 @@ class AuthService {
       }
 
       if (!(user.STRIPE_SUBSCRIPTON_STATUS === "active" || user.STRIPE_SUBSCRIPTON_STATUS === "trialing")) {
-        throw new CustomError<User>('Assinatura inativa, por favor realize a assinatura para acessar o conteúdo', StatusCodes.CONFLICT, { ...user});
+        throw new CustomError<User>('Assinatura inativa, por favor realize a assinatura para acessar o conteúdo', StatusCodes.PAYMENT_REQUIRED, { ...user});
       }
 
       const token = this.createToken(user);
@@ -210,6 +210,36 @@ class AuthService {
     }
 
     return stripe;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async paymentPlanForActivateSubscription(ID: string) {
+    try {
+      const user = await userService.showId(ID);
+
+      if (!user) {
+        throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
+      }
+
+      if (user.STRIPE_SUBSCRIPTON_STATUS === "active") {
+        throw new CustomError('Assinatura já ativa', StatusCodes.CONFLICT);
+      }
+
+      if (user.STRIPE_SUBSCRIPTON_ID === "" || user.STRIPE_SUBSCRIPTON_STATUS === "") {
+        throw new CustomError('Assinatura não encontrada', StatusCodes.FORBIDDEN);
+      }
+
+      await handleSubscriptionFinishedTrial({
+        email: user.EMAIL,
+        userId: user.ID,
+        planId: user.PLAN_ID as string,
+        stripeSubscriptionId: user.STRIPE_SUBSCRIPTON_ID as string,
+        price: "",
+      });
+
+      return { MESSAGE: 'Assinatura em processamento de ativação' };
     } catch (error) {
       throw error;
     }

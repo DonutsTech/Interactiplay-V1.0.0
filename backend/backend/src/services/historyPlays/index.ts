@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { CustomError } from "../../error";
 import type { Prisma } from "../../generated/prisma/client";
 import { historyPlaysModel } from "../../models/historyPlays";
+import { userService } from "../user";
 
 
 class HistoryPlaysService {
@@ -31,6 +32,39 @@ class HistoryPlaysService {
         where: { ID: id },
         data,
       });
+      return historyPlay;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getHistoryPlaysByUserId(userId: string) {
+    try {
+      await userService.existsById(userId);
+
+      const historyPlays = await historyPlaysModel.findMany({
+        where: {
+          USER_ID: userId,
+        },
+        orderBy: { STATUS: 'asc' },
+      });
+      return historyPlays;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async testUpdate(id: string) {
+    try {
+      await this.existsById(id);
+
+      const historyPlay = await historyPlaysModel.updateBy({
+        where: { ID: id },
+        data: {
+          QTD_PLAYS: 70000,
+        },
+      });
+
       return historyPlay;
     } catch (error) {
       throw error;

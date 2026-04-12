@@ -12,3 +12,11 @@ export interface FunctionCheckoutFree {
   planId: string;
   price: string;
 }
+
+export interface FunctionUpdateFinishTrial {
+  userId: string;
+  email: string;
+  stripeSubscriptionId: string;
+  planId: string;
+  price: string;
+}

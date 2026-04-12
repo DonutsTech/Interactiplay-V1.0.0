@@ -4,9 +4,7 @@ import { isAuthenticateToken, isAuthenticateTokenDb, schemaValidator } from "../
 
 class AuthRouter {
   public static create(router: Router): void {
-    router.post("/register",
-      schemaValidator('auth/register'),
-      authController.register);
+    router.post("/register", schemaValidator('auth/register'), authController.register);
     router.post("/login", authController.login);
     router.get("/me", isAuthenticateTokenDb, authController.me);
     router.get("/validate-email", isAuthenticateToken, authController.validateEmail);
@@ -14,6 +12,7 @@ class AuthRouter {
     router.post("/reset-password", isAuthenticateToken, schemaValidator('auth/reset'), authController.resetPassword);
     router.post("/payment-checkout", schemaValidator('auth/payment'), authController.paymentCheckout);
     router.post("/send-email-validate-email", isAuthenticateTokenDb, authController.sendEmailForValidateEmail);
+    router.get("/payment-active", isAuthenticateTokenDb, authController.paymentPlanForActiveSubscription);
   }
 }
 

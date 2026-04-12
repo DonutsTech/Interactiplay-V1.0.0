@@ -84,6 +84,16 @@ class AuthController {
       next(error);
     }
   }
+
+  async paymentPlanForActiveSubscription(request: Request, response: Response, next: NextFunction) {
+    try {
+      const { user } = request as Request & { user: { ID: string } };
+      const validatePaymentCheckout = await authService.paymentPlanForActivateSubscription(user.ID);
+      return response.status(200).json(validatePaymentCheckout);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const authController = new AuthController();
