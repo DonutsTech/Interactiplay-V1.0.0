@@ -19,6 +19,7 @@ import { postRegister } from '@/service/auth';
 import ErrorModal from '@/components/globals/ErrorModal';
 import { ErrorMessage } from '@/@types/error';
 import { sanitizeByRegex } from '@/utils/stringUtils';
+import { useRouter } from 'next/navigation';
 
 interface RegisterPackage {
   name: string;
@@ -62,6 +63,7 @@ const FormCadastro = () => {
   const [modalMessage, setModalMessage] = useState(false);
   const { setIsLoading } = useIsLoading();
   const { setUser } = useContext(UserContext);
+  const router = useRouter();
 
   const EMPTY_FORM: RegisterPackage = {
     name: '',
@@ -131,7 +133,7 @@ const FormCadastro = () => {
                   text: 'Login',
                   goClick: () => {
                     setModalMessage(false);
-                    window.location.href = '/acess/login';
+                    router.push('/acess/login');
                   },
                 }
               : undefined,

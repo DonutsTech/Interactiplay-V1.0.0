@@ -16,6 +16,7 @@ export const errorInterceptor = async (error: AxiosError) => {
     MESSAGE:
       data?.MESSAGE ||
       'O servidor está temporariamente indisponível. Tente novamente em alguns minutos ou entre em contato com o suporte.',
+      ...(data.DATA && { USER: data.DATA }),
   };
 
   return Promise.reject(errorMessage);

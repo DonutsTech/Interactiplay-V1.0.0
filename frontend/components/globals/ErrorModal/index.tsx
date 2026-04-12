@@ -59,7 +59,7 @@ const ErrorModal = ({
         </h3>
 
         <p className={styles.modal_message}>{mensagem}</p>
-        {statusCode === 409 && butonProps && (
+        {(statusCode === 409 || statusCode === 403) && butonProps && (
           <button 
             onClick={butonProps.goClick}
             disabled={false}
