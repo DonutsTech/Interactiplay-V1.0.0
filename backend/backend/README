@@ -1,8 +1,161 @@
-docker run \
-  --rm \
-  --name postgres \
-  --env POSTGRES_PASSWORD=admin \
-  --env POSTGRES_DB=prisma_demo \
-  --volume pg-data:/var/lib/postgresql/data \
-  --publish 5432:5432 \
-  postgres:bookworm
+# Projeto InteractiPlay
+
+## 📋 Documentação de Erros por Rota
+
+### 🔐 Rotas de Autenticação (`/auth`)
+
+#### `POST /register`
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `409 CONFLICT` | "Parece que você já possui uma conta. Por favor, acesse usando seu login." | Usuário já existe no banco de dados |
+| `400 BAD_REQUEST` | Erro de validação do schema | Dados de entrada inválidos |
+| `500 INTERNAL_SERVER_ERROR` | Erro genérico de servidor | Falha na criação da conta ou Stripe |
+
+#### `POST /login`
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `401 UNAUTHORIZED` | "Email ou senha incorretos" | Credenciais inválidas |
+| `404 NOT_FOUND` | "Email ou senha incorretos" | Usuário não encontrado |
+| `403 FORBIDDEN` | "Assinatura não encontrada, por favor realize a assinatura para acessar o conteúdo" | Sem assinatura ativa |
+| `409 CONFLICT` | "Assinatura inativa, por favor realize a assinatura para acessar o conteúdo" | Assinatura expirada/cancelada |
+| `400 BAD_REQUEST` | "email.invalid" | Formato de email inválido |
+| `400 BAD_REQUEST` | "Dominio do email não existe" | Domínio de email inexistente |
+
+#### `GET /me`
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `401 UNAUTHORIZED` | "Token não fornecido" | Token de autenticação ausente |
+| `401 UNAUTHORIZED` | "Token inválido" | Token expirado ou inválido |
+| `404 NOT_FOUND` | "Usuário não encontrado" | Usuário não existe na base |
+
+#### `GET /validate-email`
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `401 UNAUTHORIZED` | "Token não fornecido" | Token de autenticação ausente |
+| `404 NOT_FOUND` | "Usuário não encontrado" | Usuário não existe |
+
+#### `POST /forgot-password`
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `404 NOT_FOUND` | "Email não encontrado" | Email não cadastrado no sistema |
+| `400 BAD_REQUEST` | "email.invalid" | Formato de email inválido |
+| `400 BAD_REQUEST` | "Dominio do email não existe" | Domínio de email inexistente |
+
+#### `POST /reset-password`
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `401 UNAUTHORIZED` | "Código de verificação inválido" | Código de redefinição incorreto |
+| `401 UNAUTHORIZED` | "Token não fornecido" | Token de autenticação ausente |
+| `404 NOT_FOUND` | "Usuário não encontrado" | Usuário não existe |
+| `400 BAD_REQUEST` | Erro de validação do schema | Dados de entrada inválidos |
+
+#### `POST /payment-checkout`
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `500 INTERNAL_SERVER_ERROR` | "Não conseguimos completar sua ação. Tente outra vez" | Falha no processamento do Stripe |
+| `404 NOT_FOUND` | "Plano não encontrado" | Plano especificado não existe |
+| `404 NOT_FOUND` | "Usuário não encontrado" | Usuário não existe |
+| `400 BAD_REQUEST` | Erro de validação do schema | Dados de entrada inválidos |
+
+#### `POST /send-email-validate-email`
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `401 UNAUTHORIZED` | "Token não fornecido" | Token de autenticação ausente |
+| `404 NOT_FOUND` | "Usuário não encontrado" | Usuário não existe |
+
+---
+
+### 📋 Rotas de Planos (`/plan`)
+
+#### `GET /plans`
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `404 NOT_FOUND` | "Plano não encontrado, por favor verifique o seu email" | Nenhum plano ativo encontrado |
+| `500 INTERNAL_SERVER_ERROR` | Erro genérico de servidor | Falha na busca dos planos |
+
+---
+
+### 🔔 Rotas de Webhook (`/webhook`)
+
+#### `POST /webhook`
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `500 INTERNAL_SERVER_ERROR` | Erro no processamento | Falha no processamento do webhook do Stripe |
+
+---
+
+## 🛠️ Erros de Sistema
+
+### Erros de Banco de Dados (Prisma)
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `409 CONFLICT` | "Dados duplicados: [campo]" | Violação de constraint única |
+| `404 NOT_FOUND` | "Registro não encontrado" | Registro não existe |
+| `400 BAD_REQUEST` | "Violação de integridade referencial" | Violação de chave estrangeira |
+| `400 BAD_REQUEST` | "Relação obrigatória não encontrada" | Relação necessária ausente |
+| `400 BAD_REQUEST` | "Valor muito longo para o campo" | Campos com tamanho excedido |
+| `400 BAD_REQUEST` | "Registro não existe" | Tentativa de usar registro inexistente |
+| `400 BAD_REQUEST` | "Erro de validação dos dados" | Dados inválidos para o schema |
+| `500 INTERNAL_SERVER_ERROR` | "Erro de banco de dados" | Erro genérico do Prisma |
+| `500 INTERNAL_SERVER_ERROR` | "Erro desconhecido no banco de dados" | Erro não mapeado |
+| `500 INTERNAL_SERVER_ERROR` | "Erro crítico no banco de dados" | Erro crítico do sistema |
+| `500 INTERNAL_SERVER_ERROR` | "Erro de inicialização do banco de dados" | Falha na inicialização |
+
+### Erros do Stripe
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `400 BAD_REQUEST` | "Erro no cartão de crédito: [detalhes]" | Problemas com cartão |
+| `400 BAD_REQUEST` | "Requisição inválida para a API Stripe: [detalhes]" | Dados inválidos enviados |
+| `500 INTERNAL_SERVER_ERROR` | "Erro na API Stripe: [detalhes]" | Erro interno da API |
+| `503 SERVICE_UNAVAILABLE` | "Erro de conexão com a Stripe: [detalhes]" | Stripe indisponível |
+| `401 UNAUTHORIZED` | "Erro de autenticação com a Stripe: [detalhes]" | Chave API inválida |
+| `500 INTERNAL_SERVER_ERROR` | "Erro desconhecido na Stripe: [detalhes]" | Erro não mapeado |
+| `404 NOT_FOUND` | "Cliente não encontrado para o email fornecido" | Cliente Stripe inexistente |
+
+### Erros de Validação
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `400 BAD_REQUEST` | "Schema not found for path: [caminho]" | Schema de validação não encontrado |
+| `400 BAD_REQUEST` | Mensagens de validação específicas | Dados não passaram na validação Joi |
+
+### Erros de Usuário
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `404 NOT_FOUND` | "Usuario não encontrado, por favor verifique o seu email" | Usuário inexistente |
+| `500 INTERNAL_SERVER_ERROR` | "Erro ao atualizar o usuário" | Falha na atualização |
+| `500 INTERNAL_SERVER_ERROR` | "Erro ao deletar o usuário" | Falha na exclusão |
+| `500 INTERNAL_SERVER_ERROR` | "Erro ao buscar o usuário" | Falha na consulta |
+| `400 BAD_REQUEST` | "Nenhum arquivo enviado" | Upload sem arquivo |
+| `500 INTERNAL_SERVER_ERROR` | "Erro ao atualizar a imagem do usuário" | Falha no upload |
+
+### Erros de Foto
+| Status Code | Mensagem | Condição |
+|------------|----------|----------|
+| `400 BAD_REQUEST` | "Nome do arquivo não fornecido" | Parâmetro de arquivo ausente |
+| `500 INTERNAL_SERVER_ERROR` | "Erro ao deletar a imagem" | Falha na exclusão da imagem |
+
+---
+
+## 📝 Códigos de Status HTTP Utilizados
+
+| Código | Significado | Uso no Sistema |
+|--------|-------------|----------------|
+| `201 OK` | ✅ Sucesso | Operações creates do banco de dados |
+| `200 OK` | ✅ Sucesso | Operações completadas com sucesso |
+| `400 BAD_REQUEST` | ❌ Requisição inválida | Dados de entrada inválidos |
+| `401 UNAUTHORIZED` | 🔒 Não autorizado | Token inválido/ausente, credenciais incorretas |
+| `403 FORBIDDEN` | 🚫 Acesso negado | Assinatura necessária |
+| `404 NOT_FOUND` | 🔍 Não encontrado | Recursos não existem |
+| `409 CONFLICT` | ⚠️ Conflito | Dados duplicados, estados conflitantes |
+| `500 INTERNAL_SERVER_ERROR` | 💥 Erro interno | Falhas de servidor/sistema |
+| `503 SERVICE_UNAVAILABLE` | 📵 Serviço indisponível | Serviços externos indisponíveis |
+
+---
+
+## 🔧 Configuração e Instalação
+
+[Adicione aqui as informações de instalação do seu projeto]
+
+## 📚 Documentação da API
+
+[Adicione aqui links para documentação detalhada da API usando Swagger ou similar]

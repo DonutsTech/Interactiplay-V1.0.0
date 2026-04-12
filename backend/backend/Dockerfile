@@ -24,4 +24,4 @@ RUN yarn prisma generate
 EXPOSE 4000
 
 # Usar o entrypoint.sh como ponto de entrada
-ENTRYPOINT ["sh", "-c", "yarn install && yarn prisma migrate dev --name init && yarn prisma migrate deploy && yarn run dev:full"]
+ENTRYPOINT ["sh", "-c" ,"yarn install && yarn prisma migrate dev --name init && yarn prisma migrate deploy && yarn run dev:full"]

@@ -30,7 +30,7 @@ class WebhookController {
     const getUserFromEvent = async () => {
       const obj = event.data.object as any;
       const customerId =  obj.customer || obj.customerId || obj.client || obj?.subscription_details?.customer || '';
-      return await userService.showCustomerId(customerId);
+      return await userService.showStripeCustomerId(customerId);
     }
 
     const user = await getUserFromEvent();
@@ -41,7 +41,7 @@ class WebhookController {
         break;
       case 'customer.subscription.created': // sempre que uma nova assinatura é criada para um cliente na Stripe.
       case 'customer.subscription.updated':
-        if (!user) {
+        if (user) {
           // Atualize os detalhes da assinatura do usuário no banco de dados, se necessário
             console.log("⚠️ User não encontrado, ignorando evento até receber customerId.");
           break;

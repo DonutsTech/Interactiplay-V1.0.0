@@ -75,6 +75,15 @@ class PlanService {
       throw error;
     }
   }
+
+  async getPlanByFree(): Promise<Plan | null> {
+    try {
+      const plan = await planModel.findBy({ where: { PLAN: 'Grátis' } });
+      return plan;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const planService = new PlanService();

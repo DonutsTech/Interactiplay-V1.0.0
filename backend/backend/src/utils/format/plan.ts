@@ -26,8 +26,8 @@ export async function formatProductsForPlan(products: Stripe.Product[]) {
 
   return Plan.map((plan) => ({
     PLAN: plan.PLAN,
-    STRIPE_PLAN_ID: plan.STRIPE_PLAN_ID,
-    STRIPE_PLAN_PRICE: plan.STRIPE_PLAN_PRICE,
+    STRIPE_PLAN_ID: plan.STRIPE_PLAN_ID || "",
+    STRIPE_PLAN_PRICE: plan.STRIPE_PLAN_PRICE || "",
     PLAYS: Number(plan.PLAYS),
     PLAYS_PRICE: Number(plan.PLAYS_PRICE),
     PRICE: Number(plan.PRICE),

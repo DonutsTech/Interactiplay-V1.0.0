@@ -1,10 +1,12 @@
 import { StatusCodes } from "http-status-codes";
 import Stripe from "stripe";
-import type { FunctionCheckout } from "../@types/interface/function";
+import type { FunctionCheckout, FunctionCheckoutFree } from "../@types/interface/function";
 import { CustomError } from "../error";
 import { handleStripeError } from "../error/errorStripe";
 import type { Plan } from "../generated/prisma/client";
+import { historyPlaysService } from "../services/historyPlays";
 import { planService } from "../services/plan";
+import { userService } from "../services/user";
 import { formatNummberForDate } from "./format/data";
 import { formatProductsForPlan } from "./format/plan";
 
@@ -93,6 +95,36 @@ export const createStripeCustomer = async (email: string, name: string) => {
   }
 }
 
+export const createStripeFreeCustomer = async ({ email, planId, userId, price }: FunctionCheckoutFree) => {
+  try {
+    const customer = await getStripeCustomerByEmail(email);
+
+    if (!customer) {
+      throw new CustomError('Cliente não encontrado para o email fornecido', StatusCodes.NOT_FOUND);
+    }
+
+    const subscription = await stripe.subscriptions.create({
+      customer: customer.id,
+      client_reference_id: userId,
+      items: [{ price: price, quantity: 1 }],
+      payment_behavior: 'default_incomplete',
+      collection_method: 'charge_automatically',
+      subscription_data: {
+        trial_period_days: 14,
+        metadata: {
+          userId,
+          planId,
+          price,
+        }
+      }
+    });
+
+    return subscription;
+  } catch (error) {
+    handleStripeError(error);
+  }
+}
+
 export const generatedCheckout = async ({ email, planId, token, userId, price }: FunctionCheckout) => {
   try {
     const customer = await getStripeCustomerByEmail(email);
@@ -107,7 +139,7 @@ export const generatedCheckout = async ({ email, planId, token, userId, price }:
       client_reference_id: userId,
       customer: customer.id,
       success_url: `${process.env.FRONTEND_URL}/dash?token=${token}`,
-      cancel_url: `${process.env.FRONTEND_URL}/acess?payment=deny&&userId=${userId}`,
+      cancel_url: `${process.env.FRONTEND_URL}/acess?token=${token}`,
       line_items: [
         {
           price: price,
@@ -120,11 +152,12 @@ export const generatedCheckout = async ({ email, planId, token, userId, price }:
           userId,
           planId,
           price,
+
         }
       }
     });
 
-    return session.url;
+    return { LINK: session.url };
   } catch (error) {
     handleStripeError(error);
   }
@@ -134,38 +167,30 @@ export const handleCheckoutSessionCompleted = async (event: {
   data: { object: Stripe.Checkout.Session }
 }) => {
   try {
+    console.log('handleCheckoutSessionCompleted', event.data.object);
     const idUser = event.data.object.client_reference_id as string;
     const stripeSubscriptionId = event.data.object.subscription as string;
     const stripeCustumerId = event.data.object.customer as string;
     const checkoutStatus = event.data.object.status;
+    const metadata = event.data.object.metadata as { userId: string, planId: string, price: string } || undefined;
 
-    console.log('handleCheckoutSessionCompleted', JSON.stringify(event));
+    let planId = undefined;
 
-    if (event.data.object.metadata && event.data.object.metadata.planId) {
-      const planId = event.data.object.metadata.planId;
+    if (checkoutStatus !== 'complete') return;
 
-      if (checkoutStatus !== 'complete') return;
+    if (metadata) {
+      const plan = await planService.getPlanByStripeId(metadata.planId);
 
-      if (!idUser || !stripeSubscriptionId || !stripeCustumerId) {
-        throw new Error('idUser, stripeSubscriptionId, stripeCustumerId is required');
+      if (plan) {
+        planId = plan.ID;
       }
-
-    }
-    /*
-    const userExist = await userService.showId(idUser);
-
-    if (!userExist) {
-      throw new Error('user not found');
     }
 
     await userService.update(idUser, {
-      ACTIVE: true,
       STRIPE_CUSTOMER_ID: stripeCustumerId,
       STRIPE_SUBSCRIPTON_ID: stripeSubscriptionId,
-      STRIPE_SUBSCRIPTON_STATUS: checkoutStatus,
-      PLAN_ID: planId,
+      ...(planId ? { PLAN: { connect: { ID: planId } } } : {}),
     });
-    */
   } catch (error) {
     handleStripeError(error);
   }
@@ -175,12 +200,33 @@ export const handleSubscriptionSessionCompleted = async (event: {
   data: { object: Stripe.Subscription }
 }) => {
   try {
+    console.log('handleSubscriptionSessionCompleted', event.data.object);
     const subscriptionStatus = event.data.object.status;
     const stripeCustumerId = event.data.object.customer as string;
     const stripeSubscriptionId = event.data.object.id as string;
-    const data = event.data.object.items.data[0];
+    const stripePriceId = event.data.object.items.data[0].price.id;
+    const trialEnd = event.data.object.trial_end as number | null;
+    const trialStart = event.data.object.trial_start as number | null;
+    const currentPeriodStart = event.data.object.current_period_start as number | null;
+    const currentPeriodEnd = event.data.object.current_period_end as number | null;
 
-    console.log('handleSubscriptionSessionCompleted', JSON.stringify(event));
+    const user = await userService.showStripeCustomerId(stripeCustumerId);
+
+    if (user) {
+      const plan = await planService.getPlanByStripeId(stripePriceId);
+
+      await userService.update(user.ID, {
+        STRIPE_SUBSCRIPTON_ID: stripeSubscriptionId,
+        STRIPE_SUBSCRIPTON_STATUS: subscriptionStatus,
+        ACTIVE: subscriptionStatus === 'active' || subscriptionStatus === 'trialing',
+        ...(trialEnd ? { STRIPE_TRIAL_END: formatNummberForDate(trialEnd) } : {}),
+        ...(trialStart ? { STRIPE_TRIAL_START: formatNummberForDate(trialStart) } : {}),
+        ...(currentPeriodStart ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(currentPeriodStart) } : {}),
+        ...(currentPeriodEnd ? { STRIPE_CURRENT_PERIOD_END: formatNummberForDate(currentPeriodEnd) } : {}),
+        ...(plan ? { PLAN: { connect: { ID: plan.ID } } } : {}),
+      });
+
+    }
   } catch (error) {
     handleStripeError(error);
   }
@@ -189,17 +235,127 @@ export const handleSubscriptionSessionCompleted = async (event: {
 export const handleCancelPlan = async (event: {
   data: { object: Stripe.Subscription }
 }) => {
-  console.log('handleCancelPlan', JSON.stringify(event));
+  try {
+    console.log('handleCancelPlan', event.data.object);
+    const stripeCustumerId = event.data.object.customer as string;
+    const subscriptionStatus = event.data.object.status;
+
+    const user = await userService.showStripeCustomerId(stripeCustumerId);
+
+    if (user) {
+      await userService.update(user.ID, {
+        STRIPE_SUBSCRIPTON_STATUS: subscriptionStatus,
+        ACTIVE: subscriptionStatus === 'active' || subscriptionStatus === 'trialing',
+        PLAN: { disconnect: true },
+      });
+    }
+  } catch (error) {
+    handleStripeError(error);
+  }
 }
 
 export const handleInvoicePaid = async (event: {
   data: { object: Stripe.Invoice }
 }) => {
-  console.log('handleInvoicePaid', JSON.stringify(event));
+  try {
+    console.log('handleInvoicePaid', event.data.object);
+    const stripeCustumerId = event.data.object.customer as string;
+    const subscriptionId = event.data.object.subscription as string | null;
+    const paid = event.data.object.paid as boolean;
+
+    const user = await userService.showStripeCustomerId(stripeCustumerId);
+
+    if (subscriptionId) {
+      const periodend = event.data.object.period_end as number | null;
+      const periodStart = event.data.object.period_start as number | null;
+
+      if (user && user.PLAN) {
+        await userService.update(user.ID, {
+          ...(periodend ? { STRIPE_CURRENT_PERIOD_END: formatNummberForDate(periodend) } : {}),
+          ...(periodStart ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(periodStart) } : {}),
+          ACTIVE: paid,
+        });
+
+        if (!(user.HISTORY_PLAYS.length > 0)) {
+          await userService.update(user.ID, {
+            HISTORY_PLAYS: { create: { QTD_PLAYS: 0, PRICE_MONTH: 0, STATUS: (user.STRIPE_SUBSCRIPTON_STATUS === 'trialing' ? 'teste' : 'ativo') } }
+          });
+        }
+
+        if (user.HISTORY_PLAYS.length > 0) {
+          const currentPlays = user.HISTORY_PLAYS.find(history => history.STATUS === 'ativo');
+
+          if (currentPlays && user.PLAN.PLAYS < currentPlays.QTD_PLAYS) {
+            const playDifference = currentPlays.QTD_PLAYS - user.PLAN.PLAYS;
+            const value = Math.floor(playDifference * user.PLAN.PLAYS_PRICE * 100) / 100;
+
+            await stripe.invoiceItems.create({
+              customer: stripeCustumerId,
+              amount: value,
+              currency: 'brl',
+              description: `Cobrança por excesso de ${playDifference} plays do plano ${user.PLAN.PLAN}`,
+              metadata: {
+                userId: user.ID,
+                historyPlaysId: currentPlays.ID,
+                type: 'excess_plays',
+              }
+            });
+
+            await stripe.invoices.create({
+              customer: stripeCustumerId,
+              auto_advance: true,
+            });
+
+            await historyPlaysService.update(currentPlays.ID, {
+              STATUS: 'aguardando pagamento',
+              PRICE_MONTH: value,
+            });
+          }
+
+          if (currentPlays && user.PLAN.PLAYS <= currentPlays.QTD_PLAYS) {
+            await historyPlaysService.update(currentPlays.ID, {
+              STATUS: 'isento',
+              PRICE_MONTH: 0,
+            });
+          }
+
+          await historyPlaysService.create({
+            QTD_PLAYS: 0,
+            PRICE_MONTH: 0,
+            STATUS: 'ativo',
+            USER: { connect: { ID: user.ID } },
+          })
+        }
+      }
+    } else {
+      const metadata = event.data.object.metadata as { userId: string, historyPlaysId: string, type: string } | null;
+
+      if (metadata && metadata.type === 'excess_plays' && metadata.userId && metadata.historyPlaysId) {
+        await historyPlaysService.update(metadata.historyPlaysId, {
+          STATUS: paid ? 'pago' : 'aguardando pagamento',
+        });
+      }
+    }
+  } catch (error) {
+    handleStripeError(error);
+  }
 }
 
 export const handleInvoicePaymentFailed = async (event: {
   data: { object: Stripe.Invoice }
 }) => {
-  console.log('handleInvoicePaymentFailed', JSON.stringify(event));
+  try {
+    console.log('handleInvoicePaymentFailed', event.data.object);
+    const stripeCustumerId = event.data.object.customer as string;
+
+    const user = await userService.showStripeCustomerId(stripeCustumerId);
+
+    if (!user) return;
+
+    await userService.update(user.ID, {
+      ACTIVE: false,
+    });
+  } catch (error) {
+    handleStripeError(error);
+  }
 }

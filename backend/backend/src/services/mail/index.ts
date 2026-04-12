@@ -1,20 +1,24 @@
 import type { ForgetPassword, validateEmail } from "../../@types/interface/mail";
-import transporter, { loadTemplate } from "../../config/nodemailer";
+import { loadTemplate, transporterInfo } from "../../config/nodemailer";
 
 class MailService {
   async sendValidateEmail({EMAIL, TOKEN}: validateEmail): Promise<boolean> {
+    console.log(`🚀 Sending validation email to: ${EMAIL} at ${new Date().toISOString()}`);
+
     try {
       const link = `${process.env.FRONTEND_URL}/acess/validate?token=${TOKEN}`;
 
-      const html = loadTemplate('template_validate_email', { link, email: EMAIL });
+      const html = loadTemplate('template_validation_email', { link, email: EMAIL });
 
-      transporter.sendMail({
-        from: process.env.MAIL_USER,
+
+      await transporterInfo.sendMail({
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Validação de Email',
         html,
       });
 
+      console.log(`✅ Email sent successfully to: ${EMAIL}`);
       return true;
     } catch (error) {
       console.error('Error sending validation email:', error);
@@ -28,8 +32,8 @@ class MailService {
 
       const html = loadTemplate('template_reset_password', { link, email: EMAIL, code: CODE });
 
-      transporter.sendMail({
-        from: process.env.MAIL_USER,
+      await transporterInfo.sendMail({
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Redefinição de Senha',
         html,
@@ -46,8 +50,8 @@ class MailService {
     try {
       const html = loadTemplate('template_password_changed', { email });
 
-      transporter.sendMail({
-        from: process.env.MAIL_USER,
+      await transporterInfo.sendMail({
+        from: process.env.MAIL_USER_3,
         to: email,
         subject: 'Senha Alterada',
         html,

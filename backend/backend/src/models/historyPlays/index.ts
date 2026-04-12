@@ -65,3 +65,5 @@ class HistoryPlaysModel {
     }
   }
 }
+
+export const historyPlaysModel = new HistoryPlaysModel();

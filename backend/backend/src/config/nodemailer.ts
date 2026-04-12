@@ -1,19 +1,64 @@
 import fs from 'fs';
+import { cwd } from 'node:process';
 import nodemailer from 'nodemailer';
 import path from 'path';
 
-const transporter = nodemailer.createTransport({
+export const transporterContact = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
   port: Number(process.env.MAIL_PORT),
   secure: true,
+  tls: {
+    rejectUnauthorized: false,
+  },
   auth: {
-    user: process.env.MAIL_USER,
+    user: process.env.MAIL_USER_1,
     pass: process.env.MAIL_PASS,
   },
-});
+  maxConnections: 1,
+  maxMessages: 1,
+  pool: false
+} as any);
+
+export const transporterSupport = nodemailer.createTransport({
+  host: process.env.MAIL_HOST,
+  port: Number(process.env.MAIL_PORT),
+  secure: true,
+  tls: {
+    rejectUnauthorized: false,
+  },
+  auth: {
+    user: process.env.MAIL_USER_2,
+    pass: process.env.MAIL_PASS,
+  },
+  maxConnections: 1,
+  maxMessages: 1,
+  pool: false
+} as any);
+
+
+export const transporterInfo = nodemailer.createTransport({
+  host: process.env.MAIL_HOST,
+  port: Number(process.env.MAIL_PORT),
+  secure: true,
+  tls: {
+    rejectUnauthorized: false,
+  },
+  auth: {
+    user: process.env.MAIL_USER_3,
+    pass: process.env.MAIL_PASS,
+  },
+  maxConnections: 1,
+  maxMessages: 1,
+  pool: false
+} as any);
 
 export const loadTemplate = (templateName: string, variables: Record<string, string>) => {
-  const filePath = path.join(__dirname, 'templates', `${templateName}.html`);
+  const filePath = path.join(cwd(), 'src', 'services', 'mail', 'templates', `${templateName}.html`);
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Template não encontrado: ${filePath}`);
+  }
+
   let html = fs.readFileSync(filePath, 'utf8');
 
   for (const key in variables) {
@@ -23,5 +68,3 @@ export const loadTemplate = (templateName: string, variables: Record<string, str
 
   return html;
 };
-
-export default transporter;

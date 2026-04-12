@@ -53,6 +53,10 @@ class AuthService {
         throw new CustomError('Parece que você já possui uma conta. Por favor, acesse usando seu login.', StatusCodes.CONFLICT);
       }
 
+      const token = this.createToken(create);
+
+      await mailService.sendValidateEmail({ EMAIL: create.EMAIL, TOKEN: token });
+
       return create;
     } catch (error) {
       throw error;
@@ -204,8 +208,6 @@ class AuthService {
     if (!stripe) {
       throw new CustomError('Não conseguimos completar sua ação. Tente outra vez', StatusCodes.INTERNAL_SERVER_ERROR);
     }
-
-    await mailService.sendValidateEmail({ EMAIL: user.EMAIL, TOKEN: token });
 
     return stripe;
     } catch (error) {

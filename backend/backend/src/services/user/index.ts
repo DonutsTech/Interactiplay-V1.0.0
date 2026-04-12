@@ -87,7 +87,7 @@ class UserService {
     }
   }
 
-  async showCustomerId(customerId: string): Promise<UserGetPayload<{include: { PLAN: true, HISTORY_PLAYS: true }}> | null> {
+  async showStripeCustomerId(customerId: string): Promise<UserGetPayload<{include: { PLAN: true, HISTORY_PLAYS: true }}> | null> {
     try {
       return await userModel.findBy({ where: { STRIPE_CUSTOMER_ID: customerId }, include: { PLAN: true, HISTORY_PLAYS: true } }) as UserGetPayload<{include: { PLAN: true, HISTORY_PLAYS: true }}> | null;
     } catch (error) {

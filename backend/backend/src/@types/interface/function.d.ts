@@ -5,3 +5,10 @@ export interface FunctionCheckout {
   token: string;
   price: string;
 }
+
+export interface FunctionCheckoutFree {
+  userId: string;
+  email: string;
+  planId: string;
+  price: string;
+}
