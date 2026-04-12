@@ -138,8 +138,8 @@ export const generatedCheckout = async ({ email, planId, token, userId, price }:
       mode: 'subscription',
       client_reference_id: userId,
       customer: customer.id,
-      success_url: `${process.env.FRONTEND_URL}/dash?token=${token}`,
-      cancel_url: `${process.env.FRONTEND_URL}/acess?token=${token}`,
+      success_url: `${process.env.FRONTEND_URL}/acess/success?token=${token}`,
+      cancel_url: `${process.env.FRONTEND_URL}/acess/denied?token=${token}`,
       line_items: [
         {
           price: price,
