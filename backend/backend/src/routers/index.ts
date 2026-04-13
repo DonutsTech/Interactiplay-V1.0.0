@@ -4,14 +4,13 @@ import AuthRouter from "./auth";
 import HistoryPlaysRouter from "./historyPlays";
 import PlanRouter from "./plan";
 import WebhookRouter from "./webhook";
-import TestClockRouter from "./testClock";
 
 const applyRouters = (router: Router, routers: IRouter[]): void => {
   routers.forEach((route) => route.create(router));
 };
 
 export const applyApiRouters = (router: Router): void => {
-  const routers: IRouter[] = [PlanRouter, AuthRouter, HistoryPlaysRouter, TestClockRouter];
+  const routers: IRouter[] = [PlanRouter, AuthRouter, HistoryPlaysRouter];
   applyRouters(router, routers);
 }
 

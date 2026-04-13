@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { stripeEventService } from '../../services/stripeEvent';
 import { userService } from '../../services/user';
 import {
   handleCancelPlan,
@@ -6,9 +7,8 @@ import {
   handleInvoicePaid,
   handleInvoicePaymentFailed,
   handleSubscriptionSessionCompleted,
-  stripe,
+  stripe
 } from '../../utils/stripe';
-import { stripeEventService } from '../../services/stripeEvent';
 
 
 class WebhookController {
@@ -116,6 +116,33 @@ class WebhookController {
       case 'billing_portal.session.created': // quando o cliente acessa o portal de faturamento
         console.log('Cliente acessou o portal de faturamento');
         // Aqui você pode adicionar lógica para rastrear quando clientes acessam o portal
+        break;
+
+      // Test Clock Events - disparados quando o test clock é avançado
+      case 'test_helpers.test_clock.advancing':
+        console.log('🕐 Test clock está sendo avançado:', {
+          clockId: event.data.object.id,
+          timestamp: event.data.object.frozen_time,
+          date: new Date((event.data.object.frozen_time || 0) * 1000).toISOString()
+        });
+        break;
+
+      case 'test_helpers.test_clock.ready':
+        console.log('✅ Test clock avançado com sucesso:', {
+          clockId: event.data.object.id,
+          timestamp: event.data.object.frozen_time,
+          date: new Date((event.data.object.frozen_time || 0) * 1000).toISOString()
+        });
+        break;
+
+      case 'invoice.upcoming':
+        console.log('📋 Fatura próxima detectada:', {
+          customerId: event.data.object.customer,
+          amount: event.data.object.amount_due,
+          currency: event.data.object.currency,
+          nextPaymentAttempt: event.data.object.next_payment_attempt,
+          date: new Date((event.data.object.next_payment_attempt || 0) * 1000).toISOString()
+        });
         break;
 
       default:

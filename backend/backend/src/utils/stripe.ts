@@ -153,9 +153,10 @@ export const generatedCheckout = async ({ email, planId, token, userId, price }:
           planId,
           price,
           type: 'monthly_subscription',
-        }
-      }
+        },
+      },
     });
+
 
     return { LINK: session.url };
   } catch (error) {
@@ -389,21 +390,19 @@ export const handleInvoicePaymentFailed = async (event: {
   }
 }
 
-// Test Clock Functions
-
-// Função para avançar o test clock
+// para deletar depois (depois) aqui clock_1TLV5GHs4q3jg2YIfvnEZAAl
 export const advanceTestClock = async (clockId: string, targetTimestamp?: number) => {
   try {
     const clock = await stripe.testHelpers.testClocks.retrieve(clockId);
-    
+
     // Se não especificar uma data, avança para o próximo mês
     const currentTime = clock.frozen_time;
     const targetTime = targetTimestamp || getNextMonthTimestamp(currentTime);
-    
+
     const advancedClock = await stripe.testHelpers.testClocks.advance(clockId, {
       frozen_time: targetTime,
     });
-    
+
     console.log('Test clock avançado para:', new Date(targetTime * 1000));
     return advancedClock;
   } catch (error) {
@@ -411,39 +410,10 @@ export const advanceTestClock = async (clockId: string, targetTimestamp?: number
   }
 }
 
-// Função auxiliar para calcular o próximo mês
 export const getNextMonthTimestamp = (currentTimestamp: number) => {
   const currentDate = new Date(currentTimestamp * 1000);
   const nextMonth = new Date(currentDate);
   nextMonth.setMonth(nextMonth.getMonth() + 1);
-  
+
   return Math.floor(nextMonth.getTime() / 1000);
-}
-
-// Função para obter informações do test clock
-export const getTestClockInfo = async (clockId: string) => {
-  try {
-    const clock = await stripe.testHelpers.testClocks.retrieve(clockId);
-    
-    console.log('Test Clock Info:', {
-      id: clock.id,
-      currentTime: new Date(clock.frozen_time * 1000),
-      status: clock.status,
-      name: clock.name
-    });
-    
-    return clock;
-  } catch (error) {
-    handleStripeError(error);
-  }
-}
-
-// Função para avançar test clock para uma data específica 
-export const advanceTestClockToDate = async (clockId: string, targetDate: Date) => {
-  try {
-    const targetTimestamp = Math.floor(targetDate.getTime() / 1000);
-    return await advanceTestClock(clockId, targetTimestamp);
-  } catch (error) {
-    handleStripeError(error);
-  }
 }

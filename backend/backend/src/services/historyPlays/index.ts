@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { CustomError } from "../../error";
 import type { Prisma } from "../../generated/prisma/client";
 import { historyPlaysModel } from "../../models/historyPlays";
+import { advanceTestClock } from "../../utils/stripe";
 import { userService } from "../user";
 
 
@@ -66,6 +67,17 @@ class HistoryPlaysService {
       });
 
       return historyPlay;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async testClock() {
+    try {
+      const stripe = advanceTestClock('clock_1TLV5GHs4q3jg2YIfvnEZAAl');
+
+      console.log('advanceTestClock ?', stripe);
+
     } catch (error) {
       throw error;
     }
