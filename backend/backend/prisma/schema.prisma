@@ -44,8 +44,8 @@ model User {
   ROLE                        String          @default("client")
   ACTIVE                      Boolean         @default(false)
   STRIPE_CUSTOMER_ID          String?         @unique
-  STRIPE_SUBSCRIPTON_ID       String?
-  STRIPE_SUBSCRIPTON_STATUS   String?
+  STRIPE_SUBSCRIPTION_ID       String?
+  STRIPE_SUBSCRIPTION_STATUS   String?
   STRIPE_TRIAL_END            DateTime?
   STRIPE_TRIAL_START          DateTime?
   STRIPE_CURRENT_PERIOD_START DateTime?
@@ -63,7 +63,7 @@ model History_Plays {
   ID          String    @id @default(uuid())
   QTD_PLAYS   Int       @default(0)
   PRICE_MONTH Float?
-  STATUS      String?   @default("ativo") // "ativo", "aguardando pagamento", "pago", "teste"
+  STATUS      String?   @default("ativo") // "ativo", "aguardando pagamento", "pago", "teste" e "falhou"
   CREATED_AT  DateTime? @default(now()) @db.Timestamp(0)
   UPDATED_AT  DateTime? @default(now()) @updatedAt
   USER        User?     @relation(fields: [USER_ID], references: [ID])

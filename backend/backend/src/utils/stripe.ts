@@ -68,8 +68,8 @@ export const createStripeCustomer = async (email: string, name: string) => {
       if (subscription) {
         return {
           STRIPE_CUSTOMER_ID: customer.id,
-          STRIPE_SUBSCRIPTON_ID: subscription.id,
-          STRIPE_SUBSCRIPTON_STATUS: subscription.status,
+          STRIPE_SUBSCRIPTION_ID: subscription.id,
+          STRIPE_SUBSCRIPTION_STATUS: subscription.status,
           ACTIVE: subscription.status === 'active' || subscription.status === 'trialing',
           ...(subscription.trial_end ? { STRIPE_TRIAL_END: formatNummberForDate(subscription.trial_end) } : {}),
           ...(periodStart ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(periodStart) } : {}),
@@ -92,8 +92,8 @@ export const createStripeCustomer = async (email: string, name: string) => {
 
     return {
       STRIPE_CUSTOMER_ID: createCustomer.id,
-      STRIPE_SUBSCRIPTON_ID: '',
-      STRIPE_SUBSCRIPTON_STATUS: '',
+      STRIPE_SUBSCRIPTION_ID: '',
+      STRIPE_SUBSCRIPTION_STATUS: '',
       ACTIVE: false,
     };
   } catch (error) {
@@ -151,12 +151,10 @@ export const generatedCheckout = async ({ email, planId, token, userId, price }:
         metadata: {
           userId,
           planId,
-          price,
           type: 'monthly_subscription',
         },
       },
     });
-
 
     return { LINK: session.url };
   } catch (error) {
@@ -173,7 +171,7 @@ export const handleCheckoutSessionCompleted = async (event: {
     const stripeSubscriptionId = event.data.object.subscription as string;
     const stripeCustumerId = event.data.object.customer as string;
     const checkoutStatus = event.data.object.status;
-    const metadata = event.data.object.metadata as { userId: string, planId: string, price: string } || undefined;
+    const metadata = event.data.object.metadata as { userId: string, type: string, planId: string } || undefined;
 
     let planId = undefined;
 
@@ -190,7 +188,7 @@ export const handleCheckoutSessionCompleted = async (event: {
     await userService.update(idUser, {
       ACTIVE: true,
       STRIPE_CUSTOMER_ID: stripeCustumerId,
-      STRIPE_SUBSCRIPTON_ID: stripeSubscriptionId,
+      STRIPE_SUBSCRIPTION_ID: stripeSubscriptionId,
       ...(planId ? { PLAN: { connect: { ID: planId } } } : {}),
     });
   } catch (error) {
@@ -213,7 +211,7 @@ export const handleSubscriptionFinishedTrial = async ({ email, stripeSubscriptio
       metadata: {
         userId,
         planId,
-        price,
+        type: 'monthly_subscription',
       },
     });
 
@@ -232,24 +230,23 @@ export const handleSubscriptionSessionCompleted = async (event: {
    } }
 }) => {
   try {
-    console.log('handleSubscriptionSessionCompleted - 2 ?', JSON.stringify(event.data.object));
     const subscriptionStatus = event.data.object.status;
     const stripeCustumerId = event.data.object.customer as string;
     const stripeSubscriptionId = event.data.object.id as string;
     const trialEnd = event.data.object.trial_end as number | null;
     const trialStart = event.data.object.trial_start as number | null;
-    const metadata = event.data.object.metadata as { userId: string, planId: string, price: string } || undefined;
     const currentPeriodStart = event.data.object.current_period_start as number | null;
     const currentPeriodEnd = event.data.object.current_period_end as number | null;
+    const data = event.data.object.items.data[0]
 
     const user = await userService.showStripeCustomerId(stripeCustumerId);
 
-    if (user && metadata) {
-      const plan = await planService.showId(metadata.planId);
+    if (user && data) {
+      const plan = await planService.getPlanByStripeId(data.plan.product as string);
 
       await userService.update(user.ID, {
-        STRIPE_SUBSCRIPTON_ID: stripeSubscriptionId,
-        STRIPE_SUBSCRIPTON_STATUS: subscriptionStatus,
+        STRIPE_SUBSCRIPTION_ID: stripeSubscriptionId,
+        STRIPE_SUBSCRIPTION_STATUS: subscriptionStatus,
         ACTIVE: subscriptionStatus === 'active' || subscriptionStatus === 'trialing',
         ...(trialEnd ? { STRIPE_TRIAL_END: formatNummberForDate(trialEnd) } : {}),
         ...(trialStart ? { STRIPE_TRIAL_START: formatNummberForDate(trialStart) } : {}),
@@ -275,10 +272,46 @@ export const handleCancelPlan = async (event: {
 
     if (user) {
       await userService.update(user.ID, {
-        STRIPE_SUBSCRIPTON_STATUS: subscriptionStatus,
+        STRIPE_SUBSCRIPTION_STATUS: subscriptionStatus,
         ACTIVE: subscriptionStatus === 'active' || subscriptionStatus === 'trialing',
         PLAN: { disconnect: true },
       });
+
+      const activeHistoryPlays = user.HISTORY_PLAYS.find(history => history.STATUS === 'ativo');
+
+      if (activeHistoryPlays && user.PLAN && user.PLAN.PLAYS < activeHistoryPlays.QTD_PLAYS) {
+        const playDifference = activeHistoryPlays.QTD_PLAYS - user.PLAN.PLAYS;
+        const value = Math.floor(playDifference * user.PLAN.PLAYS_PRICE * 100) / 100;
+
+        await stripe.invoiceItems.create({
+          customer: stripeCustumerId,
+          amount: value,
+          currency: 'brl',
+          description: `Cobrança por excesso de ${playDifference} plays do plano ${user.PLAN.PLAN}`,
+          metadata: {
+            userId: user.ID,
+            historyPlaysId: activeHistoryPlays.ID,
+            type: 'excess_plays',
+          }
+        });
+
+        await stripe.invoices.create({
+          customer: stripeCustumerId,
+          auto_advance: true,
+        });
+
+        await historyPlaysService.update(activeHistoryPlays.ID, {
+          STATUS: 'aguardando pagamento',
+          PRICE_MONTH: value,
+        });
+      }
+
+      if (activeHistoryPlays && user.PLAN && user.PLAN.PLAYS >= activeHistoryPlays.QTD_PLAYS) {
+        await historyPlaysService.update(activeHistoryPlays.ID, {
+          STATUS: 'isento',
+          PRICE_MONTH: 0,
+        });
+      }
     }
   } catch (error) {
     handleStripeError(error);
@@ -294,76 +327,77 @@ export const handleInvoicePaid = async (event: {
   try {
     console.log('handleInvoicePaid - 3 ?', JSON.stringify(event.data.object));
     const stripeCustumerId = event.data.object.customer as string;
-    const subscriptionId = event.data.object.subscription as string | null;
     const paid = event.data.object.paid as boolean;
-    const line = event.data.object.lines.data[0];
+    const line = event.data.object.lines.data;
 
     const user = await userService.showStripeCustomerId(stripeCustumerId);
 
-    if (subscriptionId && line) {
-      const periodend = line.period.end as number | null;
-      const periodStart = line.period.start as number | null;
+    if (line.length > 0 && user) {
+      for (const item of line) {
+        const metadata = item.metadata as { userId: string, type: string, planId?: string, historyPlaysId?: string  } | null;
 
-      if (user && user.PLAN) {
-        await userService.update(user.ID, {
-          ...(periodend ? { STRIPE_CURRENT_PERIOD_END: formatNummberForDate(periodend) } : {}),
-          ...(periodStart ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(periodStart) } : {}),
-          ACTIVE: paid,
-        });
+        if (metadata && metadata.type === 'monthly_subscription' && metadata.planId) {
+          const periodend = item.period.end as number | null;
+          const periodStart = item.period.start as number | null;
 
-        if (!(user.HISTORY_PLAYS.length > 0)) {
           await userService.update(user.ID, {
-            HISTORY_PLAYS: { create: { QTD_PLAYS: 0, PRICE_MONTH: 0, STATUS: (user.STRIPE_SUBSCRIPTON_STATUS === 'trialing' ? 'teste' : 'ativo') } }
+            ...(periodend ? { STRIPE_CURRENT_PERIOD_END: formatNummberForDate(periodend) } : {}),
+            ...(periodStart ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(periodStart) } : {}),
+            ACTIVE: paid,
+          });
+
+          if (!(user.HISTORY_PLAYS.length > 0)) {
+            await userService.update(user.ID, {
+              HISTORY_PLAYS: { create: { QTD_PLAYS: 0, PRICE_MONTH: 0, STATUS: (user.STRIPE_SUBSCRIPTION_STATUS === 'trialing' ? 'teste' : 'ativo') } }
+            });
+          }
+
+          if (user.HISTORY_PLAYS.length > 0) {
+            const currentPlays = user.HISTORY_PLAYS.find(history => history.STATUS === 'ativo');
+
+            if (currentPlays && user.PLAN && user.PLAN.PLAYS < currentPlays.QTD_PLAYS) {
+              const playDifference = currentPlays.QTD_PLAYS - user.PLAN.PLAYS;
+              const value = Math.floor(playDifference * user.PLAN.PLAYS_PRICE * 100) / 100;
+
+              await stripe.invoiceItems.create({
+                customer: stripeCustumerId,
+                amount: value,
+                currency: 'brl',
+                description: `Cobrança por excesso de ${playDifference} plays do plano ${user.PLAN.PLAN}`,
+                metadata: {
+                  userId: user.ID,
+                  historyPlaysId: currentPlays.ID,
+                  type: 'excess_plays',
+                }
+              });
+
+              await historyPlaysService.update(currentPlays.ID, {
+                STATUS: 'aguardando pagamento',
+                PRICE_MONTH: value,
+              });
+            }
+
+            if (currentPlays && user.PLAN && user.PLAN.PLAYS >= currentPlays.QTD_PLAYS) {
+              await historyPlaysService.update(currentPlays.ID, {
+                STATUS: 'isento',
+                PRICE_MONTH: 0,
+              });
+            }
+
+            await historyPlaysService.create({
+              QTD_PLAYS: 0,
+              PRICE_MONTH: 0,
+              STATUS: 'ativo',
+              USER: { connect: { ID: user.ID } },
+            })
+          }
+        }
+
+        if (metadata && metadata.type === 'excess_plays' && metadata.userId && metadata.historyPlaysId) {
+          await historyPlaysService.update(metadata.historyPlaysId, {
+            STATUS: 'pago',
           });
         }
-
-        if (user.HISTORY_PLAYS.length > 0) {
-          const currentPlays = user.HISTORY_PLAYS.find(history => history.STATUS === 'ativo');
-
-          if (currentPlays && user.PLAN.PLAYS < currentPlays.QTD_PLAYS) {
-            const playDifference = currentPlays.QTD_PLAYS - user.PLAN.PLAYS;
-            const value = Math.floor(playDifference * user.PLAN.PLAYS_PRICE * 100) / 100;
-
-            await stripe.invoiceItems.create({
-              customer: stripeCustumerId,
-              amount: value,
-              currency: 'brl',
-              description: `Cobrança por excesso de ${playDifference} plays do plano ${user.PLAN.PLAN}`,
-              metadata: {
-                userId: user.ID,
-                historyPlaysId: currentPlays.ID,
-                type: 'excess_plays',
-              }
-            });
-
-            await historyPlaysService.update(currentPlays.ID, {
-              STATUS: 'aguardando pagamento',
-              PRICE_MONTH: value,
-            });
-          }
-
-          if (currentPlays && user.PLAN.PLAYS <= currentPlays.QTD_PLAYS) {
-            await historyPlaysService.update(currentPlays.ID, {
-              STATUS: 'isento',
-              PRICE_MONTH: 0,
-            });
-          }
-
-          await historyPlaysService.create({
-            QTD_PLAYS: 0,
-            PRICE_MONTH: 0,
-            STATUS: 'ativo',
-            USER: { connect: { ID: user.ID } },
-          })
-        }
-      }
-    } else {
-      const metadata = event.data.object.metadata as { userId: string, historyPlaysId: string, type: string } | null;
-
-      if (metadata && metadata.type === 'excess_plays' && metadata.userId && metadata.historyPlaysId) {
-        await historyPlaysService.update(metadata.historyPlaysId, {
-          STATUS: paid ? 'pago' : 'aguardando pagamento',
-        });
       }
     }
   } catch (error) {
@@ -375,12 +409,22 @@ export const handleInvoicePaymentFailed = async (event: {
   data: { object: Stripe.Invoice }
 }) => {
   try {
-    console.log('handleInvoicePaymentFailed - falhou', event.data.object);
     const stripeCustumerId = event.data.object.customer as string;
+    const line = event.data.object.lines.data;
 
     const user = await userService.showStripeCustomerId(stripeCustumerId);
 
     if (!user) return;
+
+    for (const item of line) {
+      const metadata = item.metadata as { userId: string, type: string, planId?: string, historyPlaysId?: string } | null;
+
+      if (metadata && metadata.type === 'excess_plays' && metadata.historyPlaysId) {
+        await historyPlaysService.update(metadata.historyPlaysId, {
+          STATUS: 'falhou',
+        });
+      }
+    }
 
     await userService.update(user.ID, {
       ACTIVE: false,

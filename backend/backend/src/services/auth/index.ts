@@ -49,7 +49,7 @@ class AuthService {
 
       const create = await userService.create({ ...data, ...stripe});
 
-      if (!(create.STRIPE_SUBSCRIPTON_STATUS === "")) {
+      if (!(create.STRIPE_SUBSCRIPTION_STATUS === "")) {
         throw new CustomError('Parece que você já possui uma conta. Por favor, acesse usando seu login.', StatusCodes.CONFLICT);
       }
 
@@ -65,11 +65,11 @@ class AuthService {
 
   async verificationStripedSubscription(user: User): Promise<string> {
     try {
-      if ((user.STRIPE_SUBSCRIPTON_STATUS === "" || user.STRIPE_SUBSCRIPTON_STATUS === "")) {
+      if ((user.STRIPE_SUBSCRIPTION_STATUS === "" || user.STRIPE_SUBSCRIPTION_STATUS === "")) {
         throw new CustomError<User>('Assinatura não encontrada, por favor realize a assinatura para acessar o conteúdo', StatusCodes.FORBIDDEN, { ...user});
       }
 
-      if (!(user.STRIPE_SUBSCRIPTON_STATUS === "active" || user.STRIPE_SUBSCRIPTON_STATUS === "trialing")) {
+      if (!(user.STRIPE_SUBSCRIPTION_STATUS === "active" || user.STRIPE_SUBSCRIPTION_STATUS === "trialing")) {
         throw new CustomError<User>('Assinatura inativa, por favor realize a assinatura para acessar o conteúdo', StatusCodes.PAYMENT_REQUIRED, { ...user});
       }
 
@@ -223,11 +223,11 @@ class AuthService {
         throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
       }
 
-      if (user.STRIPE_SUBSCRIPTON_STATUS === "active") {
+      if (user.STRIPE_SUBSCRIPTION_STATUS === "active") {
         throw new CustomError('Assinatura já ativa', StatusCodes.CONFLICT);
       }
 
-      if (user.STRIPE_SUBSCRIPTON_ID === "" || user.STRIPE_SUBSCRIPTON_STATUS === "") {
+      if (user.STRIPE_SUBSCRIPTION_ID === "" || user.STRIPE_SUBSCRIPTION_STATUS === "") {
         throw new CustomError('Assinatura não encontrada', StatusCodes.FORBIDDEN);
       }
 
@@ -235,7 +235,7 @@ class AuthService {
         email: user.EMAIL,
         userId: user.ID,
         planId: user.PLAN_ID as string,
-        stripeSubscriptionId: user.STRIPE_SUBSCRIPTON_ID as string,
+        stripeSubscriptionId: user.STRIPE_SUBSCRIPTION_ID as string,
         price: "",
       });
 

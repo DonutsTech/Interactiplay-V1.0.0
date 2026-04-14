@@ -22,7 +22,7 @@ export async function initAdmin() {
 
       const create = await userModel.create({ data: { ...master, ...stripe } });
 
-      if (create.STRIPE_SUBSCRIPTON_STATUS === "") {
+      if (create.STRIPE_SUBSCRIPTION_STATUS === "") {
         const plan = await planService.getPlanByFree();
 
         if (plan) {

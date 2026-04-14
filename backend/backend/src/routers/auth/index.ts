@@ -16,4 +16,7 @@ class AuthRouter {
   }
 }
 
+// /create-portal - inserir essa routa de link da stripe
+// criar o portal quando já tiver esta intavido
+
 export default AuthRouter;
