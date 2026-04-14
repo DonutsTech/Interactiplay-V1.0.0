@@ -11,6 +11,7 @@ interface ErrorModalProps {
   mensagem: string;
   type?: 'error' | 'success' | 'warning';
   statusCode?: number;
+  btn?: boolean;
   butonProps?: {
     text: string;
     goClick: () => void;
@@ -24,6 +25,7 @@ const ErrorModal = ({
   type = 'error',
   statusCode,
   butonProps,
+  btn
 }: ErrorModalProps) => {
   return (
     <>
@@ -58,7 +60,7 @@ const ErrorModal = ({
         </h3>
 
         <p className={styles.modal_message}>{mensagem}</p>
-        {(statusCode === 409 || statusCode === 403 || statusCode === 402) &&
+        {(statusCode === 409 || statusCode === 403 || statusCode === 402 || btn) &&
           butonProps && (
             <button
               onClick={butonProps.goClick}

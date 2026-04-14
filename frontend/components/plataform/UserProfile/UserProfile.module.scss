@@ -1,0 +1,212 @@
+.userProfile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  // padding: 48px;
+
+  &_title {
+    color: $color-darkBlue-dark-3;
+    font-size: 32px;
+    width: 100%;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  &_form {
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    &_formGroup {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 8px;
+      position: relative;
+
+      &_label {
+        width: 100%;
+        font-size: 14px;
+        font-weight: 600;
+        color: $color-darkBlue-dark-3;
+        text-align: left;
+        @include text('p');
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 4px;
+        position: relative;
+
+        &_baloon {
+          display: none;
+          font-size: 14px;
+          font-weight: 400;
+          background-color: $color-darkBlue-dark-3;
+          color: $color-white;
+          width: 144px;
+          padding: 8px;
+          position: absolute;
+          top: -144px;
+          left: 70px;
+          border-radius: 8px;
+          z-index: 10;
+        }
+
+        &_info {
+          font-size: 14px;
+          cursor: pointer;
+
+          &:hover+.userProfile_form_formGroup_label_baloon {
+            display: block;
+          }
+        }
+      }
+
+
+      &_input {
+        width: 100%;
+        min-height: 48px;
+        padding: 8px 16px;
+        border: 1px solid $color-gray-base;
+        border-radius: 8px;
+        font-size: 14px;
+        color: $color-darkBlue-dark-3;
+        box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s ease-in-out;
+        padding-left: 40px;
+
+        &:focus {
+          outline: 2px solid $color-ciano-light-3;
+          border: none;
+          outline-offset: 2px;
+          border-radius: 8px;
+          box-shadow: none;
+        }
+
+        &_alter {
+          border: 2px solid $color-purple-dark-2;
+        }
+
+        &_disabled {
+          pointer-events: none;
+
+          &:focus {
+            outline: none;
+            border: 1px solid $color-gray-base;
+            color: $color-darkBlue-dark-3;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease-in-out;
+            padding-left: 40px;
+          }
+        }
+      }
+
+      &_icon {
+        color: $color-darkBlue-dark-3;
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+      }
+    }
+
+    button {
+      margin-top: 16px;
+    }
+  }
+
+  &_actions {
+    width: 100%;
+    height: 128px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-top: 16px;
+
+
+    &_box {
+      width: 30%;
+      height: 100%;
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      border-radius: 8px;
+      background-color: $color-gray-light-1;
+
+      button {
+        width: 80%;
+        margin: 0 auto;
+      }
+
+      &_text {
+        font-size: 16px;
+        font-weight: 600;
+        color: $color-darkBlue-dark-3;
+        text-align: center;
+      }
+
+      &_active {
+        button {
+          background-color: $color-ciano-dark-2;
+
+          &:hover {
+            background-color: $color-ciano-dark-3;
+          }
+        }
+      }
+
+      &_validation {
+        button {
+          background-color: $color-purple-base;
+
+          &:hover {
+            background-color: $color-purple-dark-2;
+          }
+        }
+      }
+
+      &_senha {
+        button {
+          background-color: $color-blue-dark-1;
+
+          &:hover {
+            background-color: $color-blue-dark-3;
+          }
+        }
+      }
+
+    }
+  }
+
+  @media (max-width: 1080px) {
+    padding-bottom: 48px;
+    .userProfile_actions {
+      flex-direction: column;
+      gap: 16px;
+
+      &_box {
+        width: 100%;
+        padding: 16px 0;
+      }
+    }
+  }
+  @media (max-width: 768px) {
+    padding: 0;
+    justify-content: flex-start;
+
+    &_form {
+      width: 100%;
+      
+    }
+  }
+}

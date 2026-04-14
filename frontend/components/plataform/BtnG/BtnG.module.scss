@@ -1,0 +1,27 @@
+.btnG {
+  padding: 8px 16px;
+  background-color: $color-blue-light-2;
+  color: $color-white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  @include text('p');
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: $color-darkBlue-dark-3;
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    background-color: $color-gray-dark-2;
+    pointer-events: none;
+  }
+}

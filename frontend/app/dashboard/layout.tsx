@@ -2,6 +2,8 @@ import { AppProvider } from '@/context';
 import type { Metadata } from 'next';
 import './dashboard.scss';
 import RotaCheck from '@/components/plataform/RotaCheck';
+import MenuDash from '@/components/plataform/MenuDash';
+import FooterDash from '@/components/plataform/FooterDash';
 
 export const metadata: Metadata = {
   title: 'Interactiplay - Plataforma',
@@ -17,5 +19,11 @@ export default function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <RotaCheck>{children}</RotaCheck>;
+  return (
+    <RotaCheck>
+      <MenuDash />
+      {children}
+      <FooterDash />
+    </RotaCheck>
+  );
 }

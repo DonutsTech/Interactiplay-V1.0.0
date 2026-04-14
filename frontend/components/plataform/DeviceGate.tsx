@@ -16,8 +16,8 @@ const DeviceGate = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    if (isMobile && pathname !== '/dashboard/user') {
-      router.replace('/dashboard/user');
+    if (isMobile && !pathname.startsWith('/dashboard/user')) {
+      router.replace('/dashboard/user/');
       return;
     }
 

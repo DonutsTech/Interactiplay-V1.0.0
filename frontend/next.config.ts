@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
   },
   
   compress: true,
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'interacti-uploads.s3.us-east-1.amazonaws.com',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

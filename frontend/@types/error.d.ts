@@ -10,6 +10,7 @@ export interface ErrorModalState {
   mensagem: string;
   type: 'error' | 'success' | 'warning';
   statusCode?: number;
+  btn?: boolean;
   butonProps?: {
     text: string;
     goClick: () => void;

@@ -1,13 +1,9 @@
 'use client';
-import { AuthUserContext } from "@/context/AuthUserContext";
-import { useContext } from "react";
-
-
-
-
+import TawkWidget from '@/components/plataform/TawkWidget';
+import { AuthUserContext } from '@/context/AuthUserContext';
+import { useContext } from 'react';
 
 export default function Dashboard() {
-
   const { authUser } = useContext(AuthUserContext);
 
   if (!authUser) {
@@ -16,9 +12,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <h1>Olá {authUser.USER.NAME.split(' ')[0]}!</h1>
 
     </>
   );
-};
-
+}
