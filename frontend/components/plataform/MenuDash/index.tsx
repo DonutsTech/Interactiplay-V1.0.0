@@ -247,7 +247,7 @@ const MenuDash = () => {
           </div>
         </div>
       </header>
-      {(authUser.USER.STRIPE_SUBSCRIPTON_STATUS === 'trialing' && width > 1080) && (
+      {(authUser.USER.STRIPE_SUBSCRIPTION_STATUS === 'trialing' && width > 1080) && (
         <div className={styles.trialing}>
           <p>
             Aproveite o seu período de Teste que vai até{' '}

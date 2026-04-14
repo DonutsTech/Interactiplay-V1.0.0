@@ -30,8 +30,8 @@ export interface MeResponse {
     ROLE: string;
     ACTIVE: boolean;
     STRIPE_CUSTOMER_ID: string;
-    STRIPE_SUBSCRIPTON_ID: string;
-    STRIPE_SUBSCRIPTON_STATUS: string;
+    STRIPE_SUBSCRIPTION_ID: string;
+    STRIPE_SUBSCRIPTION_STATUS: string;
     STRIPE_TRIAL_END: string | null;
     STRIPE_CURRENT_PERIOD_START: string | null;
     STRIPE_CURRENT_PERIOD_END: string | null;

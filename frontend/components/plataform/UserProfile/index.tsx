@@ -158,7 +158,7 @@ const UserProfile = () => {
         <BtnG text="Salvar Alterações" type="submit" />
       </form>
       <div className={styles.userProfile_actions}>
-        {authUser.USER.STRIPE_SUBSCRIPTON_STATUS === 'trialing' && (
+        {authUser.USER.STRIPE_SUBSCRIPTION_STATUS === 'trialing' && (
           <div
             className={classNames({
               [styles.userProfile_actions_box]: true,
