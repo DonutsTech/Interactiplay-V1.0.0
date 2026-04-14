@@ -119,6 +119,8 @@ const AuthUserProvider = ({ children }: { children: ReactNode }) => {
     ]
   );
 
+  console.log('AuthUserContext Value:', authUser);
+
   return (
     <AuthUserContext.Provider value={value}>
       {children}

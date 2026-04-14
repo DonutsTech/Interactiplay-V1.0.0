@@ -36,5 +36,18 @@ export interface MeResponse {
     STRIPE_CURRENT_PERIOD_START: string | null;
     STRIPE_CURRENT_PERIOD_END: string | null;
     PLAN_ID: string | null;
+    PLAN: Plan | null;
   };
+}
+
+export interface Plan {
+  ID: string;
+  PLAN: string;
+  PLAYS: number;
+  PLAYS_PRICE: number;
+  PRICE: number;
+  STATUS: boolean;
+  STRIPE_PLAN_ID: string;
+  STRIPE_PLAN_PRICE: string;
+  VIDEO_LIMIT: number;
 }
