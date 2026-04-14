@@ -166,7 +166,7 @@ const UserProfile = () => {
             })}
           >
             <p className={styles.userProfile_actions_box_text}>
-              Ativar agora o meu plano agora
+              Ativar agora o meu plano
             </p>
             <BtnG text="Ativar" type="button" />
           </div>
@@ -180,7 +180,7 @@ const UserProfile = () => {
             })}
           >
             <p className={styles.userProfile_actions_box_text}>
-              Reenviar Email de vailidação
+              Reenviar Email de validação
             </p>
             <BtnG text="Reenviar" type="button" />
           </div>
