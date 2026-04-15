@@ -19,8 +19,11 @@ export interface ErrorModalState {
   onClose?: () => void;
 }
 
-export const isErrorMessage = (value: unknown): value is ErrorMessage =>
-  typeof value === 'object' &&
-  value !== null &&
-  'STATUS' in value &&
-  'MESSAGE' in value;
+export const isErrorMessage = (value) => {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'STATUS' in value &&
+    'MESSAGE' in value
+  );
+}

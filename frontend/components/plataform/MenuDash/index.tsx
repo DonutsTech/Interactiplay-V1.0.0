@@ -159,7 +159,7 @@ const MenuDash = () => {
           <Link href="/dashboard" className={styles.menuDash_nav_link}>
             Flow
           </Link>
-          <Link href="/dashboard/videos" className={styles.menuDash_nav_link}>
+          <Link href="/dashboard/myvideos" className={styles.menuDash_nav_link}>
             Meus Vídeos
           </Link>
           <Link

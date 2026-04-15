@@ -1,0 +1,18 @@
+
+.myvideosPainel {
+  width: 100%;
+  max-width: 1440px;
+  min-width: 768px;
+  margin: 0 auto;
+  height: auto;
+  // min-height: 80dvh;
+  border: 1px solid white;
+  padding-top: 88px;
+
+  &_content {
+    width: 100%;
+    height: auto;
+    min-height: 90dvh;
+    border: 1px solid pink;
+  }
+};

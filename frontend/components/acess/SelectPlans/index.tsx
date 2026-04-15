@@ -52,6 +52,7 @@ const SelectPlans = () => {
         ID_USER: user.id,
       });
 
+      console.log('Resposta do checkout:', response);
       if ('STATUS' in response && 'MESSAGE' in response) {
         const errorResponse = response as ErrorMessage;
         setError(errorResponse.MESSAGE || 'Erro ao seguir para o checkout.');
@@ -78,7 +79,7 @@ const SelectPlans = () => {
     const fetchPlans = async () => {
       try {
         const data = await getPlan();
-        if (isErrorMessage(data)) {
+        if (typeof data === 'object' && data !== null && 'STATUS' in data && 'MESSAGE' in data ) {
           setError(data.MESSAGE || 'Erro ao buscar planos.');
           return;
         }

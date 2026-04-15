@@ -17,14 +17,15 @@ const SucessPainel = () => {
   const { setIsLoading } = useIsLoading();
   const [tokenSet, setTokenSet] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const mountedRef = useRef(true);
+  const [isMounted, setMounted] = useState(false);
   const router = useRouter();
 
   const token = useSearchParams().get('token');
 
   useEffect(() => {
     return () => {
-      mountedRef.current = false;
+      setMounted(true);
+      setIsLoading(false);
     };
   }, []);
 
@@ -32,13 +33,13 @@ const SucessPainel = () => {
     const handleToken = async () => {
       if (!token || tokenSet) return;
 
-      setIsLoading(true);
+      // setIsLoading(true);
       setError(null);
       setToken(token);
 
       const loadedUser = await loadAuthUser();
 
-      if (!mountedRef.current) return;
+      if (!isMounted) return;
 
       if (loadedUser) {
         setUser((prev) => ({
@@ -68,7 +69,7 @@ const SucessPainel = () => {
       return;
     }
 
-    setIsLoading(true);
+    // setIsLoading(true);
     router.push('/dashboard');
   }, [authUser, user.id, setIsLoading, router]);
 
@@ -82,7 +83,7 @@ const SucessPainel = () => {
         draggable={false}
       />
       <div className={styles.head}>
-        <h2>Parabéns {user.name.split(' ')[0]}!</h2>
+        <h2>Parabéns{user.name && isMounted ? ` ${user.name.split(' ')[0]}` : ''}!</h2>
         <p>
           Seu cadastro foi realizado com sucesso.
           <br />
