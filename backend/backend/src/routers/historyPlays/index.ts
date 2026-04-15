@@ -6,7 +6,7 @@ class HistoryPlaysRouter {
   public static create(router: Router): void {
     router.get("/user/history-plays", isAuthenticateTokenDb, historyPlaysController.getHistoryPlaysByUserId);
     router.get("/history-plays/:id", historyPlaysController.testUpdate);
-    router.get("/test", historyPlaysController.test);
+    // router.get("/test", historyPlaysController.test);
   }
 }
 

@@ -26,9 +26,7 @@ export const getStripeProducts = async () => {
 
 export const getStripeCustomerByEmail = async (email: string) => {
   try {
-    const customers = await stripe.customers.search({
-      query: `email:'${email}'`,
-    });
+    const customers = await stripe.customers.list({ email });
 
     console.log('getStripeCustomerByEmail ?', customers);
 
@@ -85,10 +83,10 @@ export const createStripeCustomer = async (email: string, name: string) => {
     const createCustomer = await stripe.customers.create({
       email,
       name,
-      test_clock: 'clock_1TLV5GHs4q3jg2YIfvnEZAAl',
+      // test_clock: 'clock_1TLV5GHs4q3jg2YIfvnEZAAl',
     });
 
-    console.log('createStripeCustomer ?', createCustomer);
+    // console.log('createStripeCustomer ?', createCustomer);
 
     return {
       STRIPE_CUSTOMER_ID: createCustomer.id,
@@ -435,29 +433,29 @@ export const handleInvoicePaymentFailed = async (event: {
 }
 
 // para deletar depois (depois) aqui clock_1TLV5GHs4q3jg2YIfvnEZAAl
-export const advanceTestClock = async (clockId: string, targetTimestamp?: number) => {
-  try {
-    const clock = await stripe.testHelpers.testClocks.retrieve(clockId);
+// export const advanceTestClock = async (clockId: string, targetTimestamp?: number) => {
+//   try {
+//     const clock = await stripe.testHelpers.testClocks.retrieve(clockId);
 
-    // Se não especificar uma data, avança para o próximo mês
-    const currentTime = clock.frozen_time;
-    const targetTime = targetTimestamp || getNextMonthTimestamp(currentTime);
+//     // Se não especificar uma data, avança para o próximo mês
+//     const currentTime = clock.frozen_time;
+//     const targetTime = targetTimestamp || getNextMonthTimestamp(currentTime);
 
-    const advancedClock = await stripe.testHelpers.testClocks.advance(clockId, {
-      frozen_time: targetTime,
-    });
+//     const advancedClock = await stripe.testHelpers.testClocks.advance(clockId, {
+//       frozen_time: targetTime,
+//     });
 
-    console.log('Test clock avançado para:', new Date(targetTime * 1000));
-    return advancedClock;
-  } catch (error) {
-    handleStripeError(error);
-  }
-}
+//     console.log('Test clock avançado para:', new Date(targetTime * 1000));
+//     return advancedClock;
+//   } catch (error) {
+//     handleStripeError(error);
+//   }
+// }
 
-export const getNextMonthTimestamp = (currentTimestamp: number) => {
-  const currentDate = new Date(currentTimestamp * 1000);
-  const nextMonth = new Date(currentDate);
-  nextMonth.setMonth(nextMonth.getMonth() + 1);
+// export const getNextMonthTimestamp = (currentTimestamp: number) => {
+//   const currentDate = new Date(currentTimestamp * 1000);
+//   const nextMonth = new Date(currentDate);
+//   nextMonth.setMonth(nextMonth.getMonth() + 1);
 
-  return Math.floor(nextMonth.getTime() / 1000);
-}
+//   return Math.floor(nextMonth.getTime() / 1000);
+// }
