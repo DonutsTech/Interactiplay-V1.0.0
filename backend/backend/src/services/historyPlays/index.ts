@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { CustomError } from "../../error";
 import type { Prisma } from "../../generated/prisma/client";
 import { historyPlaysModel } from "../../models/historyPlays";
-import { advanceTestClock } from "../../utils/stripe";
+// import { advanceTestClock } from "../../utils/stripe";
 import { userService } from "../user";
 
 
@@ -72,16 +72,16 @@ class HistoryPlaysService {
     }
   }
 
-  async testClock() {
-    try {
-      const stripe = advanceTestClock('clock_1TLV5GHs4q3jg2YIfvnEZAAl');
+  // async testClock() {
+  //   try {
+  //     const stripe = advanceTestClock('clock_1TLV5GHs4q3jg2YIfvnEZAAl');
 
-      console.log('advanceTestClock ?', stripe);
+  //     console.log('advanceTestClock ?', stripe);
 
-    } catch (error) {
-      throw error;
-    }
-  }
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 }
 
 export const historyPlaysService = new HistoryPlaysService();

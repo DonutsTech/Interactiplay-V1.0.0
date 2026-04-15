@@ -16,8 +16,8 @@ export const applyApiRouters = (router: Router): void => {
     PlanRouter,
     AuthRouter,
     HistoryPlaysRouter,
-    CampaignApiRouter,
-    VideoRouter,
+    // CampaignApiRouter,
+    // VideoRouter,
   ];
   applyRouters(router, routers);
 };
