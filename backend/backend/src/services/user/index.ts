@@ -25,7 +25,8 @@ class UserService {
       data.HASHED_PASSWORD = await bycrpt.hash(data.HASHED_PASSWORD, await bycrpt.genSalt());
 
       const user = await userModel.create({
-        data
+        data,
+        include: { PLAN: true, HISTORY_PLAYS: true}
       });
 
       return user;
@@ -49,7 +50,7 @@ class UserService {
       const user = await userModel.updateBy({
         where: { ID: id },
         data,
-        include: { PLAN: true }
+        include: { PLAN: true, HISTORY_PLAYS: true }
       });
 
       return user;
@@ -72,7 +73,7 @@ class UserService {
     try {
       await this.existsById(id);
 
-      const user = await userModel.findBy({ where: { ID: id }, include: { PLAN: true } });
+      const user = await userModel.findBy({ where: { ID: id }, include: { PLAN: true, HISTORY_PLAYS: true } });
 
       if (!user) {
         throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
