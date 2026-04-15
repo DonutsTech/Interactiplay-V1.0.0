@@ -3,6 +3,14 @@ import type { Campaign_Video } from '../../generated/prisma/client';
 import { campaignVideoModel } from '../../models/campaignVideo';
 
 class CampaignVideoService {
+  async existsByVideoId(videoId: string): Promise<boolean> {
+    if (await campaignVideoModel.count({ VIDEO_ID: videoId })) {
+      return true;
+    }
+
+    return false;
+  }
+
   async createCampaignVideoForCampaign(data: createCampaignVideo): Promise<Campaign_Video> {
     try {
       const campaignVideo = await campaignVideoModel.create({

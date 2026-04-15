@@ -1,8 +1,14 @@
 import type { NextFunction, Request, Response } from 'express';
+import type { MulterS3File } from '../../@types/file';
+import type { UpdateVideo } from '../../@types/interface/video';
+import { videoService } from '../../services/video';
 
 class VideoController {
   async getVideosAllForUser(request: Request, response: Response, next: NextFunction) {
     try {
+      const { user } = request as Request & { user: { ID: string } };
+      const videos = await videoService.getVideoAllForUser(user.ID);
+      return response.status(200).json(videos);
     } catch (error) {
       next(error);
     }
@@ -10,6 +16,10 @@ class VideoController {
 
   async getVideoByIdForUser(request: Request, response: Response, next: NextFunction) {
     try {
+      const { user } = request as Request & { user: { ID: string } };
+      const { id } = request.params as { id: string };
+      const video = await videoService.getVideoByIdForUser(user.ID, id);
+      return response.status(200).json(video);
     } catch (error) {
       next(error);
     }
@@ -17,6 +27,8 @@ class VideoController {
 
   async getVideosAll(request: Request, response: Response, next: NextFunction) {
     try {
+      const videos = await videoService.getVideoAll();
+      return response.status(200).json(videos);
     } catch (error) {
       next(error);
     }
@@ -24,6 +36,9 @@ class VideoController {
 
   async getVideoById(request: Request, response: Response, next: NextFunction) {
     try {
+      const { id } = request.params as { id: string };
+      const video = await videoService.getVideoById(id);
+      return response.status(200).json(video);
     } catch (error) {
       next(error);
     }
@@ -31,6 +46,10 @@ class VideoController {
 
   async createVideoForUser(request: Request, response: Response, next: NextFunction) {
     try {
+      const { user } = request as Request & { user: { ID: string } };
+      const file = request.file as MulterS3File | undefined;
+      const video = await videoService.createVideoForUser(user.ID, file);
+      return response.status(201).json(video);
     } catch (error) {
       next(error);
     }
@@ -38,6 +57,10 @@ class VideoController {
 
   async putVideoForUser(request: Request, response: Response, next: NextFunction) {
     try {
+      const { id } = request.params as { id: string };
+      const data = request.body as UpdateVideo;
+      const video = await videoService.putVideoForUser(id, data);
+      return response.status(200).json(video);
     } catch (error) {
       next(error);
     }
@@ -45,6 +68,9 @@ class VideoController {
 
   async deleteVideoForUser(request: Request, response: Response, next: NextFunction) {
     try {
+      const { id } = request.params as { id: string };
+      const deleteVideo = await videoService.deleteVideoForUser(id);
+      return response.status(200).json(deleteVideo);
     } catch (error) {
       next(error);
     }
