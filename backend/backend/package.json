@@ -7,7 +7,10 @@
     "dev": "tsx watch src/server.ts",
     "db:deploy": "yarn prisma migrate deploy && yarn prisma generate",
     "db:push": "yarn prisma db push && yarn prisma generate",
-    "dev:full": "yarn run db:push && yarn run dev"
+    "dev:full": "yarn run db:push && yarn run dev",
+    "lint": "eslint src/**/*.{js,ts} --fix",
+    "lint:check": "eslint src/**/*.{js,ts}",
+    "format": "prettier --write src/**/*.{js,ts,json}"
   },
   "type": "module",
   "devDependencies": {
@@ -19,7 +22,15 @@
     "@types/node": "^25.5.0",
     "@types/nodemailer": "^8.0.0",
     "@types/pg": "^8.16.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
+    "@typescript-eslint/parser": "^8.58.2",
     "eslint": "^10.0.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.2",
     "prisma": "^7.4.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
