@@ -5,20 +5,15 @@ export const MESSEGE_VALIDITY: ErrorMessage = {
   MESSAGE: "Resposta da API inválida. Tente novamente mais tarde ou entre em contato com o suporte.",
 };
 
-const isErrorMessage = (error: unknown): error is ErrorMessage => {
-  return (
-    typeof error === "object" &&
+
+export const messageError = (error: ErrorMessage | unknown): ErrorMessage => {
+  if (    typeof error === "object" &&
     error !== null &&
     "STATUS" in error &&
     "MESSAGE" in error &&
     typeof (error as ErrorMessage).STATUS === "number" &&
-    typeof (error as ErrorMessage).MESSAGE === "string"
-  );
-};
-
-export const messageError = (error: ErrorMessage | unknown): ErrorMessage => {
-  if (isErrorMessage(error)) {
-    return error;
+    typeof (error as ErrorMessage).MESSAGE === "string") {
+    return error as ErrorMessage;
   } else {
     return {
       STATUS: 500,

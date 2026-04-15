@@ -1,4 +1,3 @@
-// import { isErrorMessage } from '@/@types/error';
 import { ErrorMessage } from '@/@types/error';
 import type { Plan } from '@/@types/plan';
 import { getPlan } from '@/service/plan';
@@ -6,11 +5,6 @@ import { useEffect, useState } from 'react';
 import styles from './Plan.module.scss';
 import PlanCards from './PlanCards';
 
-const isErrorMessage = (value: unknown): value is ErrorMessage =>
-  typeof value === 'object' &&
-  value !== null &&
-  'STATUS' in value &&
-  'MESSAGE' in value;
 
 const Plan = () => {
   const [planos, setPlanos] = useState<Plan[]>([]);
@@ -69,7 +63,13 @@ const Plan = () => {
       try {
         const data = await getPlan();
 
-        if (isErrorMessage(data) || data.length === 0) {
+        if (
+          (typeof data === 'object' &&
+            data !== null &&
+            'STATUS' in data &&
+            'MESSAGE' in data) ||
+          data.length === 0
+        ) {
           setMockado(true);
           setPlanos(mockPlan);
           return;

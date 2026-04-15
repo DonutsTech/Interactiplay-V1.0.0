@@ -1,6 +1,6 @@
 'use client';
 
-import { ErrorMessage, isErrorMessage } from '@/@types/error';
+import { ErrorMessage } from '@/@types/error';
 import { Plan } from '@/@types/plan';
 import logo from '@/assets/images/logo_white_dg.svg';
 import { useIsLoading } from '@/context/IsLoadingContext';

@@ -15,6 +15,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import BtnG from '../BtnG';
 import { useIsLoading } from '@/context/IsLoadingContext';
+import { getToken } from '@/service/token';
+import { ErrorModalState } from '@/@types/error';
+import { useRouter } from 'next/navigation';
+import { getPaymentActive } from '@/service/plan/payment-active';
+import ErrorModal from '@/components/globals/ErrorModal';
 
 interface UserProfileProps {
   name: string;
@@ -26,13 +31,18 @@ const UserProfile = () => {
   const { authUser, loadAuthUser } = useContext(AuthUserContext);
   const { setIsLoading, isLoading } = useIsLoading();
   const [phoneError, setPhoneError] = useState('');
+  const [showModalMsg, setShowModalMsg] = useState(false);
+  const [msgProp, setMsgProp] = useState<ErrorModalState>({
+    mensagem: '',
+    type: 'error',
+    btn: false,
+  });
+
+  const router = useRouter();
 
   if (!authUser) {
     return <div className={styles.loading}>Carregando...</div>;
   }
-
-  // setIsLoading(true);
-
 
   const [userShow, setUserShow] = useState<UserProfileProps>({
     email: authUser.USER.EMAIL,
@@ -40,8 +50,99 @@ const UserProfile = () => {
     phone: authUser.USER.PHONE,
   });
 
+  const handlerCloseModal = () => {
+    setShowModalMsg(false);
+    setIsLoading(false);
+  };
+
+  const handlerActivePayment = async () => {
+    const token = getToken();
+    if (!token) {
+      setMsgProp({
+        mensagem: 'Usuário não autenticado. Faça login novamente.',
+        type: 'warning',
+        btn: true,
+        butonProps: {
+          text: 'Login',
+          goClick: () => {
+            router.push('/acess/login');
+            setShowModalMsg(false);
+            setIsLoading(false);
+          },
+        },
+      });
+      setShowModalMsg(true);
+      setIsLoading(true);
+      return;
+    }
+
+    try {
+      const data = await getPaymentActive(token);
+
+      if ('MESSAGE' in data) {
+        setMsgProp({
+          mensagem: data.MESSAGE,
+          type: 'warning',
+          btn: true,
+          butonProps: {
+            text: 'OK',
+            goClick: () => {
+              setShowModalMsg(false);
+              setIsLoading(false);
+            },
+          },
+        });
+        setShowModalMsg(true);
+        setIsLoading(true);
+      } else {
+        setMsgProp({
+          mensagem: 'Plano ativado com sucesso!',
+          type: 'success',
+          btn: true,
+          butonProps: {
+            text: 'OK',
+            goClick: () => {
+              setShowModalMsg(false);
+              loadAuthUser();
+              setIsLoading(false);
+            },
+          },
+        });
+        setTimeout(() => {
+          setShowModalMsg(true);
+          setIsLoading(true);
+        }, 5000);
+      }
+    } catch (error) {
+      setMsgProp({
+        mensagem: 'Erro ao verificar pagamento ativo.',
+        type: 'error',
+        btn: true,
+        butonProps: {
+          text: 'OK',
+          goClick: () => {
+            setShowModalMsg(false);
+            setIsLoading(false);
+          },
+        },
+      });
+      setShowModalMsg(true);
+      setIsLoading(true);
+    }
+  };
+
   return (
     <div className={styles.userProfile}>
+      {showModalMsg && (
+        <ErrorModal
+          isOpen={(show) => setShowModalMsg(show)}
+          mensagem={msgProp.mensagem}
+          type={msgProp.type}
+          btn={msgProp.btn}
+          butonProps={msgProp.butonProps}
+          onClose={handlerCloseModal}
+        />
+      )}
       <h2 className={styles.userProfile_title}>Meu Perfil</h2>
       <form className={styles.userProfile_form}>
         <div className={styles.userProfile_form_formGroup}>
@@ -168,7 +269,7 @@ const UserProfile = () => {
             <p className={styles.userProfile_actions_box_text}>
               Ativar agora o meu plano
             </p>
-            <BtnG text="Ativar" type="button" />
+            <BtnG text="Ativar" type="button" goClick={handlerActivePayment} />
           </div>
         )}
 
@@ -185,17 +286,17 @@ const UserProfile = () => {
             <BtnG text="Reenviar" type="button" />
           </div>
         )}
-                  <div
-            className={classNames({
-              [styles.userProfile_actions_box]: true,
-              [styles.userProfile_actions_box_senha]: true,
-            })}
-          >
-            <p className={styles.userProfile_actions_box_text}>
-              Solicitar troca de senha
-            </p>
-            <BtnG text="Solicitar" type="button" />
-          </div>
+        <div
+          className={classNames({
+            [styles.userProfile_actions_box]: true,
+            [styles.userProfile_actions_box_senha]: true,
+          })}
+        >
+          <p className={styles.userProfile_actions_box_text}>
+            Solicitar troca de senha
+          </p>
+          <BtnG text="Solicitar" type="button" />
+        </div>
       </div>
     </div>
   );

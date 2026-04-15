@@ -9,18 +9,12 @@ import { UserContext } from '@/context/UserContext';
 import { getValidateEmail } from '@/service/auth/validateemail';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import ButtonAcess from '../ButtonAcess';
 import styles from './ValidateEmail.module.scss';
 
-const isErrorResponse = (value: unknown): value is ErrorMessage =>
-  typeof value === 'object' &&
-  value !== null &&
-  'STATUS' in value &&
-  'MESSAGE' in value;
-
 const ValidateEmail = () => {
-  const mountedRef = useRef(true);
+  const [mounted, setMounted] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
   const { loadAuthUser } = useContext(AuthUserContext);
   const { user } = useContext(UserContext);
@@ -28,46 +22,48 @@ const ValidateEmail = () => {
   const token = useSearchParams().get('token');
 
   useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
+    setMounted(true);
+    
     if (!token) {
       router.replace('/acess/login');
+      return;
     }
-  }, [token, router]);
-
-  useEffect(() => {
-    if (!token) return;
 
     const handleToken = async () => {
       setIsLoading(true);
 
       try {
         const data = await getValidateEmail(token);
-        if (!mountedRef.current) return;
+        
+        if (!data) {
+          router.replace('/acess/login');
+          return;
+        }
 
-        if (isErrorResponse(data)) {
+        if (
+          typeof data === 'object' &&
+          data !== null &&
+          'STATUS' in data &&
+          'MESSAGE' in data
+        ) {
           router.replace('/acess/login');
           return;
         }
 
         await loadAuthUser();
       } catch {
-        if (mountedRef.current) {
-          router.replace('/acess/login');
-        }
+        router.replace('/acess/login');
       } finally {
-        if (mountedRef.current) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
     handleToken();
   }, [token, router, loadAuthUser, setIsLoading]);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <>
