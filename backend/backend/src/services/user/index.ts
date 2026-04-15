@@ -49,10 +49,7 @@ class UserService {
       const user = await userModel.updateBy({
         where: { ID: id },
         data,
-        include: {
-          PLAN: true,
-          HISTORY_PLAYS: true,
-        }
+        include: { PLAN: true }
       });
 
       return user;
@@ -75,7 +72,7 @@ class UserService {
     try {
       await this.existsById(id);
 
-      const user = await userModel.findBy({ where: { ID: id }, include: { PLAN: true, HISTORY_PLAYS: true } });
+      const user = await userModel.findBy({ where: { ID: id }, include: { PLAN: true } });
 
       if (!user) {
         throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
