@@ -7,9 +7,8 @@ import {
   handleInvoicePaid,
   handleInvoicePaymentFailed,
   handleSubscriptionSessionCompleted,
-  stripe
+  stripe,
 } from '../../utils/stripe';
-
 
 class WebhookController {
   async webhook(request: Request, response: Response, next: NextFunction) {
@@ -46,7 +45,7 @@ class WebhookController {
       }
 
       return null;
-    }
+    };
 
     const getUserFromEvent = async () => {
       const obj = event.data.object as any;
@@ -54,12 +53,12 @@ class WebhookController {
       const customerId = getCustomerId(event);
 
       if (!customerId) {
-        console.warn("⚠️ Customer ID não encontrado no evento, ignorando.");
+        console.warn('⚠️ Customer ID não encontrado no evento, ignorando.');
         return null;
       }
 
       return await userService.showStripeCustomerId(customerId);
-    }
+    };
 
     const user = await getUserFromEvent();
 
@@ -71,7 +70,7 @@ class WebhookController {
       case 'customer.subscription.updated':
         if (!user) {
           // Atualize os detalhes da assinatura do usuário no banco de dados, se necessário
-            console.log("⚠️ User não encontrado, ignorando evento até receber customerId.");
+          console.log('⚠️ User não encontrado, ignorando evento até receber customerId.');
           break;
         }
 
@@ -80,7 +79,7 @@ class WebhookController {
       case 'customer.subscription.deleted': // deleta o plano
         if (!user) {
           // Atualize os detalhes da assinatura do usuário no banco de dados, se necessário
-            console.log("⚠️ User não encontrado, ignorando evento até receber customerId.");
+          console.log('⚠️ User não encontrado, ignorando evento até receber customerId.');
           break;
         }
         await handleCancelPlan(event);
@@ -88,7 +87,7 @@ class WebhookController {
       case 'invoice.payment_succeeded': // cada ciclo de cobrança gera uma nova invoice
         if (!user) {
           // Atualize os detalhes da assinatura do usuário no banco de dados, se necessário
-            console.log("⚠️ User não encontrado, ignorando evento até receber customerId.");
+          console.log('⚠️ User não encontrado, ignorando evento até receber customerId.');
           break;
         }
         await handleInvoicePaid(event);
@@ -96,7 +95,7 @@ class WebhookController {
       case 'invoice.payment_failed': // falha de pagamento
         if (!user) {
           // Atualize os detalhes da assinatura do usuário no banco de dados, se necessário
-            console.warn("⚠️ User não encontrado, ignorando evento até receber customerId.");
+          console.warn('⚠️ User não encontrado, ignorando evento até receber customerId.');
           break;
         }
         await handleInvoicePaymentFailed(event);
@@ -123,7 +122,7 @@ class WebhookController {
         console.log('🕐 Test clock está sendo avançado:', {
           clockId: event.data.object.id,
           timestamp: event.data.object.frozen_time,
-          date: new Date((event.data.object.frozen_time || 0) * 1000).toISOString()
+          date: new Date((event.data.object.frozen_time || 0) * 1000).toISOString(),
         });
         break;
 
@@ -131,7 +130,7 @@ class WebhookController {
         console.log('✅ Test clock avançado com sucesso:', {
           clockId: event.data.object.id,
           timestamp: event.data.object.frozen_time,
-          date: new Date((event.data.object.frozen_time || 0) * 1000).toISOString()
+          date: new Date((event.data.object.frozen_time || 0) * 1000).toISOString(),
         });
         break;
 
@@ -141,7 +140,7 @@ class WebhookController {
           amount: event.data.object.amount_due,
           currency: event.data.object.currency,
           nextPaymentAttempt: event.data.object.next_payment_attempt,
-          date: new Date((event.data.object.next_payment_attempt || 0) * 1000).toISOString()
+          date: new Date((event.data.object.next_payment_attempt || 0) * 1000).toISOString(),
         });
         break;
 
