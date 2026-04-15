@@ -4,7 +4,7 @@
   align-items: center;
   min-height: 100dvh;
   padding: 80px 2rem 40px;
-  background: linear-gradient(135deg, $color-darkBlue-dark-3 0%, $color-blue-dark-3 100%);
+  background: $gradient-linear-1;
   color: $color-white;
 
   .container {
@@ -170,6 +170,7 @@
 @media (max-width: 768px) {
   body {
     overflow-y: auto;
+    overflow-x: hidden;
     height: auto;
     min-height: 100dvh;
 
@@ -177,14 +178,12 @@
       display: block;
       padding: 0;
       width: 100vw;
-      // min-height: 100dvh;
       height: auto;
-      // align-items: flex-start;
 
       .container {
         display: block;
         max-width: 100%;
-        // min-height: 100dvh;
+        min-height: 100dvh;
         height: auto;
         border-radius: 0;
         overflow-y: visible;

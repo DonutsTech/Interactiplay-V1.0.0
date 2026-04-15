@@ -4,14 +4,24 @@ import { AuthUserContext } from '@/context/AuthUserContext';
 import { createPortalLink } from '@/service/user';
 import { formatPrice } from '@/utils/formatPrice';
 import { formatDateBR } from '@/utils/stringUtils';
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import styles from './UserPlan.module.scss';
 import { ErrorModalState } from '@/@types/error';
 import ErrorModal from '@/components/globals/ErrorModal';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPhotoVideo, faPlayCircle, faStar } from '@fortawesome/free-solid-svg-icons';
-// import { faEmpire } from '@fortawesome/brand';
+import {
+  faPhotoVideo,
+  faPlayCircle,
+  faStar,
+} from '@fortawesome/free-solid-svg-icons';
+import BtnG from '../BtnG';
+
+interface IActivePlan {
+  PLAYS: number;
+  VIDEOS: number;
+  PLAYS_PRICE?: number | null;
+}
 
 const UserPlan = () => {
   const { authUser } = useContext(AuthUserContext);
@@ -21,6 +31,42 @@ const UserPlan = () => {
   }
 
   const teste = authUser.USER.STRIPE_SUBSCRIPTION_STATUS === 'trialing';
+  // const teste = false;
+
+  const ACTIVE_PLAN: IActivePlan = {
+    PLAYS: teste ? 1000 : authUser.USER.PLAN.PLAYS,
+    VIDEOS: teste ? 10 : authUser.USER.PLAN.VIDEO_LIMIT,
+    PLAYS_PRICE: authUser.USER.PLAN.PLAYS_PRICE,
+  };
+
+  const [usedplan, setUsedPlan] = useState({
+    plays: authUser.USER.HISTORY_PLAYS[0].QTD_PLAYS,
+    videos: 0, //authUser.USER.VIDEOS_QTD,
+    campanhas: 0, //authUser.USER.CAMPAIGNS_QTD,
+    saldo: authUser.USER.HISTORY_PLAYS[0].QTD_PLAYS - ACTIVE_PLAN.PLAYS,
+  });
+
+  const status = useMemo(() => {
+    return {
+      play_used: usedplan.plays,
+      videos_used: usedplan.videos,
+      plays_percent:
+        usedplan.plays > 0 ? (usedplan.plays / ACTIVE_PLAN.PLAYS) * 100 : 0,
+      videos_percent:
+        usedplan.videos > 0 ? (usedplan.videos / ACTIVE_PLAN.VIDEOS) * 100 : 0,
+      saldo: usedplan.saldo,
+      custo: usedplan.saldo > 0 && ACTIVE_PLAN.PLAYS_PRICE ? formatPrice(usedplan.saldo * ACTIVE_PLAN.PLAYS_PRICE) : '0',
+    };
+  }, [
+    usedplan,
+    ACTIVE_PLAN.PLAYS,
+    ACTIVE_PLAN.VIDEOS,
+    ACTIVE_PLAN.PLAYS_PRICE,
+  ]);
+
+  const handlerGerenciarPlano = () => {
+    console.log('Clicou em Gerenciar Plano');
+  };
 
   return (
     <div className={styles.container}>
@@ -73,8 +119,98 @@ const UserPlan = () => {
               icon={faStar}
               className={styles.container_info_item_text_icon}
             />
-            {'  '} {teste ? 'Ative' : `${formatPrice(authUser.USER.PLAN.PLAYS_PRICE)}/play Extra `}
+            {'  '}{' '}
+            {teste
+              ? 'Ative'
+              : `${formatPrice(authUser.USER.PLAN.PLAYS_PRICE)}/play Extra `}
           </p>
+        </div>
+        <div className={styles.container_info_btn}>
+          <BtnG text="Gerenciar Plano" goClick={handlerGerenciarPlano} />
+        </div>
+      </div>
+      <div className={styles.container_stats}>
+        <div
+          className={classNames({
+            [styles.container_stats_used]: true,
+            [styles.container_stats_used_plays]: true,
+          })}
+        >
+          <div className={styles.container_stats_used_box}>
+            <h4>Plays Status</h4>
+            <div className={styles.container_stats_used_box_bar}>
+              <div
+                className={classNames({
+                  [styles.container_stats_used_box_bar_fill]: true,
+                  [styles.container_stats_used_box_bar_fill_middle]:
+                    status.plays_percent > 80 && status.plays_percent < 100,
+                  [styles.container_stats_used_box_bar_fill_full]:
+                    status.plays_percent >= 100,
+                })}
+                style={{ width: `${status.plays_percent}%` }}
+              />
+              <div className={styles.container_stats_used_box_bar_dados}>
+                <span>
+                  <FontAwesomeIcon icon={faPlayCircle} className={styles.icon} />
+                  {status.play_used}
+                  <p>Plays</p>
+                </span>
+                <span>{status.plays_percent.toFixed(2)}%</span>
+                <span><p>Franquia :</p> {ACTIVE_PLAN.PLAYS}</span>
+              </div>
+            </div>
+            {(teste && status.saldo >= 0) ? (
+              <p>
+                Consumo abrangido no período de teste. Ative seu plano para continuar utilizando.
+              </p>
+            ) : status.saldo <= 0 ? (
+              <p>
+                Consumo abrangido na franquia do plano. Você tem <span>{ACTIVE_PLAN.PLAYS - status.play_used}</span> plays restantes.
+              </p>
+            ) : (
+              <p>
+                Total de <span>{status.saldo}</span> plays extras consumidos, com custo de <span>{status.custo}</span>.
+              </p>
+            )}
+          </div>
+        </div>
+        <div
+          className={classNames({
+            [styles.container_stats_used]: true,
+            [styles.container_stats_used_videos]: true,
+          })}
+        >
+          <div className={styles.container_stats_used_box}>
+            <h4>Videos Status</h4>
+            <div className={styles.container_stats_used_box_bar}>
+              <div
+                className={classNames({
+                  [styles.container_stats_used_box_bar_fill]: true,
+                  [styles.container_stats_used_box_bar_fill_middle]:
+                    status.videos_percent > 80 && status.videos_percent < 100,
+                  [styles.container_stats_used_box_bar_fill_full]:
+                    status.videos_percent >= 100,
+                })}
+                style={{ width: `${status.videos_percent}%` }}
+              />
+              <div className={styles.container_stats_used_box_bar_dados}>
+                <span>
+                  <FontAwesomeIcon icon={faPhotoVideo} className={styles.icon} />
+                  {status.videos_used}
+                  <p>Videos</p>
+                </span>
+                <span>{status.videos_percent.toFixed(2)}%</span>
+                <span><p>Franquia :</p> {ACTIVE_PLAN.VIDEOS}</span>
+              </div>
+            </div>
+            <p>
+              {status.videos_percent >= 100 ? 'Limite de vídeos atingido. Considere atualizar seu plano para adicionar mais vídeos.' : ''}
+            </p>
+          </div>
+        </div>
+        <div className={styles.container_stats_campanha}>
+          <h4>Campanhas Ativas:</h4>
+          <p>{usedplan.campanhas} Campanhas</p>
         </div>
       </div>
     </div>

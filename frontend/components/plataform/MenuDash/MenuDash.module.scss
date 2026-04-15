@@ -1,5 +1,3 @@
-@import '@/styles/variables';
-
 .loading {
   width: 100vw;
   height: 100dvh;
@@ -375,5 +373,7 @@
       }
     }
   }
-  
+  @media (max-width: 1079px) {
+    display: none;  
+  }
 }

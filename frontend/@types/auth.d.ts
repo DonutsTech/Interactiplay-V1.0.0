@@ -23,6 +23,7 @@ export interface MeResponse {
     AVATAR: string;
     HASHED_PASSWORD: string;
     HASHED_TOKEN: string | null;
+    HISTORY_PLAYS: HISTORY_PLAYS<ArrayElement>[];
     CREATED_AT: string;
     UPDATED_AT: string;
     FIRST_ACESS: boolean;
@@ -50,4 +51,14 @@ export interface Plan {
   STRIPE_PLAN_ID: string;
   STRIPE_PLAN_PRICE: string;
   VIDEO_LIMIT: number;
+}
+
+export interface HISTORY_PLAYS<ArrayElement> {
+  CREATED_AT: string;
+  ID: string;
+  PRICE_MONTH: number;
+  QTD_PLAYS: number;
+  STATUS: string;
+  UPDATED_AT: string;
+  USER_ID: string;
 }

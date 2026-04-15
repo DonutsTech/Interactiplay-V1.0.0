@@ -23,7 +23,7 @@ export default function DashboardLayout({
     <RotaCheck>
       <MenuDash />
       {children}
-      <FooterDash />
+      {/* <FooterDash /> */}
     </RotaCheck>
   );
 }
