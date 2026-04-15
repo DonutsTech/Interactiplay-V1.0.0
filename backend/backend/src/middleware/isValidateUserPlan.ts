@@ -1,9 +1,13 @@
-import type { NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { CustomError } from '../error';
 import type { User } from '../generated/prisma/browser';
 
-export function isValidateUserPlan(request: Request, response: Response, next: NextFunction) {
+export async function isValidateUserPlan(
+  request: Request,
+  _response: Response,
+  next: NextFunction,
+) {
   try {
     const { user } = request as Request & { user: User };
 

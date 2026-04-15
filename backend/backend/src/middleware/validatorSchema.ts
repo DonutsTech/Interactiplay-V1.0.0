@@ -24,7 +24,6 @@ export const schemaValidator = (path: string): RequestHandler => {
     try {
       const method = req.method.toLowerCase();
 
-
       if (!supportedMethods.includes(method)) {
         return next();
       }
@@ -32,9 +31,7 @@ export const schemaValidator = (path: string): RequestHandler => {
       const { error, value } = schema.validate(req.body, validationOptions);
 
       if (error) {
-        const messages = error.details.map((err: any) =>
-          err.message.replace(/"/g, '')
-        );
+        const messages = error.details.map((err: any) => err.message.replace(/"/g, ''));
 
         throw new CustomError(messages.join(', '), StatusCodes.BAD_REQUEST);
       }
@@ -46,8 +43,8 @@ export const schemaValidator = (path: string): RequestHandler => {
       }
 
       req.body = value;
-      next();
 
+      next();
     } catch (error) {
       next(error);
     }
