@@ -231,6 +231,7 @@ class AuthService {
         throw new CustomError('Assinatura não encontrada', StatusCodes.FORBIDDEN);
       }
 
+
       await handleSubscriptionFinishedTrial({
         email: user.EMAIL,
         userId: user.ID,
