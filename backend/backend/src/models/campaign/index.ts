@@ -1,6 +1,6 @@
-import { handlePrismaError } from "../../error";
-import type { Prisma } from "../../generated/prisma/client";
-import { prisma } from "../../prisma";
+import { handlePrismaError } from '../../error';
+import type { Prisma } from '../../generated/prisma/client';
+import { prisma } from '../../prisma';
 
 class Campaign {
   async create(params: Prisma.CampaignCreateArgs) {
@@ -11,17 +11,21 @@ class Campaign {
     }
   }
 
-  async findMany(params: Prisma.CampaignFindManyArgs) {
+  async findMany<T extends Prisma.CampaignInclude = {}>(params: Prisma.CampaignFindManyArgs) {
     try {
-      return await prisma.campaign.findMany(params);
+      return (await prisma.campaign.findMany(params)) as
+        | Prisma.CampaignGetPayload<{ include: T }>[]
+        | [];
     } catch (error) {
       handlePrismaError(error);
     }
   }
 
-  async findBy(find: Prisma.CampaignFindFirstArgs) {
+  async findBy<T extends Prisma.CampaignInclude = {}>(find: Prisma.CampaignFindFirstArgs) {
     try {
-      return await prisma.campaign.findFirst(find);
+      return (await prisma.campaign.findFirst(find)) as
+        | Prisma.CampaignGetPayload<{ include: T }>[]
+        | null;
     } catch (error) {
       handlePrismaError(error);
     }

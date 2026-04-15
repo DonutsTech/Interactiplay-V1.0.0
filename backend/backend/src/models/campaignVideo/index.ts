@@ -1,9 +1,10 @@
-import { handlePrismaError } from "../../error";
-import type { Prisma } from "../../generated/prisma/client";
-import { prisma } from "../../prisma";
+import { handlePrismaError } from '../../error';
+import type { Campaign_Video } from '../../generated/prisma/browser';
+import type { Prisma } from '../../generated/prisma/client';
+import { prisma } from '../../prisma';
 
 class CampaignVideoModel {
-  async create(params: Prisma.Campaign_VideoCreateArgs) {
+  async create(params: Prisma.Campaign_VideoCreateArgs): Promise<Campaign_Video> {
     try {
       return await prisma.campaign_Video.create(params);
     } catch (error) {
