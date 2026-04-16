@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import type { IRouter } from '../@types/interface/router';
 import AuthRouter from './auth';
-import { CampaignApiRouter } from './campaign';
+// import { CampaignApiRouter } from './campaign';
 import HistoryPlaysRouter from './historyPlays';
 import PlanRouter from './plan';
-import { VideoRouter } from './video';
+import VideoRouter  from './video';
 import WebhookRouter from './webhook';
 
 const applyRouters = (router: Router, routers: IRouter[]): void => {
@@ -17,7 +17,7 @@ export const applyApiRouters = (router: Router): void => {
     AuthRouter,
     HistoryPlaysRouter,
     // CampaignApiRouter,
-    // VideoRouter,
+    VideoRouter,
   ];
   applyRouters(router, routers);
 };

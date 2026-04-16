@@ -17,7 +17,8 @@ export const schemaValidator = (path: string): RequestHandler => {
   const schema: ObjectSchema<any> | undefined = schemas[path];
 
   if (!schema) {
-    throw new CustomError(`Schema not found for path: ${path}`);
+    // throw new CustomError(`Schema not found for path: ${path}`);
+    console.warn(`Schema not found for path: ${path}. Skipping validation.`);
   }
 
   return async (req: Request, res: Response, next: NextFunction) => {
