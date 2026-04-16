@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import ButtonAcess from '../ButtonAcess';
 import { useRouter } from 'next/navigation';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { postForgotPassword } from '@/service/auth/forgotpassword';
 import { ErrorModalState } from '@/@types/error';
 import ErrorModal from '@/components/globals/ErrorModal';

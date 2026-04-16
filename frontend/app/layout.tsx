@@ -2,7 +2,9 @@ import { AppProvider } from '@/context';
 import type { Metadata } from 'next';
 import { Poppins, Russo_One } from 'next/font/google';
 import './globals.scss';
+import 'react-toastify/dist/ReactToastify.css';
 import FooterComplete from '@/components/globals/FooterComplete';
+import { ToastContainer } from 'react-toastify';
 
 const poppins = Poppins({
   variable: '--font-poppins',
@@ -40,7 +42,19 @@ export default function RootLayout({
           className={`${poppins.variable} ${russoOne.variable} antialiased`}
         >
           {children}
-
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+            limit={3}
+          />
         </body>
       </AppProvider>
     </html>

@@ -2,7 +2,7 @@
 
 import logo from '@/assets/images/logo_white_dg.svg';
 import { AuthUserContext } from '@/context/AuthUserContext';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
 import { setToken } from '@/service/token';
 import Image from 'next/image';

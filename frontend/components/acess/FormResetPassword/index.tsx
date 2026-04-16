@@ -4,7 +4,7 @@ import Image from 'next/image';
 import styles from './FormResetPassword.module.scss';
 import logo from '@/assets/images/logo_white_dg.svg';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { AuthUserContext } from '@/context/AuthUserContext';
 import { UserContext } from '@/context/UserContext';
 import { useRouter, useSearchParams } from 'next/navigation';

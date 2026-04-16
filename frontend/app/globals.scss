@@ -1,3 +1,5 @@
+// @import '../styles//toastifyCustom.scss';
+
 * {
   margin: 0;
   padding: 0;
@@ -96,4 +98,86 @@ html {
   align-items: center;
   justify-content: center;
   background-color: $color-white;
+}
+
+
+//toastify
+
+.Toastify__toast--success {
+  // background-color: $color-obsidian !important;
+  background-color: $color-darkBlue-dark-3 !important;
+  color: $color-white !important;
+  border-left: 4px solid $color-green-light-1 !important;
+  path {
+    fill: $color-green-light-1 !important;
+  }
+}
+
+.Toastify__progress-bar--success {
+  background: $color-green-light-1 !important;
+}
+
+.Toastify__toast--error {
+  background-color: $color-darkBlue-dark-3 !important;
+  color: $color-white !important;
+  border-left: 4px solid $color-red-light-1 !important;
+  path {
+    fill: $color-red-light-1 !important;
+  }
+}
+
+.Toastify__progress-bar--error {
+  background: $color-red-light-1 !important;
+}
+
+.Toastify__toast--warning {
+  background-color: $color-darkBlue-dark-3 !important;
+  color: $color-white !important;
+  border-left: 4px solid $color-yellow-light-1 !important;
+  path {
+    fill: $color-yellow-light-1 !important;
+  }
+}
+
+.Toastify__progress-bar--warning {
+  background: $color-yellow-light-1 !important;
+}
+
+.Toastify__toast--info {
+  background-color: $color-darkBlue-dark-3 !important;
+  color: $color-white !important;
+  border-left: 4px solid $color-blue-light-3 !important;
+  path {
+
+  }
+}
+
+.Toastify__progress-bar--info {
+  background: $color-blue-light-3 !important;
+}
+
+.Toastify__toast--default {
+  background-color: $color-darkBlue-dark-3 !important;
+  color: $color-white !important;
+  border-left: 4px solid $color-ciano-light-1 !important;
+}
+
+.Toastify__progress-bar--default {
+  background: $color-ciano-light-1 !important;
+}
+
+.Toastify__toast--info {
+  &:has(.animated-logo-container) {
+    background: linear-gradient(135deg, rgba($color-ciano-base, 0.15) 0%, rgba($color-blue-light-1, 0.15) 100%) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba($color-ciano-base, 0.3) !important;
+    box-shadow: 0 4px 16px rgba($color-ciano-base, 0.3) !important;
+  }
+}
+
+.animated-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: $color-white;
 }

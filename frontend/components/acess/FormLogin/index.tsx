@@ -7,7 +7,7 @@ import InputForm from '@/components/globals/InputForm';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import ButtonAcess from '../ButtonAcess';
 import { useRouter } from 'next/navigation';
 import { postLogin } from '@/service/auth';
@@ -21,17 +21,6 @@ interface LoginData {
   email: string;
   password: string;
 }
-
-const isErrorResponse = (response: unknown): response is ErrorMessage => {
-  return (
-    typeof response === 'object' &&
-    response !== null &&
-    'STATUS' in response &&
-    'MESSAGE' in response &&
-    typeof (response as ErrorMessage).STATUS === 'number' &&
-    typeof (response as ErrorMessage).MESSAGE === 'string'
-  );
-};
 
 const FormLogin = () => {
   const router = useRouter();

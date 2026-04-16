@@ -4,7 +4,7 @@ import type { ErrorMessage } from '@/@types/error';
 import logo from '@/assets/images/logo_white_dg.svg';
 import LoadingModal from '@/components/globals/LoadingModal';
 import { AuthUserContext } from '@/context/AuthUserContext';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
 import { getValidateEmail } from '@/service/auth/validateemail';
 import Image from 'next/image';

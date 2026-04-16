@@ -1,5 +1,5 @@
 import BtnDefault from '@/components/globals/BtnDefault';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
 import { useContext } from 'react';
 import styles from './ClosingCta.module.scss';

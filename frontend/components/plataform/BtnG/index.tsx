@@ -2,7 +2,7 @@
 
 import { AnimatedLogo } from '@/components/globals/AnimateLogo';
 import styles from './BtnG.module.scss';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 
 
 interface BtnGProps {

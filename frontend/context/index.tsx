@@ -1,7 +1,7 @@
 import { IsMobileProvider } from './isMobileContext';
-import { IsLoadingProvider } from './IsLoadingContext';
 import { UserProvider } from './UserContext';
 import { AuthUserProvider } from './AuthUserContext';
+import { ErrorProvider } from './ErrorContext';
 
 type ProviderProps = {
   children: React.ReactNode;
@@ -18,8 +18,8 @@ function composeProviders(providers: ProviderComponent[]): ProviderComponent {
 }
 
 const provider: ProviderComponent[] = [
-  IsMobileProvider, 
-  IsLoadingProvider,
+  IsMobileProvider,
+  ErrorProvider, 
   UserProvider,
   AuthUserProvider
 ];

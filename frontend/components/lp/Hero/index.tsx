@@ -1,7 +1,7 @@
 'use client';
 
 import BtnDefault from '@/components/globals/BtnDefault';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
 import { useContext, useEffect, useState } from 'react';
 import styles from './Hero.module.scss';

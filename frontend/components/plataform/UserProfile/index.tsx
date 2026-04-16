@@ -14,7 +14,7 @@ import {
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import BtnG from '../BtnG';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { getToken } from '@/service/token';
 import { ErrorModalState } from '@/@types/error';
 import { useRouter } from 'next/navigation';

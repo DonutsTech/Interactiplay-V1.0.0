@@ -10,7 +10,7 @@ import { phoneMask, validarCelularBRCompleto } from '@/utils/PhoneUtils';
 import InputPassword from '../InputPassword';
 import ButtonAcess from '../ButtonAcess';
 import { isPasswordValid } from '@/utils/isPasswordValid';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import Link from 'next/link';
 import ModalTermos from './ModalTermos';
 import { UserContext } from '@/context/UserContext';

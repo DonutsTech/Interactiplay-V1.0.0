@@ -15,7 +15,7 @@ import Menu from '@/components/lp/Menu';
 import Plan from '@/components/lp/Plan';
 import Security from '@/components/lp/Security';
 import SocialProof from '@/components/lp/SocialProof';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
 import { useContext, useEffect } from 'react';
 

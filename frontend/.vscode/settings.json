@@ -1,0 +1,5 @@
+{
+  "github.copilot.chat.localeOverride": "pt-BR",
+  "git.inputValidationLength": 72,
+  "git.inputValidationSubjectLength": 50
+}

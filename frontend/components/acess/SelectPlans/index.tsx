@@ -3,7 +3,7 @@
 import { ErrorMessage } from '@/@types/error';
 import { Plan } from '@/@types/plan';
 import logo from '@/assets/images/logo_white_dg.svg';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext, UserData } from '@/context/UserContext';
 import { postPaymentCheckout } from '@/service/auth';
 import { getPlan } from '@/service/plan';

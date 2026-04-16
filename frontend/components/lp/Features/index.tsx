@@ -1,7 +1,7 @@
 'use client';
 
 import BtnDefault from '@/components/globals/BtnDefault';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
 import classNames from 'classnames';
 import { useContext } from 'react';
@@ -12,25 +12,25 @@ const Features = () => {
   const { user, setUser } = useContext(UserContext);
 
   const featuresData = [
+        {
+      video: '/media/videos/video_flow_ok.mp4',
+      title: 'Flow',
+      description:
+        'Conecte vídeos para deixar a experiência do seu cliente interativa e personalizada.',
+      reverse: false,
+    },
     {
-      video: '/media/videos/botoes_de_acao.mp4',
+      video: '/media/videos/video_btns_ok.mp4',
       title: 'Botões de Ação',
       description:
         'Um botão surge dentro ou abaixo do seu VSL, sincronizado perfeitamente com o tempo do vídeo, impulsionando sua conversão.',
-      reverse: false,
+      reverse: true,
     },
     {
       video: '/media/videos/SmartPlay.mp4',
       title: 'SmartPlay',
       description:
         'O Smart Autoplay é compatível com todos os navegadores, simulando o início imediato do vídeo para criar urgência, incentivando a visualização completa. Ao clicar, o vídeo reinicia, garantindo que nenhum segundo seja perdido.',
-      reverse: true,
-    },
-    {
-      video: '/media/videos/flow.mp4',
-      title: 'Flow',
-      description:
-        'Conecte vídeos para deixar a experiência do seu cliente interativa e personalizada.',
       reverse: false,
     },
   ];

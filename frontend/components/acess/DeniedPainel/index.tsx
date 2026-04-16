@@ -1,7 +1,7 @@
 'use client';
 
 import logo from '@/assets/images/logo_white_dg.svg';
-import { useIsLoading } from '@/context/IsLoadingContext';
+import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
