@@ -10,16 +10,14 @@ import { phoneMask, validarCelularBRCompleto } from '@/utils/PhoneUtils';
 import InputPassword from '../InputPassword';
 import ButtonAcess from '../ButtonAcess';
 import { isPasswordValid } from '@/utils/isPasswordValid';
-import { useIsLoading } from '@/context/ErrorContext';
 import Link from 'next/link';
 import ModalTermos from './ModalTermos';
 import { UserContext } from '@/context/UserContext';
 import { Register } from '@/@types/auth';
 import { postRegister } from '@/service/auth';
-import ErrorModal from '@/components/globals/ErrorModal';
-import { ErrorMessage, ErrorModalState } from '@/@types/error';
 import { sanitizeByRegex } from '@/utils/stringUtils';
 import { useRouter } from 'next/navigation';
+import { useError } from '@/context/ErrorContext';
 
 interface RegisterPackage {
   name: string;
@@ -27,21 +25,7 @@ interface RegisterPackage {
   phone: string;
   password: string;
   confirmPassword: string;
-};
-
-
-
-const isErrorResponse = (response: unknown): response is ErrorMessage => {
-  return (
-    typeof response === 'object' &&
-    response !== null &&
-    'STATUS' in response &&
-    'MESSAGE' in response &&
-    typeof (response as ErrorMessage).STATUS === 'number' &&
-    typeof (response as ErrorMessage).MESSAGE === 'string'
-  );
-};
-
+}
 
 const FormCadastro = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -50,8 +34,6 @@ const FormCadastro = () => {
   const [checked, setChecked] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [phoneError, setPhoneError] = useState('');
-  const [modalMessage, setModalMessage] = useState(false);
-  const { setIsLoading } = useIsLoading();
   const { setUser } = useContext(UserContext);
   const router = useRouter();
 
@@ -63,14 +45,11 @@ const FormCadastro = () => {
     confirmPassword: '',
   };
 
-  const [errorModal, setErrorModal] = useState<ErrorModalState>({
-    mensagem: '',
-    type: 'warning',
-  });
-
   const [registerPackage, setRegisterPackage] = useState<RegisterPackage>({
     ...EMPTY_FORM,
   });
+
+  const { handleRequest, showConfirmation, isLoading } = useError();
 
   const isDisabled = useMemo(() => {
     const hasEmptyField =
@@ -87,84 +66,56 @@ const FormCadastro = () => {
     return hasEmptyField || !!phoneError || invalidPassword || !checked;
   }, [registerPackage, phoneError, checked]);
 
-  const handleModalClose = () => {
-    setModalMessage(false);
-    setIsLoading(false);
-    setRegisterPackage({ ...EMPTY_FORM });
-    setChecked(false);
-    setPhoneError('');
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    try {
-      const body: Register = {
-        NAME: registerPackage.name.trim(),
-        EMAIL: registerPackage.email.trim(),
-        PHONE: registerPackage.phone.replace(/\D/g, ''),
-        HASHED_PASSWORD: registerPackage.password,
-      };
+    const body: Register = {
+      NAME: registerPackage.name.trim(),
+      EMAIL: registerPackage.email.trim(),
+      PHONE: registerPackage.phone.replace(/\D/g, ''),
+      HASHED_PASSWORD: registerPackage.password,
+    };
 
-      const response = await postRegister(body);
+    const response = await handleRequest(() => postRegister(body), {
+      loadingMessage: 'Registrando...',
+      suppressErrorToast: true,
+      onError: async (error) => {
+        if (error.STATUS === 409) {
+          const goToLogin = await showConfirmation(
+            error.MESSAGE || 'Email já cadastrado, faça o login!',
+            {
+              title: 'Email já cadastrado',
+              type: 'warning',
+              confirmText: 'Ir para Login',
+              cancelText: 'Cancelar',
+            }
+          );
+          if (goToLogin) {
+            router.push('/acess/login');
+          } else {
+            setRegisterPackage({ ...EMPTY_FORM });
+            setChecked(false);
+            setPhoneError('');
+          }
+        }
+      },
+    });
 
-      // console.log('Resposta do registro:', response.ID);
-
-      if (isErrorResponse(response)) {
-        setErrorModal({
-          mensagem: response.MESSAGE || 'Erro desconhecido ao registrar',
-          type: 'warning',
-          statusCode: response.STATUS,
-          onClose: handleModalClose,
-          butonProps:
-            response.STATUS === 409
-              ? {
-                  text: 'Login',
-                  goClick: () => {
-                    setModalMessage(false);
-                    router.push('/acess/login');
-                  },
-                }
-              : undefined,
-        });
-        setModalMessage(true);
-        return;
-      }
-
-
+    if (response) {
       setUser((prevUser) => ({
         ...prevUser,
         id: response.ID,
         name: registerPackage.name,
         email: registerPackage.email,
       }));
-
-      setIsLoading(false);
       router.push('/acess/plans');
-    } catch (error) {
-      console.error('Erro ao registrar:', error);
-      setErrorModal({
-        mensagem: 'Erro desconhecido ao registrar',
-        type: 'error',
-        onClose: handleModalClose,
-      });
-      setModalMessage(true);
-    } 
+    }
   };
+
+
 
   return (
     <section className={styles.container}>
-      {modalMessage && (
-        <ErrorModal
-          isOpen={(show: boolean) => setModalMessage(show)}
-          mensagem={errorModal.mensagem}
-          type={errorModal.type}
-          statusCode={errorModal.statusCode}
-          butonProps={errorModal.butonProps}
-          onClose={errorModal.onClose}
-        />
-      )}
       <Image
         src={logo}
         alt="Logo Interactiplay"
@@ -182,8 +133,11 @@ const FormCadastro = () => {
           type="text"
           placeholder="Nome completo"
           value={registerPackage.name}
-          onChange={(e) =>{
-            const sanitized = sanitizeByRegex(e.target.value, /[^A-Za-zÀ-ÖØ-öø-ÿ' ]/g);
+          onChange={(e) => {
+            const sanitized = sanitizeByRegex(
+              e.target.value,
+              /[^A-Za-zÀ-ÖØ-öø-ÿ' ]/g
+            );
             setRegisterPackage({ ...registerPackage, name: sanitized });
           }}
         />
@@ -257,11 +211,7 @@ const FormCadastro = () => {
             Aceito os termos de uso
           </button>
         </div>
-        <ButtonAcess
-          text="Cadastrar"
-          type="submit"
-          disabled={isDisabled}
-        />
+        <ButtonAcess text="Cadastrar" type="submit" disabled={isDisabled} />
       </form>
       <div className={styles.container_text}>
         <p>Já possui uma conta?</p>

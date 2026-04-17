@@ -1,12 +1,11 @@
 'use client';
 
-import type { ErrorMessage } from '@/@types/error';
 import logo from '@/assets/images/logo_white_dg.svg';
-import LoadingModal from '@/components/globals/LoadingModal';
 import { AuthUserContext } from '@/context/AuthUserContext';
-import { useIsLoading } from '@/context/ErrorContext';
+import { useError } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
 import { getValidateEmail } from '@/service/auth/validateemail';
+import { setToken } from '@/service/token';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
@@ -15,9 +14,10 @@ import styles from './ValidateEmail.module.scss';
 
 const ValidateEmail = () => {
   const [mounted, setMounted] = useState(false);
-  const { isLoading, setIsLoading } = useIsLoading();
+  const [isValidated, setIsValidated] = useState(false);
+  const { handleRequest, showSuccess, showError, isLoading } = useError();
   const { loadAuthUser } = useContext(AuthUserContext);
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const router = useRouter();
   const token = useSearchParams().get('token');
 
@@ -25,73 +25,96 @@ const ValidateEmail = () => {
     setMounted(true);
     
     if (!token) {
+      showError('Token de validação não encontrado.');
       router.replace('/acess/login');
       return;
     }
 
-    const handleToken = async () => {
-      setIsLoading(true);
+    const handleValidation = async () => {
+      const response = await handleRequest(
+        () => getValidateEmail(token),
+        {
+          loadingMessage: 'Validando seu email...',
+          suppressErrorToast: false,
+        }
+      );
 
-      try {
-        const data = await getValidateEmail(token);
-        
-        if (!data) {
-          router.replace('/acess/login');
-          return;
+      if (response) {
+        if ('ACCESTOKEN' in response || 'token' in response) {
+          const accessToken = 'ACCESTOKEN' in response ? response.ACCESTOKEN : response.token;
+          setToken(accessToken);
         }
 
-        if (
-          typeof data === 'object' &&
-          data !== null &&
-          'STATUS' in data &&
-          'MESSAGE' in data
-        ) {
-          router.replace('/acess/login');
-          return;
-        }
+        const authenticatedUser = await handleRequest(
+          () => loadAuthUser(),
+          {
+            suppressLoading: true,
+            suppressLoadingToast: true,
+            suppressErrorToast: true, 
+          }
+        );
 
-        await loadAuthUser();
-      } catch {
-        router.replace('/acess/login');
-      } finally {
-        setIsLoading(false);
+        if (authenticatedUser) {
+          setUser({
+            id: authenticatedUser.USER.ID,
+            name: authenticatedUser.USER.NAME,
+            email: authenticatedUser.USER.EMAIL,
+            selectedPlan: '',
+          });
+
+          setIsValidated(true);
+          
+          showSuccess('Email validado com sucesso!', {
+            autoClose: 3000,
+          });
+        }
+      } else {
+        setTimeout(() => {
+          router.replace('/acess/login');
+        }, 2000);
       }
     };
 
-    handleToken();
-  }, [token, router, loadAuthUser, setIsLoading]);
+    handleValidation();
+  }, [token]);
+
+  const handleAccessDashboard = () => {
+    if (isValidated) {
+      router.push('/dashboard');
+    } else {
+      router.push('/acess/login');
+    }
+  };
 
   if (!mounted) {
     return null;
   }
 
   return (
-    <>
-      <LoadingModal open={isLoading} />
-      <section className={styles.container} aria-label="Validação do email.">
-        <Image
-          src={logo}
-          alt="Logo da Interactiplay"
-          width={200}
-          height={50}
-          loading="lazy"
+    <section className={styles.container} aria-label="Validação do email.">
+      <Image
+        src={logo}
+        alt="Logo da Interactiplay"
+        width={200}
+        height={50}
+        loading="lazy"
+      />
+      <div className={styles.header}>
+        <h4>{(user.name || 'Usuário').split(' ')[0]}</h4>
+        <h3>Obrigado por validar seu email!</h3>
+        <p>
+          Agora você pode acessar sua conta e aproveitar todos os benefícios
+          da Interactiplay.
+        </p>
+      </div>
+      <div className={styles.btn}>
+        <ButtonAcess
+          text={isValidated ? 'Acessar a Plataforma' : 'Ir para login'}
+          goClick={handleAccessDashboard}
+          disabled={isLoading}
         />
-        <div className={styles.header}>
-          <h4>{(user.name || 'Usuário').split(' ')[0]}</h4>
-          <h3>Obrigado por validar seu email!</h3>
-          <p>
-            Agora você pode acessar sua conta e aproveitar todos os benefícios
-            da Interactiplay.
-          </p>
-        </div>
-        <div className={styles.btn}>
-          <ButtonAcess
-            text="Acessar minha conta"
-            goClick={() => router.push('/acess/login')}
-          />
-        </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 

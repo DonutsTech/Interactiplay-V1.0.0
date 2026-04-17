@@ -68,8 +68,6 @@ const SucessPainel = () => {
       setError('Usuário não autenticado. Por favor, faça login novamente.');
       return;
     }
-
-    // setIsLoading(true);
     router.push('/dashboard');
   }, [authUser, user.id, setIsLoading, router]);
 

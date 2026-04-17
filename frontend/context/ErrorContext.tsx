@@ -15,7 +15,7 @@ export interface HandleRequestOptions {
   successToastOptions?: ToastOptions;
   errorToastOptions?: ToastOptions;
   onSuccess?: () => void;
-  onError?: (error: ErrorMessage) => void;
+  onError?: (error: ErrorMessage) => void | Promise<void>; // ATUALIZADO: Aceita Promise
 }
 
 export interface ShowToastOptions extends ToastOptions {
@@ -102,9 +102,6 @@ const DEFAULT_TOAST_CONFIG: Record<TypeOptions, Partial<ToastOptions>> = {
 export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  /**
-   * Exibe toast com configurações padrão por tipo
-   */
   const showToast = useCallback(
     (
       message: string,
@@ -112,7 +109,6 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
       options?: ShowToastOptions
     ): Id => {
       const defaultConfig = DEFAULT_TOAST_CONFIG[type];
-
       // Se há ação customizada, não auto-fecha
       const finalOptions: ToastOptions = {
         ...defaultConfig,
@@ -123,20 +119,51 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Se há ação, adiciona botão customizado via closeButton
       if (options?.action) {
+        let actionExecuted = false;
+
+        const handleActionClick = () => {
+          if (actionExecuted) return;
+          actionExecuted = true;
+
+          // Executa ação original
+          options.action?.onClick();
+
+          // DESATIVA loading após ação
+          setIsLoading(false);
+        };
+
+        const handleToastClose = () => {
+          // Se fechar sem executar ação, desativa loading
+          if (!actionExecuted) {
+            setIsLoading(false);
+          }
+        };
+
         const toastId = toast(
           <ShowToast
             typeError="toast"
-            optionsToast={finalOptions}
+            message={message}
+            optionsToast={{
+              ...finalOptions,
+              action: {
+                text: options.action.text,
+                onClick: handleActionClick,
+              },
+            }}
             toast={() => toast.dismiss(toastId)}
           />,
-          finalOptions
+          {
+            ...finalOptions,
+            onClose: handleToastClose,
+          }
         );
+        setIsLoading(true);
         return toastId;
       }
 
       return toast(message, finalOptions);
     },
-    []
+    [setIsLoading]
   );
 
   /**
@@ -355,7 +382,8 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
           }
 
           if (onError) {
-            onError(errorResponse);
+            // ✅ AGUARDA onError completar (pode ser async com showConfirmation)
+            await onError(errorResponse);
           }
 
           return null;
@@ -391,7 +419,8 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         if (onError) {
-          onError(errorMessage);
+          // ✅ AGUARDA onError completar (pode ser async com showConfirmation)
+          await onError(errorMessage);
         }
 
         return null;

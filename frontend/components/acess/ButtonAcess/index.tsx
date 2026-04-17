@@ -1,6 +1,6 @@
 'use client';
 
-import { useIsLoading } from '@/context/ErrorContext';
+import { useError, useIsLoading } from '@/context/ErrorContext';
 import styles from './ButtonAcess.module.scss';
 import { AnimatedLogo } from '@/components/globals/AnimateLogo';
 
@@ -19,7 +19,7 @@ const ButtonAcess = ({
   disabled,
   inline,
 }: ButtonAcessProps) => {
-  const { isLoading } = useIsLoading();
+  const { isLoading } = useError();
 
   return (
     <>

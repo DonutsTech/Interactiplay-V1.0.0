@@ -5,17 +5,15 @@ import styles from './FormLogin.module.scss';
 import logo from '@/assets/images/logo_white_dg.svg';
 import InputForm from '@/components/globals/InputForm';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useIsLoading } from '@/context/ErrorContext';
+import { useError } from '@/context/ErrorContext';
 import ButtonAcess from '../ButtonAcess';
 import { useRouter } from 'next/navigation';
 import { postLogin } from '@/service/auth';
-import { ErrorMessage, ErrorModalState } from '@/@types/error';
 import { setToken } from '@/service/token';
 import { AuthUserContext } from '@/context/AuthUserContext';
 import { UserContext } from '@/context/UserContext';
-import ErrorModal from '@/components/globals/ErrorModal';
 
 interface LoginData {
   email: string;
@@ -24,148 +22,107 @@ interface LoginData {
 
 const FormLogin = () => {
   const router = useRouter();
-  const { setIsLoading } = useIsLoading();
   const { setUser } = useContext(UserContext);
   const { loadAuthUser } = useContext(AuthUserContext);
-  const [modalMessage, setModalMessage] = useState(false);
+  const { handleRequest, showConfirmation, showSuccess, isLoading } =
+    useError();
 
   const [loginPackage, setLoginPackage] = useState<LoginData>({
     email: '',
     password: '',
   });
 
-  const [errorModal, setErrorModal] = useState<ErrorModalState>({
-    mensagem: '',
-    statusCode: 0,
-    type: 'warning',
-  });
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
-
   const isDesabled = useMemo(() => {
     return !loginPackage.email.trim() || !loginPackage.password.trim();
   }, [loginPackage]);
 
-  const handleModalClose = () => {
-    setModalMessage(false);
-    setIsLoading(false);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    try {
-      const response = await postLogin({
-        EMAIL: loginPackage.email,
-        HASHED_PASSWORD: loginPackage.password,
-      });
-      // console.log('Resposta do login:', response);
+    const response = await handleRequest(
+      () =>
+        postLogin({
+          EMAIL: loginPackage.email,
+          HASHED_PASSWORD: loginPackage.password,
+        }),
+      {
+        loadingMessage: 'Realizando login...',
+        suppressErrorToast: true,
+        onError: async (error) => {
+          if (error.STATUS === 403) {
+            const errorResponse = error as any;
+            if (errorResponse.USER) {
+              setUser({
+                id: errorResponse.USER.ID,
+                name: errorResponse.USER.NAME,
+                email: errorResponse.USER.EMAIL,
+                selectedPlan: '',
+              });
+            }
 
-      if (response && 'MESSAGE' in response && 'STATUS' in response) {
-        if (response.STATUS === 403) {
-          setUser({
-            id: response.USER.ID,
-            name: response.USER.NAME,
-            email: response.USER.EMAIL,
-            selectedPlan: '',
-          });
-          setModalMessage(true);
-          setErrorModal({
-            mensagem: response.MESSAGE,
-            type: 'warning',
-            statusCode: response.STATUS,
-            onClose: handleModalClose,
-            butonProps: {
-              text: 'Escolher o Plano',
-              goClick: () => {
-                setIsLoading(false);
-                setModalMessage(false);
-                router.push('/acess/plans');
-              },
-            },
-          });
-        }
+            const goToPlans = await showConfirmation(
+              error.MESSAGE || 'Você precisa escolher um plano.',
+              {
+                title: 'Plano necessário',
+                type: 'warning',
+                confirmText: 'Escolher Plano',
+                cancelText: 'Cancelar',
+              }
+            );
 
-        if (response.STATUS === 402) {
-          setModalMessage(true);
-          setErrorModal({
-            mensagem: response.MESSAGE,
-            type: 'warning',
-            statusCode: response.STATUS,
-            onClose: handleModalClose,
-            butonProps: {
-              text: 'Renovar Plano',
-              goClick: () => {
-                handleModalClose();
-                window.open(`${response.PORTAL}`, '_blank');
-              },
-            },
-          });
-        }
-
-        if (response.STATUS === 401) {
-          setModalMessage(true);
-          setErrorModal({
-            mensagem: response.MESSAGE,
-            type: 'warning',
-            statusCode: response.STATUS,
-            onClose: handleModalClose,
-          });
-          setModalMessage(true);
-          setTimeout(() => {
-            handleModalClose();
-          }, 5000);
-        }
+            if (goToPlans) {
+              router.push('/acess/plans');
+            }
+          } else if (error.STATUS === 402) {
+            const errorResponse = error as any;
+            const renew = await showConfirmation(
+              errorResponse.MESSAGE ||
+                'Sua assinatura expirou. Deseja renovar agora?',
+              {
+                title: 'Assinatura expirada',
+                type: 'warning',
+                confirmText: 'Renovar Agora',
+                cancelText: 'Cancelar',
+              }
+            );
+            if (renew && errorResponse.PORTAL) {
+              window.open(errorResponse.PORTAL, '_blank');
+            } else if (renew) {
+              console.log('Acessou o Portal de Renovação'); // Somente para teste
+            }
+          } else if (error.STATUS === 401) {
+            showConfirmation(error.MESSAGE || 'Email ou senha incorretos.', {
+              title: 'Falha no login',
+              type: 'warning',
+              confirmText: 'ok',
+              cancelText: '',
+            });
+          } else {
+            showConfirmation(error.MESSAGE || 'Ocorreu um erro inesperado.', {
+              title: 'Erro',
+              type: 'error',
+              confirmText: 'ok',
+            });
+          }
+        },
       }
+    );
 
-      if (
-        response &&
-        'ACCESTOKEN' in response &&
-        !('MESSAGE' in response || 'STATUS' in response)
-      ) {
-        setToken(response.ACCESTOKEN);
-        await loadAuthUser();
-        setModalMessage(true);
-        setErrorModal({
-          mensagem: 'Login realizado com sucesso!',
-          type: 'success',
-          onClose: () => {
-            router.push('/dashboard');
-            handleModalClose();
-          },
-        });
-        setTimeout(() => {
-          router.push('/dashboard');
-          handleModalClose();
-        }, 3000);
-      }
-      
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      setErrorModal({
-        mensagem: 'Erro desconhecido ao fazer login',
-        type: 'error',
-        onClose: handleModalClose,
+    if (response && 'ACCESTOKEN' in response) {
+      setToken(response.ACCESTOKEN);
+      await loadAuthUser();
+      showSuccess('Login realizado com sucesso!', {
+        autoClose: 2000,
       });
-      setModalMessage(true);
+
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 2000);
     }
   };
 
   return (
     <div className={styles.container}>
-      {modalMessage && (
-        <ErrorModal
-          isOpen={(show: boolean) => setModalMessage(show)}
-          mensagem={errorModal.mensagem}
-          type={errorModal.type}
-          statusCode={errorModal.statusCode}
-          butonProps={errorModal.butonProps}
-          onClose={errorModal.onClose}
-        />
-      )}
       <Image
         src={logo}
         alt="Logo Interactiplay"
@@ -218,10 +175,7 @@ const FormLogin = () => {
             {messageError !== '' && messageError}
           </p> */}
         </div>
-        <ButtonAcess
-          text="Entrar"
-          disabled={isDesabled}
-        />
+        <ButtonAcess text="Entrar" disabled={isDesabled} />
       </form>
       <div className={styles.container_text}>
         <p>Ainda não possui uma conta?</p>

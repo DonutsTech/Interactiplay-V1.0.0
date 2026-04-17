@@ -1,29 +1,27 @@
 'use client';
 
-import { ErrorMessage } from '@/@types/error';
 import { Plan } from '@/@types/plan';
 import logo from '@/assets/images/logo_white_dg.svg';
-import { useIsLoading } from '@/context/ErrorContext';
+import { useError } from '@/context/ErrorContext';
 import { UserContext, UserData } from '@/context/UserContext';
 import { postPaymentCheckout } from '@/service/auth';
 import { getPlan } from '@/service/plan';
-import {
-  faGift,
-  faPhotoVideo,
-  faPlayCircle,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 import ButtonAcess from '../ButtonAcess';
 import styles from './SelectPlans.module.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faGift,
+  faPhotoVideo,
+  faPlayCircle,
+} from '@fortawesome/free-solid-svg-icons';
 
 const SelectPlans = () => {
   const { user, setUser } = useContext(UserContext);
-  const { setIsLoading } = useIsLoading();
-  const [error, setError] = useState<string>('');
+  const { handleRequest, showWarning, isLoading } = useError();
   const [planos, setPlanos] = useState<Plan[]>([]);
   const [selectPlanStatus, setSelectPlanStatus] = useState<string>(
     user.selectedPlan
@@ -34,64 +32,50 @@ const SelectPlans = () => {
     const planId = selectPlanStatus?.trim();
 
     if (!planId) {
-      setError('Selecione um plano para prosseguir.');
+      showWarning('Selecione um plano para prosseguir.');
       return;
     }
-
-    setIsLoading(true);
-    setError('');
 
     setUser({
       ...user,
       selectedPlan: planId,
     } as UserData);
-
-    try {
-      const response = await postPaymentCheckout({
+    
+    const response = await handleRequest(
+      () => postPaymentCheckout({
         ID_PLAN: planId,
         ID_USER: user.id,
-      });
-
-      console.log('Resposta do checkout:', response);
-      if ('STATUS' in response && 'MESSAGE' in response) {
-        const errorResponse = response as ErrorMessage;
-        setError(errorResponse.MESSAGE || 'Erro ao seguir para o checkout.');
-        setIsLoading(false);
-        return;
+      }),
+      {
+        loadingMessage: 'Processando assinatura...',
+        suppressErrorToast: false,
       }
+    );
 
-      if ('LINK' in response && response.LINK) {
-        console.log('Resposta do checkout:', response.LINK);
-        setIsLoading(false);
-        router.push(response.LINK);
-      } else {
-        setIsLoading(false);
-        setError('Erro ao seguir para o checkout. URL de checkout inválida.');
-      }
-    } catch (error) {
-      console.error('Erro ao seguir para o checkout:', error);
-      setIsLoading(false);
-      setError('Erro ao seguir para o checkout.');
+    if (response && 'LINK' in response && response.LINK) {
+      router.push(response.LINK);
+    } else if (response) {
+      showWarning('Erro ao gerar link de checkout. Por favor, tente novamente.');
     }
   };
 
   useEffect(() => {
     const fetchPlans = async () => {
-      try {
-        const data = await getPlan();
-        if (typeof data === 'object' && data !== null && 'STATUS' in data && 'MESSAGE' in data ) {
-          setError(data.MESSAGE || 'Erro ao buscar planos.');
+      const response = await handleRequest(
+        () => getPlan(),
+        {
+          suppressLoading: true,
+          suppressLoadingToast: true,
+          suppressErrorToast: false,
+        }
+      );
+
+      if (response && Array.isArray(response)) {
+        if (response.length === 0) {
+          showWarning('Nenhum plano disponível no momento.');
           return;
         }
-
-        if (data.length === 0) {
-          setError('Nenhum plano disponível no momento.');
-          return;
-        }
-
-        setPlanos(data.reverse());
-      } catch (error) {
-        console.error('Erro ao buscar planos:', error);
+        setPlanos(response.reverse());
       }
     };
 
