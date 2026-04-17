@@ -1,10 +1,10 @@
 'use client';
 
-import { ErrorMessage, ConfirmOptions } from '@/@types/error';
-import { createContext, useCallback, useContext, useState } from 'react';
-import { toast, ToastOptions, TypeOptions, Id } from 'react-toastify';
+import { ConfirmOptions, ErrorMessage } from '@/@types/error';
 import { AnimatedLogo } from '@/components/globals/AnimateLogo';
-
+import ShowToast from '@/components/globals/ErrorModal/ShowToast';
+import { createContext, useCallback, useContext, useState } from 'react';
+import { Id, toast, ToastOptions, TypeOptions } from 'react-toastify';
 
 export interface HandleRequestOptions {
   suppressErrorToast?: boolean;
@@ -17,7 +17,6 @@ export interface HandleRequestOptions {
   onSuccess?: () => void;
   onError?: (error: ErrorMessage) => void;
 }
-
 
 export interface ShowToastOptions extends ToastOptions {
   autoClose?: number | false;
@@ -35,12 +34,19 @@ export interface ShowToastOptions extends ToastOptions {
 interface ErrorContextType {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  showToast: (message: string, type?: TypeOptions, options?: ShowToastOptions) => Id;
+  showToast: (
+    message: string,
+    type?: TypeOptions,
+    options?: ShowToastOptions
+  ) => Id;
   showError: (error: ErrorMessage | string, options?: ShowToastOptions) => Id;
   showSuccess: (message: string, options?: ShowToastOptions) => Id;
   showWarning: (message: string, options?: ShowToastOptions) => Id;
   showInfo: (message: string, options?: ShowToastOptions) => Id;
-  showConfirmation: (message: string, options?: ConfirmOptions) => Promise<boolean>;
+  showConfirmation: (
+    message: string,
+    options?: ConfirmOptions
+  ) => Promise<boolean>;
   handleRequest: <T>(
     requestFn: () => Promise<T>,
     options?: HandleRequestOptions
@@ -100,9 +106,13 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
    * Exibe toast com configurações padrão por tipo
    */
   const showToast = useCallback(
-    (message: string, type: TypeOptions = 'default', options?: ShowToastOptions): Id => {
+    (
+      message: string,
+      type: TypeOptions = 'default',
+      options?: ShowToastOptions
+    ): Id => {
       const defaultConfig = DEFAULT_TOAST_CONFIG[type];
-      
+
       // Se há ação customizada, não auto-fecha
       const finalOptions: ToastOptions = {
         ...defaultConfig,
@@ -114,27 +124,11 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
       // Se há ação, adiciona botão customizado via closeButton
       if (options?.action) {
         const toastId = toast(
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <span>{message}</span>
-            <button
-              onClick={() => {
-                options.action?.onClick();
-                toast.dismiss(toastId);
-              }}
-              style={{
-                padding: '6px 12px',
-                background: '#353AA4',
-                border: 'none',
-                borderRadius: '4px',
-                color: '#F2F2F2',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-              }}
-            >
-              {options.action.text}
-            </button>
-          </div>,
+          <ShowToast
+            typeError="toast"
+            optionsToast={finalOptions}
+            toast={() => toast.dismiss(toastId)}
+          />,
           finalOptions
         );
         return toastId;
@@ -194,19 +188,19 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
 
   /**
    * Exibe toast de confirmação com botões Confirmar/Cancelar
-   * 
+   *
    * IMPORTANTE: isLoading é ATIVADO automaticamente ao exibir o toast e
    * DESATIVADO ao confirmar/cancelar. Isso bloqueia novas solicitações
    * enquanto o usuário não tomar uma decisão.
-   * 
+   *
    * @param message - Mensagem da confirmação
    * @param options - Opções de customização
    * @returns Promise<boolean> - true se confirmado, false se cancelado
-   * 
+   *
    * @example
    * const confirmed = await showConfirmation(
    *   'Tem certeza que deseja excluir este item?',
-   *   { 
+   *   {
    *     title: 'Confirmar exclusão',
    *     confirmText: 'Sim, excluir',
    *     cancelText: 'Não, manter',
@@ -253,86 +247,14 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
         };
 
         const toastId = toast(
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '12px',
-            color: '#F2F2F2'
-          }}>
-            {title && (
-              <strong style={{ 
-                fontSize: '16px', 
-                marginBottom: '4px',
-                color: '#00FFF1'
-              }}>
-                {title}
-              </strong>
-            )}
-            <span style={{ fontSize: '14px', lineHeight: '1.5' }}>
-              {message}
-            </span>
-            <div style={{ 
-              display: 'flex', 
-              gap: '8px', 
-              marginTop: '8px',
-              justifyContent: 'flex-end'
-            }}>
-              <button
-                onClick={() => {
-                  handleCancel();
-                  toast.dismiss(toastId);
-                }}
-                style={{
-                  padding: '8px 16px',
-                  background: 'transparent',
-                  border: '2px solid #606060',
-                  borderRadius: '6px',
-                  color: '#F2F2F2',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#606060';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                {cancelText}
-              </button>
-              <button
-                onClick={() => {
-                  handleConfirm();
-                  toast.dismiss(toastId);
-                }}
-                style={{
-                  padding: '8px 16px',
-                  background: type === 'error' 
-                    ? '#C72C41'
-                    : type === 'warning'
-                    ? '#FFCE08'
-                    : '#0CB189',
-                  border: 'none',
-                  borderRadius: '6px',
-                  color: type === 'warning' ? '#1A2228' : '#F2F2F2',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = '0.85';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = '1';
-                }}
-              >
-                {confirmText}
-              </button>
-            </div>
-          </div>,
+          <ShowToast
+            typeError="confirmation"
+            message={message}
+            optionsConfirmation={{ title, confirmText, cancelText, type }}
+            handleCancel={handleCancel}
+            handleConfirm={handleConfirm}
+            toast={() => toast.dismiss(toastId)}
+          />,
           {
             type,
             autoClose,
@@ -353,11 +275,11 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
 
   /**
    * Wrapper para requisições com loading e error handling automáticos
-   * 
+   *
    * @param requestFn - Função async que retorna Promise com dados
    * @param options - Opções de configuração
    * @returns Dados em caso de sucesso, null em caso de erro
-   * 
+   *
    * @example
    * const data = await handleRequest(
    *   () => postLogin({ email, password }),
@@ -395,15 +317,10 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
         // Exibe toast de loading com AnimatedLogo
         if (!suppressLoadingToast) {
           loadingToastId = toast(
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px',
-              color: '#F2F2F2'
-            }}>
-              <AnimatedLogo size={32} />
-              <span>{loadingMessage}</span>
-            </div>,
+            <ShowToast
+              typeError="requestError"
+              optionsRequest={{ loadingMessage }}
+            />,
             {
               autoClose: false,
               closeButton: false,
@@ -431,7 +348,7 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
           'MESSAGE' in response
         ) {
           const errorResponse = response as unknown as ErrorMessage;
-          
+
           // É uma resposta de erro do backend
           if (!suppressErrorToast) {
             showError(errorResponse, errorToastOptions);
@@ -500,9 +417,10 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
     handleRequest,
   };
 
-  return <ErrorContext.Provider value={value}>{children}</ErrorContext.Provider>;
+  return (
+    <ErrorContext.Provider value={value}>{children}</ErrorContext.Provider>
+  );
 };
-
 
 export const useError = () => {
   const context = useContext(ErrorContext);
