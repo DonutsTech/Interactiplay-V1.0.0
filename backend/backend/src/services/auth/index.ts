@@ -1,28 +1,29 @@
-import bcrypt from "bcryptjs";
-import { StatusCodes } from "http-status-codes";
+import bcrypt from 'bcryptjs';
+import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
-import type { PaymentCheckout, ResetPassword } from "../../@types/interface/auth";
-import type { LoginUser, RegisterUser } from "../../@types/interface/user";
-import type { Payload } from "../../@types/payload";
-import { CustomError } from "../../error";
-import type { User } from "../../generated/prisma/client";
-import { userModel } from "../../models/user";
-import { createStripeCustomer, generatedCheckout, handleSubscriptionFinishedTrial } from "../../utils/stripe";
-import { validateEmail } from "../../utils/validate";
-import { mailService } from "../mail";
-import { planService } from "../plan";
-import { userService } from "../user";
+import type { PaymentCheckout, ResetPassword } from '../../@types/interface/auth';
+import type { LoginUser, RegisterUser } from '../../@types/interface/user';
+import type { Payload } from '../../@types/payload';
+import { CustomError } from '../../error';
+import type { User } from '../../generated/prisma/client';
+import { userModel } from '../../models/user';
+import {
+  createPortalCustomer,
+  createStripeCustomer,
+  generatedCheckout,
+  handleSubscriptionFinishedTrial,
+} from '../../utils/stripe';
+import { validateEmail } from '../../utils/validate';
+import { mailService } from '../mail';
+import { planService } from '../plan';
+import { userService } from '../user';
 
 class AuthService {
   createToken(user: User) {
-    return jwt.sign(
-      { ID: user.ID, ROLE: user.ROLE},
-      process.env.JWT_SECRET_KEY as string,
-      {
-        subject: user.ID,
-        expiresIn: '7d'
-      }
-    )
+    return jwt.sign({ ID: user.ID, ROLE: user.ROLE }, process.env.JWT_SECRET_KEY as string, {
+      subject: user.ID,
+      expiresIn: '7d',
+    });
   }
 
   checkingToken(token: string): Payload {
@@ -42,15 +43,21 @@ class AuthService {
       const user = await userModel.findBy({ where: { EMAIL: data.EMAIL } });
 
       if (user) {
-        throw new CustomError('Parece que você já possui uma conta. Por favor, acesse usando seu login.', StatusCodes.CONFLICT);
+        throw new CustomError(
+          'Parece que você já possui uma conta. Por favor, acesse usando seu login.',
+          StatusCodes.CONFLICT,
+        );
       }
 
       const stripe = await createStripeCustomer(data.EMAIL, data.NAME);
 
-      const create = await userService.create({ ...data, ...stripe});
+      const create = await userService.create({ ...data, ...stripe });
 
-      if (!(create.STRIPE_SUBSCRIPTION_STATUS === "")) {
-        throw new CustomError('Parece que você já possui uma conta. Por favor, acesse usando seu login.', StatusCodes.CONFLICT);
+      if (!(create.STRIPE_SUBSCRIPTION_STATUS === '')) {
+        throw new CustomError(
+          'Parece que você já possui uma conta. Por favor, acesse usando seu login.',
+          StatusCodes.CONFLICT,
+        );
       }
 
       const token = this.createToken(create);
@@ -65,12 +72,27 @@ class AuthService {
 
   async verificationStripedSubscription(user: User): Promise<string> {
     try {
-      if ((user.STRIPE_SUBSCRIPTION_STATUS === "" || user.STRIPE_SUBSCRIPTION_STATUS === "")) {
-        throw new CustomError<User>('Assinatura não encontrada, por favor realize a assinatura para acessar o conteúdo', StatusCodes.FORBIDDEN, { ...user});
+      const portal = await createPortalCustomer(user.STRIPE_CUSTOMER_ID as string);
+
+      if (user.STRIPE_SUBSCRIPTION_STATUS === '' || user.STRIPE_SUBSCRIPTION_STATUS === '') {
+        throw new CustomError<User & { PORTAL_URL: string }>(
+          'Assinatura não encontrada, por favor realize a assinatura para acessar o conteúdo',
+          StatusCodes.FORBIDDEN,
+          { ...user, PORTAL_URL: portal.PORTAL_URL },
+        );
       }
 
-      if (!(user.STRIPE_SUBSCRIPTION_STATUS === "active" || user.STRIPE_SUBSCRIPTION_STATUS === "trialing")) {
-        throw new CustomError<User>('Assinatura inativa, por favor realize a assinatura para acessar o conteúdo', StatusCodes.PAYMENT_REQUIRED, { ...user});
+      if (
+        !(
+          user.STRIPE_SUBSCRIPTION_STATUS === 'active' ||
+          user.STRIPE_SUBSCRIPTION_STATUS === 'trialing'
+        )
+      ) {
+        throw new CustomError<User & { PORTAL_URL: string }>(
+          'Assinatura inativa, por favor realize a assinatura para acessar o conteúdo',
+          StatusCodes.PAYMENT_REQUIRED,
+          { ...user, PORTAL_URL: portal.PORTAL_URL },
+        );
       }
 
       const token = this.createToken(user);
@@ -123,7 +145,7 @@ class AuthService {
     try {
       await userService.existsById(id);
 
-      const user = await userService.update(id, { VALIDATION_EMAIL: true});
+      const user = await userService.update(id, { VALIDATION_EMAIL: true });
 
       return { USER: user };
     } catch (error) {
@@ -147,7 +169,11 @@ class AuthService {
 
       await userService.update(user.ID, { HASHED_TOKEN: randomNumeber });
 
-      await mailService.sendForgetPasswordEmail({ CODE: randomNumeber, EMAIL: email, TOKEN: token });
+      await mailService.sendForgetPasswordEmail({
+        CODE: randomNumeber,
+        EMAIL: email,
+        TOKEN: token,
+      });
 
       return { MESSAGE: 'Email de recuperação enviado com sucesso' };
     } catch (error) {
@@ -155,15 +181,15 @@ class AuthService {
     }
   }
 
-  async resetPassword({CODE, HASHED_PASSWORD, ID} : ResetPassword) {
+  async resetPassword({ CODE, HASHED_PASSWORD, ID }: ResetPassword) {
     try {
       const user = await userService.showId(ID);
 
-      if (user && user.HASHED_TOKEN && !(await bcrypt.compare(CODE, user.HASHED_TOKEN)) ) {
+      if (user && user.HASHED_TOKEN && !(await bcrypt.compare(CODE, user.HASHED_TOKEN))) {
         throw new CustomError('Código de verificação inválido', StatusCodes.CONFLICT);
       }
 
-      await userService.update(ID, { HASHED_PASSWORD, HASHED_TOKEN: "" });
+      await userService.update(ID, { HASHED_PASSWORD, HASHED_TOKEN: '' });
 
       await mailService.sendResetPasswordEmail(user.EMAIL);
 
@@ -189,27 +215,30 @@ class AuthService {
 
   async paymentCheckout(data: PaymentCheckout) {
     try {
-    const plan = await planService.showId(data.ID_PLAN);
+      const plan = await planService.showId(data.ID_PLAN);
 
-    const user = await userService.showId(data.ID_USER);
+      const user = await userService.showId(data.ID_USER);
 
-    const token = this.createToken(user);
+      const token = this.createToken(user);
 
-    await userService.update(user.ID, { HASHED_TOKEN: token });
+      await userService.update(user.ID, { HASHED_TOKEN: token });
 
-    const stripe = await generatedCheckout({
-      email: user.EMAIL,
-      planId: plan.ID,
-      token,
-      userId: user.ID,
-      price: plan.STRIPE_PLAN_PRICE,
-    });
+      const stripe = await generatedCheckout({
+        email: user.EMAIL,
+        planId: plan.ID,
+        token,
+        userId: user.ID,
+        price: plan.STRIPE_PLAN_PRICE,
+      });
 
-    if (!stripe) {
-      throw new CustomError('Não conseguimos completar sua ação. Tente outra vez', StatusCodes.INTERNAL_SERVER_ERROR);
-    }
+      if (!stripe) {
+        throw new CustomError(
+          'Não conseguimos completar sua ação. Tente outra vez',
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        );
+      }
 
-    return stripe;
+      return stripe;
     } catch (error) {
       throw error;
     }
@@ -223,24 +252,50 @@ class AuthService {
         throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
       }
 
-      if (user.STRIPE_SUBSCRIPTION_STATUS === "active") {
+      if (user.STRIPE_SUBSCRIPTION_STATUS === 'active') {
         throw new CustomError('Assinatura já ativa', StatusCodes.CONFLICT);
       }
 
-      if (user.STRIPE_SUBSCRIPTION_ID === "" || user.STRIPE_SUBSCRIPTION_STATUS === "") {
+      if (user.STRIPE_SUBSCRIPTION_ID === '' || user.STRIPE_SUBSCRIPTION_STATUS === '') {
         throw new CustomError('Assinatura não encontrada', StatusCodes.FORBIDDEN);
       }
-
 
       await handleSubscriptionFinishedTrial({
         email: user.EMAIL,
         userId: user.ID,
         planId: user.PLAN_ID as string,
         stripeSubscriptionId: user.STRIPE_SUBSCRIPTION_ID as string,
-        price: "",
+        price: '',
       });
 
       return { MESSAGE: 'Assinatura em processamento de ativação' };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async paymentPortal(userId: string) {
+    try {
+      const user = await userService.showId(userId);
+
+      if (!user) {
+        throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
+      }
+
+      if (user.STRIPE_SUBSCRIPTION_ID === '' || user.STRIPE_CUSTOMER_ID === '') {
+        throw new CustomError('Assinatura não encontrada', StatusCodes.FORBIDDEN);
+      }
+
+      const portal = await createPortalCustomer(user.STRIPE_CUSTOMER_ID as string);
+
+      if (!portal) {
+        throw new CustomError(
+          'Não conseguimos completar sua ação. Tente outra vez',
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      return portal;
     } catch (error) {
       throw error;
     }

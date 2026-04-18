@@ -1,14 +1,18 @@
-import { StatusCodes } from "http-status-codes";
-import Stripe from "stripe";
-import type { FunctionCheckout, FunctionCheckoutFree, FunctionUpdateFinishTrial } from "../@types/interface/function";
-import { CustomError } from "../error";
-import { handleStripeError } from "../error/errorStripe";
-import type { Plan } from "../generated/prisma/client";
-import { historyPlaysService } from "../services/historyPlays";
-import { planService } from "../services/plan";
-import { userService } from "../services/user";
-import { formatNummberForDate } from "./format/data";
-import { formatProductsForPlan } from "./format/plan";
+import { StatusCodes } from 'http-status-codes';
+import Stripe from 'stripe';
+import type {
+  FunctionCheckout,
+  FunctionCheckoutFree,
+  FunctionUpdateFinishTrial,
+} from '../@types/interface/function';
+import { CustomError } from '../error';
+import { handleStripeError } from '../error/errorStripe';
+import type { Plan } from '../generated/prisma/client';
+import { historyPlaysService } from '../services/historyPlays';
+import { planService } from '../services/plan';
+import { userService } from '../services/user';
+import { formatNummberForDate } from './format/data';
+import { formatProductsForPlan } from './format/plan';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET as string, {
   httpClient: Stripe.createFetchHttpClient(),
@@ -22,7 +26,7 @@ export const getStripeProducts = async () => {
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
 
 export const getStripeCustomerByEmail = async (email: string) => {
   try {
@@ -34,7 +38,7 @@ export const getStripeCustomerByEmail = async (email: string) => {
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
 
 export const createStripeCustomer = async (email: string, name: string) => {
   try {
@@ -53,7 +57,12 @@ export const createStripeCustomer = async (email: string, name: string) => {
 
       const subscription = subscriptions.data[0] as Stripe.Subscription;
 
-      if (subscription && subscription.items && subscription.items.data && subscription.items.data.length > 0) {
+      if (
+        subscription &&
+        subscription.items &&
+        subscription.items.data &&
+        subscription.items.data.length > 0
+      ) {
         const item = subscription.items.data[0];
         const price = item?.price;
         periodEnd = item?.current_period_end;
@@ -69,12 +78,16 @@ export const createStripeCustomer = async (email: string, name: string) => {
           STRIPE_SUBSCRIPTION_ID: subscription.id,
           STRIPE_SUBSCRIPTION_STATUS: subscription.status,
           ACTIVE: subscription.status === 'active' || subscription.status === 'trialing',
-          ...(subscription.trial_end ? { STRIPE_TRIAL_END: formatNummberForDate(subscription.trial_end) } : {}),
-          ...(periodStart ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(periodStart) } : {}),
+          ...(subscription.trial_end
+            ? { STRIPE_TRIAL_END: formatNummberForDate(subscription.trial_end) }
+            : {}),
+          ...(periodStart
+            ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(periodStart) }
+            : {}),
           ...(periodEnd ? { STRIPE_CURRENT_PERIOD_END: formatNummberForDate(periodEnd) } : {}),
           ...(plan ? { PLAN: { connect: { ID: plan.ID } } } : {}),
           ...(plan ? { HISTORY_PLAYS: { create: { QTD_PLAYS: 0, PRICE_MONTH: 0 } } } : {}),
-        }
+        };
       }
     }
 
@@ -97,9 +110,14 @@ export const createStripeCustomer = async (email: string, name: string) => {
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
 
-export const createStripeFreeCustomer = async ({ email, planId, userId, price }: FunctionCheckoutFree) => {
+export const createStripeFreeCustomer = async ({
+  email,
+  planId,
+  userId,
+  price,
+}: FunctionCheckoutFree) => {
   try {
     const customer = await getStripeCustomerByEmail(email);
 
@@ -114,16 +132,22 @@ export const createStripeFreeCustomer = async ({ email, planId, userId, price }:
         userId,
         planId,
         price,
-      }
+      },
     });
 
     return subscription;
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
 
-export const generatedCheckout = async ({ email, planId, token, userId, price }: FunctionCheckout) => {
+export const generatedCheckout = async ({
+  email,
+  planId,
+  token,
+  userId,
+  price,
+}: FunctionCheckout) => {
   try {
     const customer = await getStripeCustomerByEmail(email);
 
@@ -158,10 +182,10 @@ export const generatedCheckout = async ({ email, planId, token, userId, price }:
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
 
 export const handleCheckoutSessionCompleted = async (event: {
-  data: { object: Stripe.Checkout.Session }
+  data: { object: Stripe.Checkout.Session };
 }) => {
   try {
     console.log('handleCheckoutSessionCompleted - 1 ?', JSON.stringify(event.data.object));
@@ -169,7 +193,8 @@ export const handleCheckoutSessionCompleted = async (event: {
     const stripeSubscriptionId = event.data.object.subscription as string;
     const stripeCustumerId = event.data.object.customer as string;
     const checkoutStatus = event.data.object.status;
-    const metadata = event.data.object.metadata as { userId: string, type: string, planId: string } || undefined;
+    const metadata =
+      (event.data.object.metadata as { userId: string; type: string; planId: string }) || undefined;
 
     let planId = undefined;
 
@@ -192,9 +217,15 @@ export const handleCheckoutSessionCompleted = async (event: {
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
 
-export const handleSubscriptionFinishedTrial = async ({ email, stripeSubscriptionId, planId, userId, price }: FunctionUpdateFinishTrial) => {
+export const handleSubscriptionFinishedTrial = async ({
+  email,
+  stripeSubscriptionId,
+  planId,
+  userId,
+  price,
+}: FunctionUpdateFinishTrial) => {
   try {
     const customer = await getStripeCustomerByEmail(email);
 
@@ -217,15 +248,17 @@ export const handleSubscriptionFinishedTrial = async ({ email, stripeSubscriptio
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
 
 export const handleSubscriptionSessionCompleted = async (event: {
-  data: { object: Stripe.Subscription & {
-    current_period_start?: number;
-    current_period_end?: number;
-    trial_start?: number | null;
-    trial_end?: number | null;
-   } }
+  data: {
+    object: Stripe.Subscription & {
+      current_period_start?: number;
+      current_period_end?: number;
+      trial_start?: number | null;
+      trial_end?: number | null;
+    };
+  };
 }) => {
   try {
     const subscriptionStatus = event.data.object.status;
@@ -235,7 +268,7 @@ export const handleSubscriptionSessionCompleted = async (event: {
     const trialStart = event.data.object.trial_start as number | null;
     const currentPeriodStart = event.data.object.current_period_start as number | null;
     const currentPeriodEnd = event.data.object.current_period_end as number | null;
-    const data = event.data.object.items.data[0]
+    const data = event.data.object.items.data[0];
 
     const user = await userService.showStripeCustomerId(stripeCustumerId);
 
@@ -248,20 +281,21 @@ export const handleSubscriptionSessionCompleted = async (event: {
         ACTIVE: subscriptionStatus === 'active' || subscriptionStatus === 'trialing',
         ...(trialEnd ? { STRIPE_TRIAL_END: formatNummberForDate(trialEnd) } : {}),
         ...(trialStart ? { STRIPE_TRIAL_START: formatNummberForDate(trialStart) } : {}),
-        ...(currentPeriodStart ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(currentPeriodStart) } : {}),
-        ...(currentPeriodEnd ? { STRIPE_CURRENT_PERIOD_END: formatNummberForDate(currentPeriodEnd) } : {}),
+        ...(currentPeriodStart
+          ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(currentPeriodStart) }
+          : {}),
+        ...(currentPeriodEnd
+          ? { STRIPE_CURRENT_PERIOD_END: formatNummberForDate(currentPeriodEnd) }
+          : {}),
         ...(plan ? { PLAN: { connect: { ID: plan.ID } } } : {}),
       });
-
     }
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
 
-export const handleCancelPlan = async (event: {
-  data: { object: Stripe.Subscription }
-}) => {
+export const handleCancelPlan = async (event: { data: { object: Stripe.Subscription } }) => {
   try {
     const stripeCustumerId = event.data.object.customer as string;
     const subscriptionStatus = event.data.object.status;
@@ -290,7 +324,7 @@ export const handleCancelPlan = async (event: {
             userId: user.ID,
             historyPlaysId: activeHistoryPlays.ID,
             type: 'excess_plays',
-          }
+          },
         });
 
         await stripe.invoices.create({
@@ -314,13 +348,15 @@ export const handleCancelPlan = async (event: {
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
 
 export const handleInvoicePaid = async (event: {
-  data: { object: Stripe.Invoice & {
-    paid?: boolean;
-    subscription?: string | null;
-   }}
+  data: {
+    object: Stripe.Invoice & {
+      paid?: boolean;
+      subscription?: string | null;
+    };
+  };
 }) => {
   try {
     console.log('handleInvoicePaid - 3 ?', JSON.stringify(event.data.object));
@@ -332,7 +368,12 @@ export const handleInvoicePaid = async (event: {
 
     if (line.length > 0 && user) {
       for (const item of line) {
-        const metadata = item.metadata as { userId: string, type: string, planId?: string, historyPlaysId?: string  } | null;
+        const metadata = item.metadata as {
+          userId: string;
+          type: string;
+          planId?: string;
+          historyPlaysId?: string;
+        } | null;
 
         if (metadata && metadata.type === 'monthly_subscription' && metadata.planId) {
           const periodend = item.period.end as number | null;
@@ -340,13 +381,21 @@ export const handleInvoicePaid = async (event: {
 
           await userService.update(user.ID, {
             ...(periodend ? { STRIPE_CURRENT_PERIOD_END: formatNummberForDate(periodend) } : {}),
-            ...(periodStart ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(periodStart) } : {}),
+            ...(periodStart
+              ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(periodStart) }
+              : {}),
             ACTIVE: paid,
           });
 
           if (!(user.HISTORY_PLAYS.length > 0)) {
             await userService.update(user.ID, {
-              HISTORY_PLAYS: { create: { QTD_PLAYS: 0, PRICE_MONTH: 0, STATUS: (user.STRIPE_SUBSCRIPTION_STATUS === 'trialing' ? 'teste' : 'ativo') } }
+              HISTORY_PLAYS: {
+                create: {
+                  QTD_PLAYS: 0,
+                  PRICE_MONTH: 0,
+                  STATUS: user.STRIPE_SUBSCRIPTION_STATUS === 'trialing' ? 'teste' : 'ativo',
+                },
+              },
             });
           }
 
@@ -366,7 +415,7 @@ export const handleInvoicePaid = async (event: {
                   userId: user.ID,
                   historyPlaysId: currentPlays.ID,
                   type: 'excess_plays',
-                }
+                },
               });
 
               await historyPlaysService.update(currentPlays.ID, {
@@ -387,11 +436,16 @@ export const handleInvoicePaid = async (event: {
               PRICE_MONTH: 0,
               STATUS: 'ativo',
               USER: { connect: { ID: user.ID } },
-            })
+            });
           }
         }
 
-        if (metadata && metadata.type === 'excess_plays' && metadata.userId && metadata.historyPlaysId) {
+        if (
+          metadata &&
+          metadata.type === 'excess_plays' &&
+          metadata.userId &&
+          metadata.historyPlaysId
+        ) {
           await historyPlaysService.update(metadata.historyPlaysId, {
             STATUS: 'pago',
           });
@@ -401,11 +455,9 @@ export const handleInvoicePaid = async (event: {
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
 
-export const handleInvoicePaymentFailed = async (event: {
-  data: { object: Stripe.Invoice }
-}) => {
+export const handleInvoicePaymentFailed = async (event: { data: { object: Stripe.Invoice } }) => {
   try {
     const stripeCustumerId = event.data.object.customer as string;
     const line = event.data.object.lines.data;
@@ -415,7 +467,12 @@ export const handleInvoicePaymentFailed = async (event: {
     if (!user) return;
 
     for (const item of line) {
-      const metadata = item.metadata as { userId: string, type: string, planId?: string, historyPlaysId?: string } | null;
+      const metadata = item.metadata as {
+        userId: string;
+        type: string;
+        planId?: string;
+        historyPlaysId?: string;
+      } | null;
 
       if (metadata && metadata.type === 'excess_plays' && metadata.historyPlaysId) {
         await historyPlaysService.update(metadata.historyPlaysId, {
@@ -430,7 +487,16 @@ export const handleInvoicePaymentFailed = async (event: {
   } catch (error) {
     handleStripeError(error);
   }
-}
+};
+
+export const createPortalCustomer = async (idCustomer: string) => {
+  const subscription = await stripe.billingPortal.sessions.create({
+    customer: idCustomer,
+    return_url: `${process.env.FRONTEND}/acess`,
+  });
+
+  return { PORTAL_URL: subscription.url };
+};
 
 // para deletar depois (depois) aqui clock_1TLV5GHs4q3jg2YIfvnEZAAl
 // export const advanceTestClock = async (clockId: string, targetTimestamp?: number) => {

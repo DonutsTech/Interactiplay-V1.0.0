@@ -2,21 +2,27 @@ import * as bycrpt from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
 import type { MulterS3File } from '../../@types/file';
 import { CustomError } from '../../error';
-import type { Prisma } from "../../generated/prisma/client";
+import type { Prisma } from '../../generated/prisma/client';
 import type { UserGetPayload } from '../../generated/prisma/models';
-import { userModel } from "../../models/user";
+import { userModel } from '../../models/user';
 import { photoService } from '../photo';
 
 class UserService {
   async existsByEmail(email: string) {
     if (!(await userModel.count({ EMAIL: email }))) {
-      throw new CustomError('Usuario não encontrado, por favor verifique o seu  email', StatusCodes.NOT_FOUND)
+      throw new CustomError(
+        'Usuario não encontrado, por favor verifique o seu  email',
+        StatusCodes.NOT_FOUND,
+      );
     }
   }
 
   async existsById(id: string) {
     if (!(await userModel.count({ ID: id }))) {
-      throw new CustomError('Usuario não encontrado, por favor verifique o seu  email', StatusCodes.NOT_FOUND)
+      throw new CustomError(
+        'Usuario não encontrado, por favor verifique o seu  email',
+        StatusCodes.NOT_FOUND,
+      );
     }
   }
 
@@ -26,7 +32,7 @@ class UserService {
 
       const user = await userModel.create({
         data,
-        include: { PLAN: true, HISTORY_PLAYS: true}
+        include: { PLAN: true, HISTORY_PLAYS: true },
       });
 
       return user;
@@ -40,7 +46,10 @@ class UserService {
       await this.existsById(id);
 
       if (data.HASHED_PASSWORD) {
-        data.HASHED_PASSWORD = await bycrpt.hash(data.HASHED_PASSWORD as string, await bycrpt.genSalt());
+        data.HASHED_PASSWORD = await bycrpt.hash(
+          data.HASHED_PASSWORD as string,
+          await bycrpt.genSalt(),
+        );
       }
 
       if (data.HASHED_TOKEN) {
@@ -50,7 +59,7 @@ class UserService {
       const user = await userModel.updateBy({
         where: { ID: id },
         data,
-        include: { PLAN: true, HISTORY_PLAYS: true }
+        include: { PLAN: true, HISTORY_PLAYS: true },
       });
 
       return user;
@@ -73,7 +82,13 @@ class UserService {
     try {
       await this.existsById(id);
 
-      const user = await userModel.findBy({ where: { ID: id }, include: { PLAN: true, HISTORY_PLAYS: true } });
+      const user = await userModel.findBy({
+        where: { ID: id },
+        include: {
+          PLAN: true,
+          HISTORY_PLAYS: { where: { STATUS: { in: ['teste', 'ativo'] } } },
+        },
+      });
 
       if (!user) {
         throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
@@ -85,9 +100,14 @@ class UserService {
     }
   }
 
-  async showStripeCustomerId(customerId: string): Promise<UserGetPayload<{include: { PLAN: true, HISTORY_PLAYS: true }}> | null> {
+  async showStripeCustomerId(
+    customerId: string,
+  ): Promise<UserGetPayload<{ include: { PLAN: true; HISTORY_PLAYS: true } }> | null> {
     try {
-      return await userModel.findBy({ where: { STRIPE_CUSTOMER_ID: customerId }, include: { PLAN: true, HISTORY_PLAYS: true } }) as UserGetPayload<{include: { PLAN: true, HISTORY_PLAYS: true }}> | null;
+      return (await userModel.findBy({
+        where: { STRIPE_CUSTOMER_ID: customerId },
+        include: { PLAN: true, HISTORY_PLAYS: true },
+      })) as UserGetPayload<{ include: { PLAN: true; HISTORY_PLAYS: true } }> | null;
     } catch (error) {
       return null;
     }
@@ -97,7 +117,10 @@ class UserService {
     try {
       await this.existsByEmail(email);
 
-      const user = await userModel.findBy({ where: { EMAIL: email }, include: { PLAN: true, HISTORY_PLAYS: true } });
+      const user = await userModel.findBy({
+        where: { EMAIL: email },
+        include: { PLAN: true, HISTORY_PLAYS: true },
+      });
 
       return user;
     } catch (error) {
@@ -113,7 +136,10 @@ class UserService {
 
       const user = await this.showId(id);
 
-      if (user && !(user.AVATAR === 'https://interacti-uploads.s3.us-east-1.amazonaws.com/images/padrao.png')) {
+      if (
+        user &&
+        !(user.AVATAR === 'https://interacti-uploads.s3.us-east-1.amazonaws.com/images/padrao.png')
+      ) {
         await photoService.deleteImageFile(user.AVATAR);
       }
 
@@ -121,7 +147,10 @@ class UserService {
 
       return updatedUser;
     } catch (error) {
-      throw new CustomError('Erro ao atualizar a imagem do usuário', StatusCodes.INTERNAL_SERVER_ERROR);
+      throw new CustomError(
+        'Erro ao atualizar a imagem do usuário',
+        StatusCodes.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

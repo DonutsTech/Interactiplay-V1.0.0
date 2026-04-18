@@ -1,7 +1,7 @@
-import type { NextFunction, Request, Response } from "express";
-import type { PaymentCheckout } from "../../@types/interface/auth";
-import type { LoginUser, RegisterUser } from "../../@types/interface/user";
-import { authService } from "../../services/auth";
+import type { NextFunction, Request, Response } from 'express';
+import type { PaymentCheckout } from '../../@types/interface/auth';
+import type { LoginUser, RegisterUser } from '../../@types/interface/user';
+import { authService } from '../../services/auth';
 
 class AuthController {
   async register(request: Request, response: Response, next: NextFunction) {
@@ -57,7 +57,7 @@ class AuthController {
   async resetPassword(request: Request, response: Response, next: NextFunction) {
     try {
       const { user } = request as Request & { user: { ID: string } };
-      const body: { HASHED_PASSWORD: string, CODE: string } = request.body;
+      const body: { HASHED_PASSWORD: string; CODE: string } = request.body;
       const resetPassword = await authService.resetPassword({ ID: user.ID, ...body });
       return response.status(200).json(resetPassword);
     } catch (error) {
@@ -90,6 +90,16 @@ class AuthController {
       const { user } = request as Request & { user: { ID: string } };
       const validatePaymentCheckout = await authService.paymentPlanForActivateSubscription(user.ID);
       return response.status(200).json(validatePaymentCheckout);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async paymentPortal(request: Request, response: Response, next: NextFunction) {
+    try {
+      const { user } = request as Request & { user: { ID: string } };
+      const paymentPortal = await authService.paymentPortal(user.ID);
+      return response.status(200).json(paymentPortal);
     } catch (error) {
       next(error);
     }

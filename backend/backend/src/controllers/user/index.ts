@@ -1,7 +1,7 @@
-import type { NextFunction, Request, Response } from "express";
-import type { MulterS3File } from "../../@types/file";
-import type { RegisterUser } from "../../@types/interface/user";
-import { userService } from "../../services/user";
+import type { NextFunction, Request, Response } from 'express';
+import type { MulterS3File } from '../../@types/file';
+import type { RegisterUser } from '../../@types/interface/user';
+import { userService } from '../../services/user';
 
 class UserController {
   async updateUser(request: Request, response: Response, next: NextFunction) {

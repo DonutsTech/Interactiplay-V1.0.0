@@ -18,7 +18,9 @@ const s3Storage = multerS3({
       const mimeToExt: Record<string, string> = {
         'image/jpeg': '.jpg',
         'image/png': '.png',
-        'image/heic': '.heic'
+        'image/heic': '.heic',
+        'image/heif': '.heif',
+        'image/yebp': '.yebp',
       };
       extension = mimeToExt[file.mimetype] || '.jpg';
     } else if (file.mimetype.startsWith('video/')) {
@@ -32,7 +34,7 @@ const s3Storage = multerS3({
   contentType: multerS3.AUTO_CONTENT_TYPE,
 });
 
-const allImageTypes = ['image/jpeg', 'image/png', 'image/heic'];
+const allImageTypes = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/yebp'];
 const allVideoTypes = ['video/mp4'];
 
 export const imageUpload = multer({
