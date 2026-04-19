@@ -8,9 +8,9 @@ import Image from 'next/image';
 import { ChangeEvent, ReactNode, useContext, useRef, useState } from 'react';
 import avatarDefault from '@/assets/images/USER.svg';
 import styles from './ProfileLayout.module.scss';
-import { ErrorModalState } from '@/@types/error';
-import ErrorModal from '@/components/globals/ErrorModal';
 import { useRouter } from 'next/navigation';
+import { useError } from '@/context/ErrorContext';
+import { UserContext } from '@/context/UserContext';
 
 interface ProfileLayoutProps {
   children: ReactNode;
@@ -27,17 +27,13 @@ const ProfileLayout = ({
   onSectionChange,
   showLogoutMobile = false,
 }: ProfileLayoutProps) => {
-  const { authUser, setAuthUser, logout, loadAuthUser } =
-    useContext(AuthUserContext);
+  const { authUser, logout, loadAuthUser } = useContext(AuthUserContext);
+  const { handleRequest, showConfirmation, showWarning } = useError();
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [showModalMsg, setShowModalMsg] = useState(false);
-  const [msgProp, setMsgProp] = useState<ErrorModalState>({
-    mensagem: '',
-    type: 'error',
-  });
+  const { setUser } = useContext(UserContext);
 
   if (!authUser) {
     return null;
@@ -62,78 +58,69 @@ const ProfileLayout = ({
 
     if (!file) return;
 
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const validTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+    ];
     if (!validTypes.includes(file.type)) {
-      setMsgProp({
-        mensagem: 'Formato inválido. Use apenas JPG, PNG ou WEBP.',
-        type: 'error',
-      });
-      setShowModalMsg(true);
+      showWarning('Formato inválido. Use apenas JPG, PNG, WEBP ou GIF.');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setMsgProp({
-        mensagem: 'Arquivo muito grande. Máximo 5MB.',
-        type: 'error',
-      });
-      setShowModalMsg(true);
+      showWarning('Arquivo muito grande. Máximo 5MB.');
       return;
     }
 
     setIsUploading(true);
 
-    try {
-      const response = await updateUserAvatar(file);
+    const response = await handleRequest(() => updateUserAvatar(file), {
+      loadingMessage: 'Atualizando avatar...',
+      successMessage: 'Avatar atualizado com sucesso!',
+      suppressErrorToast: false,
+    });
 
-      if ('STATUS' in response && 'MESSAGE' in response) {
-        setMsgProp({
-          mensagem: response.MESSAGE,
-          type: 'error',
-        });
-        setShowModalMsg(true);
-        setIsUploading(false);
-        return;
-      }
+    setIsUploading(false);
 
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+
+    if (response) {
       await loadAuthUser();
-
-      setMsgProp({
-        mensagem: 'Avatar atualizado com sucesso!',
-        type: 'success',
-      });
-      setShowModalMsg(true);
-    } catch (error) {
-      console.error('Erro ao atualizar avatar:', error);
-      setMsgProp({
-        mensagem: 'Erro ao atualizar avatar. Tente novamente.',
-        type: 'error',
-      });
-      setShowModalMsg(true);
-    } finally {
-      setIsUploading(false);
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
     }
   };
 
-  const handleLogout = () => {
-    setShowModalMsg(true);
-    setMsgProp({
-      mensagem: 'Gostaria de realizar o Logout?',
-      type: 'warning',
-      btn: true,
-      butonProps: {
-        text: 'Sair',
-        goClick: () => {
-          logout();
-          router.push('/acess/login');
-          setShowModalMsg(false);
-        },
-      },
-    });
+  const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    const confirmLogout = await showConfirmation(
+      'Tem certeza que deseja sair da plataforma?',
+      {
+        title: 'Confirmar logout',
+        type: 'warning',
+        confirmText: 'Sair',
+        cancelText: 'Cancelar',
+      }
+    );
+
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('userTemp');
+    }
+
+    if (confirmLogout) {
+      logout();
+      setUser({
+        id: '',
+        name: '',
+        email: '',
+        selectedPlan: '',
+      })
+      router.push('/acess/login');
+    }
   };
 
   const handleSectionClick = (section: (typeof sections)[0]) => {
@@ -145,91 +132,80 @@ const ProfileLayout = ({
   };
 
   return (
-    <>
-      {showModalMsg && (
-        <ErrorModal
-          isOpen={(show) => setShowModalMsg(show)}
-          mensagem={msgProp.mensagem}
-          type={msgProp.type}
-          btn={msgProp.btn}
-          butonProps={msgProp.butonProps}
-          onClose={() => setShowModalMsg(false)}
-        />
-      )}
-
-      <div className={styles.section}>
-        <div className={styles.container}>
-          <div className={styles.container_left}>
-            <div className={styles.profile}>
-              <div
-                className={styles.avatarContainer}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                onClick={handleAvatarClick}
-              >
-                <Image
-                  src={profile.AVATAR}
-                  alt={`Avatar de ${profile.NAME}`}
-                  width={160}
-                  height={160}
-                  className={styles.avatarImage}
-                  priority
-                />
-
-                {(isHovered || isUploading) && (
-                  <div className={styles.overlay}>
-                    {isUploading ? (
-                      <div className={styles.loading}>Enviando...</div>
-                    ) : (
-                      <FontAwesomeIcon
-                        icon={faPencilAlt}
-                        className={styles.editIcon}
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                accept="image/jpeg,image/jpg,image/png,image/webp"
-                onChange={handleFileChange}
-                disabled={isUploading}
+    <div className={styles.section}>
+      <div className={styles.container}>
+        <div className={styles.container_left}>
+          <div className={styles.profile}>
+            <div
+              className={styles.avatarContainer}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              onClick={handleAvatarClick}
+            >
+              <Image
+                src={profile.AVATAR}
+                alt={`Avatar de ${profile.NAME}`}
+                width={160}
+                height={160}
+                className={styles.avatarImage}
+                priority
               />
 
-              <h4 className={styles.name}>{profile.NAME.split(' ')[0]}</h4>
-            </div>
-
-            {/* Botões de Navegação */}
-            <div className={styles.btns}>
-              {sections.map((section) => (
-                <button
-                  key={section.id}
-                  className={`${styles.btn} ${
-                    activeSection === section.id ? styles.btn_active : ''
-                  }`}
-                  onClick={() => handleSectionClick(section)}
-                >
-                  {section.label}
-                </button>
-              ))}
-
-              {showLogoutMobile && (
-                <button
-                  className={`${styles.btn} ${styles.btn_logout}`}
-                  onClick={handleLogout}
-                >
-                  <FontAwesomeIcon icon={faPowerOff} className={styles.logoutIcon} />
-                </button>
+              {(isHovered || isUploading) && (
+                <div className={styles.overlay}>
+                  {isUploading ? (
+                    <div className={styles.loading}>Enviando...</div>
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faPencilAlt}
+                      className={styles.editIcon}
+                    />
+                  )}
+                </div>
               )}
             </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+              onChange={handleFileChange}
+              disabled={isUploading}
+            />
+
+            <h4 className={styles.name}>{profile.NAME.split(' ')[0]}</h4>
           </div>
 
-          <div className={styles.container_right}>{children}</div>
+          <div className={styles.btns}>
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                className={`${styles.btn} ${
+                  activeSection === section.id ? styles.btn_active : ''
+                }`}
+                onClick={() => handleSectionClick(section)}
+              >
+                {section.label}
+              </button>
+            ))}
+
+            {showLogoutMobile && (
+              <button
+                className={`${styles.btn} ${styles.btn_logout}`}
+                onClick={handleLogout}
+              >
+                <FontAwesomeIcon
+                  icon={faPowerOff}
+                  className={styles.logoutIcon}
+                />
+              </button>
+            )}
+          </div>
         </div>
+
+        <div className={styles.container_right}>{children}</div>
       </div>
-    </>
+    </div>
   );
 };
 

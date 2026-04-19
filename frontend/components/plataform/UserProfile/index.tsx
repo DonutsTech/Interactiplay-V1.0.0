@@ -14,12 +14,13 @@ import {
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import BtnG from '../BtnG';
-import { useIsLoading } from '@/context/ErrorContext';
+import { useError } from '@/context/ErrorContext';
 import { getToken } from '@/service/token';
-import { ErrorModalState } from '@/@types/error';
 import { useRouter } from 'next/navigation';
 import { getPaymentActive } from '@/service/plan/payment-active';
-import ErrorModal from '@/components/globals/ErrorModal';
+import { postResendValidateEmail } from '@/service/auth/resend-validate-email';
+import { postForgotPassword } from '@/service/auth/forgotpassword';
+import { updateUser } from '@/service/auth/me';
 
 interface UserProfileProps {
   name: string;
@@ -29,15 +30,8 @@ interface UserProfileProps {
 
 const UserProfile = () => {
   const { authUser, loadAuthUser } = useContext(AuthUserContext);
-  const { setIsLoading, isLoading } = useIsLoading();
-  const [phoneError, setPhoneError] = useState('');
-  const [showModalMsg, setShowModalMsg] = useState(false);
-  const [msgProp, setMsgProp] = useState<ErrorModalState>({
-    mensagem: '',
-    type: 'error',
-    btn: false,
-  });
-
+  const { handleRequest, showConfirmation, showSuccess, showWarning } =
+    useError();
   const router = useRouter();
 
   if (!authUser) {
@@ -50,101 +44,137 @@ const UserProfile = () => {
     phone: authUser.USER.PHONE,
   });
 
-  const handlerCloseModal = () => {
-    setShowModalMsg(false);
-    setIsLoading(false);
+  // Verifica se houve alterações
+  const hasChanges =
+    userShow.name !== authUser.USER.NAME ||
+    userShow.phone.replace(/\D/g, '') !==
+      authUser.USER.PHONE.replace(/\D/g, '');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!hasChanges) {
+      showWarning('Nenhuma alteração foi feita.');
+      return;
+    }
+
+    if (userShow.name.trim().length < 3) {
+      showWarning('Nome deve ter pelo menos 3 caracteres.');
+      return;
+    }
+
+    const phoneChanged =
+      userShow.phone.replace(/\D/g, '') !==
+      authUser.USER.PHONE.replace(/\D/g, '');
+
+    if (phoneChanged && !validarCelularBRCompleto(userShow.phone)) {
+      showWarning('Telefone inválido.');
+      return;
+    }
+
+    const response = await handleRequest(
+      () =>
+        updateUser({
+          NAME: userShow.name.trim(),
+          PHONE: userShow.phone.replace(/\D/g, ''),
+        }),
+      {
+        loadingMessage: 'Salvando alterações...',
+        successMessage: 'Dados atualizados com sucesso!',
+      }
+    );
+
+    if (response) {
+      // Recarrega dados do usuário
+      await loadAuthUser();
+    }
   };
 
   const handlerActivePayment = async () => {
     const token = getToken();
+
     if (!token) {
-      setMsgProp({
-        mensagem: 'Usuário não autenticado. Faça login novamente.',
-        type: 'warning',
-        btn: true,
-        butonProps: {
-          text: 'Login',
-          goClick: () => {
-            router.push('/acess/login');
-            setShowModalMsg(false);
-            setIsLoading(false);
-          },
-        },
-      });
-      setShowModalMsg(true);
-      setIsLoading(true);
+      const goToLogin = await showConfirmation(
+        'Usuário não autenticado. Faça login novamente.',
+        {
+          title: 'Sessão expirada',
+          type: 'warning',
+          confirmText: 'Ir para Login',
+          cancelText: 'Cancelar',
+        }
+      );
+
+      if (goToLogin) {
+        router.push('/acess/login');
+      }
       return;
     }
 
-    try {
-      const data = await getPaymentActive(token);
+    const response = await handleRequest(() => getPaymentActive(token), {
+      loadingMessage: 'Ativando assinatura...',
+      suppressErrorToast: false,
+    });
 
-      if ('MESSAGE' in data) {
-        setMsgProp({
-          mensagem: data.MESSAGE,
-          type: 'warning',
-          btn: true,
-          butonProps: {
-            text: 'OK',
-            goClick: () => {
-              setShowModalMsg(false);
-              setIsLoading(false);
-            },
-          },
-        });
-        setShowModalMsg(true);
-        setIsLoading(true);
-      } else {
-        setMsgProp({
-          mensagem: 'Plano ativado com sucesso!',
-          type: 'success',
-          btn: true,
-          butonProps: {
-            text: 'OK',
-            goClick: () => {
-              setShowModalMsg(false);
-              loadAuthUser();
-              setIsLoading(false);
-            },
-          },
-        });
-        setTimeout(() => {
-          setShowModalMsg(true);
-          setIsLoading(true);
-        }, 5000);
-      }
-    } catch (error) {
-      setMsgProp({
-        mensagem: 'Erro ao verificar pagamento ativo.',
-        type: 'error',
-        btn: true,
-        butonProps: {
-          text: 'OK',
-          goClick: () => {
-            setShowModalMsg(false);
-            setIsLoading(false);
-          },
-        },
+    if (response && 'MESSAGE' in response) {
+      await showConfirmation(response.MESSAGE, {
+        title: 'Informação',
+        type: 'info',
+        confirmText: 'OK',
+        cancelText: '',
       });
-      setShowModalMsg(true);
-      setIsLoading(true);
+      router.refresh();
+    }
+  };
+
+  const handleResendValidationEmail = async () => {
+    const response = await handleRequest(() => postResendValidateEmail(), {
+      loadingMessage: 'Enviando email de validação...',
+      suppressErrorToast: false,
+    });
+
+    if (response && 'MESSAGE' in response) {
+      showSuccess(
+        response.MESSAGE || 'Email de validação enviado com sucesso!',
+        {
+          autoClose: 4000,
+        }
+      );
+    }
+  };
+
+  const handleRequestPasswordChange = async () => {
+    const confirmRequest = await showConfirmation(
+      `Será enviado um email para ${authUser.USER.EMAIL} com instruções para redefinir sua senha. Deseja continuar?`,
+      {
+        title: 'Solicitar troca de senha',
+        type: 'info',
+        confirmText: 'Enviar Email',
+        cancelText: 'Cancelar',
+      }
+    );
+
+    if (!confirmRequest) return;
+
+    const response = await handleRequest(
+      () => postForgotPassword({ EMAIL: authUser.USER.EMAIL }),
+      {
+        loadingMessage: 'Enviando email...',
+        suppressErrorToast: true,
+      }
+    );
+
+    // Sucesso - resposta tem MESSAGE mas não tem STATUS
+    if (response && 'MESSAGE' in response && !('STATUS' in response)) {
+      showSuccess(response.MESSAGE || 'Email enviado com sucesso!', {
+        autoClose: 4000,
+      });
     }
   };
 
   return (
     <div className={styles.userProfile}>
-      {showModalMsg && (
-        <ErrorModal
-          isOpen={(show) => setShowModalMsg(show)}
-          mensagem={msgProp.mensagem}
-          type={msgProp.type}
-          btn={msgProp.btn}
-          butonProps={msgProp.butonProps}
-          onClose={handlerCloseModal}
-        />
-      )}
       <h2 className={styles.userProfile_title}>Meu Perfil</h2>
-      <form className={styles.userProfile_form}>
+      <form className={styles.userProfile_form} onSubmit={handleSubmit}>
         <div className={styles.userProfile_form_formGroup}>
           <label
             htmlFor="name"
@@ -201,9 +231,6 @@ const UserProfile = () => {
             value={phoneMask(userShow.phone)}
             onChange={(e) => {
               const value = e.target.value;
-              if (value.length >= 10 && validarCelularBRCompleto(value)) {
-                setPhoneError('');
-              }
               setUserShow({ ...userShow, phone: value });
             }}
             onBlur={(e) => {
@@ -256,7 +283,7 @@ const UserProfile = () => {
             icon={faEnvelope}
           />
         </div>
-        <BtnG text="Salvar Alterações" type="submit" />
+        <BtnG text="Salvar Alterações" type="submit" disabled={!hasChanges} />
       </form>
       <div className={styles.userProfile_actions}>
         {authUser.USER.STRIPE_SUBSCRIPTION_STATUS === 'trialing' && (
@@ -269,7 +296,7 @@ const UserProfile = () => {
             <p className={styles.userProfile_actions_box_text}>
               Ativar agora o meu plano
             </p>
-            <BtnG text="Ativar" type="button" goClick={handlerActivePayment} />
+            <BtnG text="Ativar" type="button" goClick={() => handlerActivePayment()} />
           </div>
         )}
 
@@ -283,7 +310,11 @@ const UserProfile = () => {
             <p className={styles.userProfile_actions_box_text}>
               Reenviar Email de validação
             </p>
-            <BtnG text="Reenviar" type="button" />
+            <BtnG
+              text="Reenviar"
+              type="button"
+              goClick={() => handleResendValidationEmail()}
+            />
           </div>
         )}
         <div
@@ -295,7 +326,11 @@ const UserProfile = () => {
           <p className={styles.userProfile_actions_box_text}>
             Solicitar troca de senha
           </p>
-          <BtnG text="Solicitar" type="button" />
+          <BtnG
+            text="Solicitar"
+            type="button"
+            goClick={() => handleRequestPasswordChange()}
+          />
         </div>
       </div>
     </div>

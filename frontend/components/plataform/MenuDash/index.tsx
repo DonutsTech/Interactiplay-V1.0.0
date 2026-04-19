@@ -14,26 +14,21 @@ import Link from 'next/link';
 import { MouseEvent, useContext, useState } from 'react';
 import logo from '@/assets/images/logo_white_dg.svg';
 import styles from './MenuDash.module.scss';
-import { ErrorModalState } from '@/@types/error';
-import ErrorModal from '@/components/globals/ErrorModal';
 import { useRouter } from 'next/navigation';
 import { useIsMobile } from '@/context/isMobileContext';
 import { formatDateBR } from '@/utils/stringUtils';
 import { getPaymentActive } from '@/service/plan/payment-active';
 import { getToken } from '@/service/token';
+import { useError } from '@/context/ErrorContext';
+import { UserContext } from '@/context/UserContext';
 
 const MenuDash = () => {
   const { authUser, logout, isLoading } = useContext(AuthUserContext);
   const { isMobile, width } = useIsMobile();
+  const { handleRequest, showConfirmation, showWarning, showInfo } = useError();
+  const { setUser } = useContext(UserContext);
   const router = useRouter();
   const [dropDownOpen, setDropDownOpen] = useState<boolean>(false);
-  const [showModalMsg, setShowModalMsg] = useState(false);
-  const [msgProp, setMsgProp] = useState<ErrorModalState>({
-    mensagem: '',
-    btn: true,
-    type: 'warning',
-  });
-
 
   if (isLoading || !authUser) {
     return (
@@ -60,23 +55,33 @@ const MenuDash = () => {
     EMAIL_VALIDATED: authUser.USER.VALIDATION_EMAIL ?? true,
   };
 
-  const handleLogout = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setDropDownOpen(false);
-    setShowModalMsg(true);
-    setMsgProp({
-      mensagem: 'Gostaria de realizar o Logout?',
-      type: 'warning',
-      btn: true,
-      butonProps: {
-        text: 'Sair',
-        goClick: () => {
-          logout();
-          router.push('/acess/login');
-          setShowModalMsg(false);
-        },
-      },
-    });
+
+    const confirmLogout = await showConfirmation(
+      'Tem certeza que deseja sair da plataforma?',
+      {
+        title: 'Confirmar logout',
+        type: 'warning',
+        confirmText: 'Sair',
+        cancelText: 'Cancelar',
+      }
+    );
+
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('userTemp');
+    }
+
+    if (confirmLogout) {
+      logout();
+      setUser({
+        id: '',
+        name: '',
+        email: '',
+        selectedPlan: '',
+      })
+      router.push('/acess/login');
+    }
   };
 
   const handleDropdownToggle = () => {
@@ -85,63 +90,48 @@ const MenuDash = () => {
 
   const handlerActivePayment = async () => {
     const token = getToken();
+
     if (!token) {
-      setMsgProp({
-        mensagem: 'Usuário não autenticado. Faça login novamente.',
-        type: 'warning',
-        btn: true,
-        butonProps: {
-          text: 'Login',
-          goClick: () => {
-            router.push('/acess/login');
-            setShowModalMsg(false);
-          },
-        },
-      });
-      setShowModalMsg(true);
+      const goToLogin = await showConfirmation(
+        'Usuário não autenticado. Faça login novamente.',
+        {
+          title: 'Sessão expirada',
+          type: 'warning',
+          confirmText: 'Ir para Login',
+          cancelText: 'Cancelar',
+        }
+      );
+
+      if (goToLogin) {
+        router.push('/acess/login');
+      }
       return;
     }
 
-    try {
-      const data = await getPaymentActive(token);
-      if ('MESSAGE' in data) {
-        setMsgProp({
-          mensagem: data.MESSAGE,
-          type: 'warning',
-          btn: true,
-          butonProps: {
-            text: 'OK',
-            goClick: () => setShowModalMsg(false),
-          },
-        });
-        setShowModalMsg(true);
+    const response = await handleRequest(
+      () => getPaymentActive(token),
+      {
+        loadingMessage: 'Ativando assinatura...',
+        suppressErrorToast: false, 
       }
-    } catch (error) {
-      setMsgProp({
-        mensagem: 'Erro ao verificar pagamento ativo.',
-        type: 'error',
-        btn: true,
-        butonProps: {
-          text: 'OK',
-          goClick: () => setShowModalMsg(false),
-        },
-      });
-      setShowModalMsg(true);
+    );
+
+    if (response && 'MESSAGE' in response) {
+      await showConfirmation(
+        response.MESSAGE,
+        {
+          title: 'Informação',
+          type: 'info',
+          confirmText: 'OK',
+          cancelText: '',
+        }
+      );
+      router.refresh();
     }
   };
 
   return (
     <>
-      {showModalMsg && (
-        <ErrorModal
-          isOpen={(show) => setShowModalMsg(show)}
-          mensagem={msgProp.mensagem}
-          type={msgProp.type}
-          btn={msgProp.btn}
-          butonProps={msgProp.butonProps}
-          onClose={() => setShowModalMsg(false)}
-        />
-      )}
       <header className={styles.menuDash}>
         <Link href="/dashboard" className={styles.menuDash_link}>
           <Image

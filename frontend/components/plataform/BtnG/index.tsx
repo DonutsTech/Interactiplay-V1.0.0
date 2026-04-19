@@ -20,7 +20,7 @@ const BtnG = (props: BtnGProps) => {
     <button 
       className={styles.btnG}
       disabled={isLoading || props.disabled }
-      onClick={() => props.goClick}
+      onClick={props.goClick}
       type={props.type || 'button'}
       >
       {props.text}
