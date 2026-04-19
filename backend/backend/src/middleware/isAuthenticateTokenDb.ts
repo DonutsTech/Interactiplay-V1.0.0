@@ -25,6 +25,8 @@ export async function isAuthenticateTokenDb(
 
     const checkinToken = await authService.checkingToken(token);
 
+    console.log('Token verificado:', checkinToken);
+
     const user = await userService.showId(checkinToken.sub);
 
     if (!user) {

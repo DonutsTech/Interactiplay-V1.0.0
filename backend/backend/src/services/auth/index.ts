@@ -27,9 +27,13 @@ class AuthService {
   }
 
   checkingToken(token: string): Payload {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string) as Payload;
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string) as Payload;
 
-    return decoded;
+      return decoded;
+    } catch (error) {
+      throw new CustomError('Token inválido', StatusCodes.UNAUTHORIZED);
+    }
   }
 
   generateRandom4DigitNumber() {
@@ -72,15 +76,16 @@ class AuthService {
 
   async verificationStripedSubscription(user: User): Promise<string> {
     try {
-      const portal = await createPortalCustomer(user.STRIPE_CUSTOMER_ID as string);
 
       if (user.STRIPE_SUBSCRIPTION_STATUS === '' || user.STRIPE_SUBSCRIPTION_STATUS === '') {
         throw new CustomError<User & { PORTAL_URL: string }>(
           'Assinatura não encontrada, por favor realize a assinatura para acessar o conteúdo',
           StatusCodes.FORBIDDEN,
-          { ...user, PORTAL_URL: portal.PORTAL_URL },
+          { ...user, PORTAL_URL: '' },
         );
       }
+
+      const portal = await createPortalCustomer(user.STRIPE_CUSTOMER_ID as string);
 
       if (
         !(
@@ -135,9 +140,7 @@ class AuthService {
         throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
       }
 
-      const portal = await createPortalCustomer(user.STRIPE_CUSTOMER_ID as string);
-
-      return { USER: { ...user, PORTAL_URL: portal.PORTAL_URL } };
+      return { USER: { ...user } };
     } catch (error) {
       throw error;
     }

@@ -47,6 +47,8 @@ export const createStripeCustomer = async (email: string, name: string) => {
     let plan: Plan | null = null;
     let periodStart: number | undefined = undefined;
     let periodEnd: number | undefined = undefined;
+    let trialEnd: number | undefined = undefined;
+    let trialStart: number | undefined = undefined;
 
     if (customer) {
       const subscriptions = await stripe.subscriptions.list({
@@ -63,31 +65,29 @@ export const createStripeCustomer = async (email: string, name: string) => {
         subscription.items.data &&
         subscription.items.data.length > 0
       ) {
-        console.log(subscription);
         const item = subscription.items.data[0];
         const price = item?.price;
         periodEnd = item?.current_period_end;
         periodStart = item?.current_period_start;
+        trialEnd = subscription.trial_end || undefined;
+        trialStart = subscription.trial_start || undefined;
         if (price && price.product) {
           plan = await planService.getPlanByStripeId(price.product as string);
         }
       }
 
       if (subscription) {
+        console.log('Subscription found for customer:', subscription);
         return {
           STRIPE_CUSTOMER_ID: customer.id,
-          STRIPE_SUBSCRIPTION_ID: subscription.id,
-          STRIPE_SUBSCRIPTION_STATUS: subscription.status,
+          STRIPE_SUBSCRIPTION_ID: subscription.id ? subscription.id : '',
+          STRIPE_SUBSCRIPTION_STATUS: subscription.status || '',
+          STRIPE_CURRENT_PERIOD_END: periodEnd ? formatNummberForDate(periodEnd) : '',
+          STRIPE_CURRENT_PERIOD_START: periodStart ? formatNummberForDate(periodStart) : '',
+          STRIPE_TRIAL_END: trialEnd ? formatNummberForDate(trialEnd) : '',
+          STRIPE_TRIAL_START: trialStart ? formatNummberForDate(trialStart) : '',
           ACTIVE: subscription.status === 'active' || subscription.status === 'trialing',
-          ...(subscription.trial_end
-            ? { STRIPE_TRIAL_END: formatNummberForDate(subscription.trial_end) }
-            : {}),
-          ...(periodStart
-            ? { STRIPE_CURRENT_PERIOD_START: formatNummberForDate(periodStart) }
-            : {}),
-          ...(periodEnd ? { STRIPE_CURRENT_PERIOD_END: formatNummberForDate(periodEnd) } : {}),
           ...(plan ? { PLAN: { connect: { ID: plan.ID } } } : {}),
-          ...(plan ? { HISTORY_PLAYS: { create: { QTD_PLAYS: 0, PRICE_MONTH: 0 } } } : {}),
         };
       }
     }
@@ -202,7 +202,7 @@ export const handleCheckoutSessionCompleted = async (event: {
     if (checkoutStatus !== 'complete') return;
 
     if (metadata) {
-      const plan = await planService.getPlanByStripeId(metadata.planId);
+      const plan = await planService.getPlanByStripeId(metadata.planId); //errado
 
       if (plan) {
         planId = plan.ID;
@@ -388,7 +388,7 @@ export const handleInvoicePaid = async (event: {
             ACTIVE: paid,
           });
 
-          if (!(user.HISTORY_PLAYS.length > 0)) {
+          if (user.HISTORY_PLAYS.length === 0) {
             await userService.update(user.ID, {
               HISTORY_PLAYS: {
                 create: {

@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 export const s3 = new S3Client({
   region: process.env.AWS_REGION!,
@@ -16,10 +16,11 @@ function extractKeyFromUrl(url: string): string {
 export async function deleteFileFromS3(key: string) {
   const fileKey = extractKeyFromUrl(key);
 
-  const command = new PutObjectCommand({
+  const command = new DeleteObjectCommand({
     Bucket: 'interacti-uploads',
     Key: fileKey,
   });
 
   await s3.send(command);
 }
+

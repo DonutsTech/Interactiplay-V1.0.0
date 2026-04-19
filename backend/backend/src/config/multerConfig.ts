@@ -1,12 +1,15 @@
 import multer from 'multer';
 import multerS3 from 'multer-s3';
-import { s3 } from './s3';
 import { CustomError } from '../error';
+import { s3 } from './s3';
 
 const s3Storage = multerS3({
   s3: s3,
   bucket: 'interacti-uploads',
   key: (req, file, cb) => {
+    console.log('Multer file received:', file);
+    console.log('File size:', file.size);
+    console.log('File mimetype:', file.mimetype);
     const now = new Date();
     const dateString = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
     const time = now.getTime();
@@ -21,7 +24,7 @@ const s3Storage = multerS3({
         'image/png': '.png',
         'image/heic': '.heic',
         'image/heif': '.heif',
-        'image/yebp': '.yebp',
+        'image/webp': '.webp',
       };
       extension = mimeToExt[file.mimetype] || '.jpg';
     } else if (file.mimetype.startsWith('video/')) {
@@ -30,22 +33,32 @@ const s3Storage = multerS3({
     }
 
     const key = `${folder}${dateString}${time}${extension}`;
+    console.log('Generated S3 key:', key);
     cb(null, key);
   },
   contentType: multerS3.AUTO_CONTENT_TYPE,
 });
 
-const allImageTypes = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/yebp'];
+const allImageTypes = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/webp'];
 const allVideoTypes = ['video/mp4'];
 
 export const imageUpload = multer({
   storage: s3Storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
+    console.log(
+      'Image filter - File:',
+      file.originalname,
+      'Type:',
+      file.mimetype,
+      'Size:',
+      file.size,
+    );
     if (allImageTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new CustomError('Somente imagens JPG, PNG ou HEIC são permitidas'));
+      console.log('Image rejected - Invalid type:', file.mimetype);
+      cb(new CustomError('Somente imagens JPG, PNG, HEIC ou WebP são permitidas'));
     }
   },
 });
@@ -54,9 +67,18 @@ export const videoUpload = multer({
   storage: s3Storage,
   limits: { fileSize: 2 * 1024 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
+    console.log(
+      'Video filter - File:',
+      file.originalname,
+      'Type:',
+      file.mimetype,
+      'Size:',
+      file.size,
+    );
     if (allVideoTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
+      console.log('Video rejected - Invalid type:', file.mimetype);
       cb(new CustomError('Somente vídeos MP4 são permitidos'));
     }
   },

@@ -105,7 +105,18 @@ class VideoService {
         throw new CustomError('Arquivo de vídeo é obrigatório', StatusCodes.BAD_REQUEST);
       }
 
-      console.log('File received in service:', file);
+      console.log('File received in service:', {
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        location: file.location,
+        key: file.key
+      });
+
+      if (file.size === 0) {
+        console.error('File size is 0 - potential upload failure:', file);
+        throw new CustomError('Arquivo de vídeo está vazio ou não foi enviado corretamente', StatusCodes.BAD_REQUEST);
+      }
 
       const metadata = (await ffprobeAsync(file.location)) as ffmpeg.FfprobeData;
 

@@ -1,7 +1,7 @@
 FROM node:20-alpine AS base
 
-# Instalar dependências do sistema necessárias
-RUN apk add --no-cache bash
+# Instalar dependências do sistema necessárias incluindo FFmpeg
+RUN apk add --no-cache bash ffmpeg
 
 WORKDIR /api
 
