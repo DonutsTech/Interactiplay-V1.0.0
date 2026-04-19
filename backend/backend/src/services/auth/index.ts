@@ -135,7 +135,9 @@ class AuthService {
         throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
       }
 
-      return { USER: user };
+      const portal = await createPortalCustomer(user.STRIPE_CUSTOMER_ID as string);
+
+      return { USER: { ...user, PORTAL_URL: portal.PORTAL_URL } };
     } catch (error) {
       throw error;
     }

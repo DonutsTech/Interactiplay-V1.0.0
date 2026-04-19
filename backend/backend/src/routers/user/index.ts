@@ -2,6 +2,7 @@ import type { Router } from 'express';
 import { userController } from '../../controllers/user';
 import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
 import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
+import { imageUpload } from '../../config/multerConfig';
 
 class UserRouter {
   public static create(router: Router): void {
@@ -16,6 +17,7 @@ class UserRouter {
       '/user/upload-image',
       isAuthenticateTokenDb,
       isValidateUserPlan,
+      imageUpload.single('image'),
       userController.uploadImage,
     );
   }

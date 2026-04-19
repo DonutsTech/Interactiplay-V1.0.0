@@ -105,6 +105,8 @@ class VideoService {
         throw new CustomError('Arquivo de vídeo é obrigatório', StatusCodes.BAD_REQUEST);
       }
 
+      console.log('File received in service:', file);
+
       const metadata = (await ffprobeAsync(file.location)) as ffmpeg.FfprobeData;
 
       if (!metadata || !metadata.format || !metadata.streams) {

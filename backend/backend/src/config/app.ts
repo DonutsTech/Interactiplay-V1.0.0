@@ -18,7 +18,8 @@ export default class App {
   }
 
   private midleware(): void {
-    this.express.use(express.json({ limit: '10mb' }));
+    this.express.use(express.json({ limit: '2gb' }));
+    this.express.use(express.urlencoded({ limit: '2gb', extended: true }));
 
     this.express.use('/api', corsRestrictedConfig);
     this.express.use('/data',  corsRestrictedConfig);

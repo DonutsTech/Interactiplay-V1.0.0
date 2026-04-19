@@ -3,6 +3,7 @@ import { videoController } from '../../controllers/video';
 import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
 import { isValidateLimitVideo } from '../../middleware/isValidateLimitVideo';
 import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
+import { videoUpload } from '../../config/multerConfig';
 
 class VideoRouter {
   public static create(router: Router) {
@@ -31,14 +32,14 @@ class VideoRouter {
       isAuthenticateTokenDb,
       isValidateUserPlan,
       isValidateLimitVideo,
-      schemaValidator('create/video'),
+      videoUpload.single('video'),
       videoController.createVideoForUser,
     );
     router.put(
       '/user/videos/:id',
       isAuthenticateTokenDb,
       isValidateUserPlan,
-      schemaValidator('update/video'),
+      schemaValidator('video/update'),
       videoController.putVideoForUser,
     );
     router.delete(

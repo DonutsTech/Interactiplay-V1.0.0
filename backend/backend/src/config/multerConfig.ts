@@ -1,6 +1,7 @@
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { s3 } from './s3';
+import { CustomError } from '../error';
 
 const s3Storage = multerS3({
   s3: s3,
@@ -44,7 +45,7 @@ export const imageUpload = multer({
     if (allImageTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Somente imagens JPG, PNG ou HEIC são permitidas'));
+      cb(new CustomError('Somente imagens JPG, PNG ou HEIC são permitidas'));
     }
   },
 });
@@ -56,7 +57,7 @@ export const videoUpload = multer({
     if (allVideoTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Somente vídeos MP4 são permitidos'));
+      cb(new CustomError('Somente vídeos MP4 são permitidos'));
     }
   },
 });

@@ -63,6 +63,7 @@ export const createStripeCustomer = async (email: string, name: string) => {
         subscription.items.data &&
         subscription.items.data.length > 0
       ) {
+        console.log(subscription);
         const item = subscription.items.data[0];
         const price = item?.price;
         periodEnd = item?.current_period_end;
@@ -492,7 +493,7 @@ export const handleInvoicePaymentFailed = async (event: { data: { object: Stripe
 export const createPortalCustomer = async (idCustomer: string) => {
   const subscription = await stripe.billingPortal.sessions.create({
     customer: idCustomer,
-    return_url: `${process.env.FRONTEND}/acess`,
+    return_url: `${process.env.FRONTEND_URL}/acess`,
   });
 
   return { PORTAL_URL: subscription.url };
