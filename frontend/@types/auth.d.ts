@@ -38,6 +38,7 @@ export interface MeResponse {
     STRIPE_CURRENT_PERIOD_END: string | null;
     PLAN_ID: string | null;
     PLAN: Plan | null;
+    PORTAL_URL: string | null;
   };
 }
 

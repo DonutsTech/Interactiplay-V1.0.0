@@ -4,10 +4,8 @@ import { AuthUserContext } from '@/context/AuthUserContext';
 import { createPortalLink } from '@/service/user';
 import { formatPrice } from '@/utils/formatPrice';
 import { formatDateBR } from '@/utils/stringUtils';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import styles from './UserPlan.module.scss';
-import { ErrorModalState } from '@/@types/error';
-import ErrorModal from '@/components/globals/ErrorModal';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -16,6 +14,8 @@ import {
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import BtnG from '../BtnG';
+import { getVideos } from '@/service/videos/videosservice';
+import { useVideos } from '@/context/VideosContext';
 
 interface IActivePlan {
   PLAYS: number;
@@ -25,6 +25,8 @@ interface IActivePlan {
 
 const UserPlan = () => {
   const { authUser } = useContext(AuthUserContext);
+  const [portalLink, setPortalLink] = useState<string | null>(null);
+  const { videoCount } = useVideos();
 
   if (!authUser || !(authUser.USER && authUser.USER.PLAN)) {
     return <p>Carregando...</p>;
@@ -32,6 +34,18 @@ const UserPlan = () => {
 
   const teste = authUser.USER.STRIPE_SUBSCRIPTION_STATUS === 'trialing';
   // const teste = false;
+
+  const loadPlan = async () => {
+    const response = await createPortalLink();
+
+    if (typeof response === 'string') {
+      setPortalLink(response);
+    };
+  };
+
+  useEffect(() => {
+    loadPlan();
+  }, []);
 
   const ACTIVE_PLAN: IActivePlan = {
     PLAYS: teste ? 1000 : authUser.USER.PLAN.PLAYS,
@@ -41,7 +55,7 @@ const UserPlan = () => {
 
   const [usedplan, setUsedPlan] = useState({
     plays: authUser.USER.HISTORY_PLAYS[0].QTD_PLAYS,
-    videos: 0, //authUser.USER.VIDEOS_QTD,
+    videos: videoCount,
     campanhas: 0, //authUser.USER.CAMPAIGNS_QTD,
     saldo: authUser.USER.HISTORY_PLAYS[0].QTD_PLAYS - ACTIVE_PLAN.PLAYS,
   });
@@ -65,7 +79,9 @@ const UserPlan = () => {
   ]);
 
   const handlerGerenciarPlano = () => {
-    console.log('Clicou em Gerenciar Plano');
+    if (portalLink) {
+      window.open(portalLink, '_blank');
+    }
   };
 
   return (

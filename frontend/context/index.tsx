@@ -2,6 +2,7 @@ import { IsMobileProvider } from './isMobileContext';
 import { UserProvider } from './UserContext';
 import { AuthUserProvider } from './AuthUserContext';
 import { ErrorProvider } from './ErrorContext';
+import { VideosProvider } from './VideosContext';
 
 type ProviderProps = {
   children: React.ReactNode;
@@ -21,7 +22,8 @@ const provider: ProviderComponent[] = [
   IsMobileProvider,
   ErrorProvider, 
   UserProvider,
-  AuthUserProvider
+  AuthUserProvider,
+  VideosProvider,
 ];
 
 export const AppProvider = composeProviders(provider);

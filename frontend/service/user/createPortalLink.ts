@@ -3,10 +3,10 @@ import { messageError } from '@/utils/error';
 import api from '../config';
 import { getToken } from '../token';
 
-export const URL_CREATE_PORTAL = '/create-portal';
+export const URL_CREATE_PORTAL = '/payment-portal';
 
 interface PortalLinkResponse {
-  URL: string;
+  PORTAL_URL: string;
 }
 
 export const createPortalLink = async () => {
@@ -23,7 +23,7 @@ export const createPortalLink = async () => {
       },
     });
 
-    return data.URL;
+    return data.PORTAL_URL;
   } catch (error: ErrorMessage | unknown) {
     return messageError(error) as ErrorMessage;
   }
