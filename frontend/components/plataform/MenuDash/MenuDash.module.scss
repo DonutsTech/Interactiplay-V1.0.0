@@ -334,12 +334,12 @@
 }
 
 .trialing {
-  position: absolute;
+  position: fixed;
   top: 64px;
   left: 0;
   width: 100vw;
   background-color: $color-purple-dark-2;
-  z-index: 0;
+  z-index: 4;
   display: flex;
   flex-flow: row wrap;
   justify-content: center;

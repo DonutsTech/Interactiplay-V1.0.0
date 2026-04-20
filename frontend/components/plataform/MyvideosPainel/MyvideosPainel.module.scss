@@ -13,6 +13,17 @@
     height: auto;
     position: relative;
 
+    &_bg {
+      width: 100vw;
+      height: 180px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 3;
+      // background-color: $color-darkBlue-dark-3;
+      background: $gradient-linear-1;
+    }
+
     &_header {
       width: 100%;
       max-width: 1440px;
@@ -22,12 +33,13 @@
       top: 96px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 3;
+      z-index: 4;
       display: flex;
       align-items: center;
       justify-content: space-between;
       // background-color: $color-darkBlue-dark-3;
       padding: 8px;
+
 
       &_information {
         width: 80%;
@@ -123,11 +135,22 @@
 
       &_grade {
         width: 100%;
+        max-width: 1440px;
+        margin: 0 auto;
         height: auto;
-        display: flex;
-        flex-flow: row wrap;
-        align-items: flex-start;
-        justify-content: flex-start;
+
+        // display: flex;
+        // flex-flow: row wrap;
+        // align-items: center;
+        // justify-content: center;
+        // align-content: center;
+
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(264px, 1fr));
+        justify-items: center;
+        gap: 16px;
+        padding-top: 48px;
+
         gap: 16px;
         padding-top: 48px;
       }

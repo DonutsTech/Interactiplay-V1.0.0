@@ -18,6 +18,7 @@ import {
   formatVideoName,
 } from '@/utils/videoUtils';
 import VideoModal from './VideoModal';
+import { formatDateBR } from '@/utils/stringUtils';
 
 interface VideoCardProps {
   video: IVideo;
@@ -139,8 +140,6 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
             </div>
           </div>
         )}
-
-        {/* Preview Section */}
         <div className={styles.videoCard_preview}>
           {!imageError && video.URL ? (
             <video
@@ -169,7 +168,6 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
           </div>
         </div>
 
-        {/* Info Section */}
         <div className={styles.videoCard_info}>
           <h4 className={styles.videoCard_info_title} title={video.NAME}>
             {formatVideoName(video.NAME)}
@@ -177,7 +175,7 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
 
           <div className={styles.videoCard_info_details}>
             <span className={styles.videoCard_info_detail}>
-              <strong>Formato:</strong> {video.FORMAT.toUpperCase()}
+              <strong>Upload</strong> {formatDateBR(video.CREATED_AT)}
             </span>
             <span className={styles.videoCard_info_detail}>
               <strong>Tamanho:</strong> {formatFileSize(video.SIZE)}

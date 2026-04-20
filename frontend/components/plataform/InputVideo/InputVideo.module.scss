@@ -22,7 +22,7 @@
     opacity: 0.6;
 
     &_text {
-      font-size: 14px;
+      font-size: clamp(0.75rem, 0.6071rem + 0.2976vw, 0.875rem);
       color: $color-white;
     }
   }
@@ -35,7 +35,7 @@
 
   &_text {
     display: none;
-    font-size: 14px;
+    font-size: clamp(0.75rem, 0.6071rem + 0.2976vw, 0.875rem);
     bottom: 8px;
     transition: all 200ms ease-in-out;
   }

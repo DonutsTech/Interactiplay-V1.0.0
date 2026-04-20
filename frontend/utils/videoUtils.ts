@@ -5,7 +5,11 @@ export const formatVideoName = (videoName: string): string => {
   // Remover a extensão do nome do vídeo
   const nameWithoutExtension = videoName.replace(/\.[^/.]+$/, '');
 
-  const formatted = nameWithoutExtension.replace(/[_-]/g, ' ').trim();
+  // Substituir _ e - por espaços, mantendo acentos e cedilhas
+  const formatted = nameWithoutExtension
+    .replace(/[_-]/g, ' ')
+    .replace(/\s+/g, ' ') // Remove espaços duplicados
+    .trim();
 
   return formatted;
 };

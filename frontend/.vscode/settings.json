@@ -1,5 +1,7 @@
 {
   "github.copilot.chat.localeOverride": "pt-BR",
   "git.inputValidationLength": 72,
-  "git.inputValidationSubjectLength": 50
+  "git.inputValidationSubjectLength": 50,
+  "rhtpa.diagnostics.enable": false,
+  "redhat.telemetry.enabled": false
 }

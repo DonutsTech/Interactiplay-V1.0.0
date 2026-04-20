@@ -1,5 +1,5 @@
 'use client';
-import TawkWidget from '@/components/plataform/TawkWidget';
+import Flow from '@/components/plataform/Flow';
 import { AuthUserContext } from '@/context/AuthUserContext';
 import { useContext } from 'react';
 
@@ -12,7 +12,7 @@ export default function Dashboard() {
 
   return (
     <>
-
+      <Flow />
     </>
   );
 }

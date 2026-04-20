@@ -1,0 +1,101 @@
+
+.videoNode {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+  height: auto;
+  min-width: 148px;
+  min-height: 148px;
+  background-color: transparent !important;
+
+  &_title {
+    width: 90%;
+    margin: 0 auto;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    color: $color-white;
+    font-family: $font-family-text;
+    margin-bottom: 8px;
+    width: 100%;
+    padding: 8px;
+  }
+
+  &_card {
+    background-color: $color-darkBlue-dark-3;
+    width: 148px;
+    height: calc(148px + 56px);
+    border-radius: 8px;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 8px;
+    overflow: hidden;
+    border: 2px solid $color-blue-light-2;
+    box-shadow: 0 0px 16px rgba($color-ciano-light-3, 0.5);
+
+    &_portrait {
+      height: calc(264px + 56px);
+    }
+
+    &_landscape {
+      width: 264px;
+    }
+
+    &_video {
+      width: 100%;
+      height: auto;
+    }
+
+    .videoNode_card_btns {
+      width: 100%;
+      height: auto;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+      gap: 8px;
+      // background-color: $color-ciano-base;
+
+      // &_node {
+        
+      // }
+
+      &_btn {
+        width: 32px;
+        height: 32px;
+        background-color: transparent !important;
+        border: none;
+        color: $color-white;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: scale(0.90);
+        }
+
+        &_modal {
+          &:hover {
+            color: $color-ciano-light-2;
+          }
+        }
+
+        &_delete {
+          &:hover {
+            color: $color-red-base;
+          }
+
+        }
+      }
+    }
+  }
+
+}
