@@ -34,6 +34,33 @@ export const getVideos = async (): Promise<{ STATUS: number; MESSAGE: string; VI
   }
 };
 
+export const getVideoById = async (videoId: string): Promise<{ STATUS: number; MESSAGE: string; VIDEO: any } | ErrorMessage> => {
+  try {
+    const token = getToken();
+
+    if (!token) {
+      return {
+        STATUS: 401,
+        MESSAGE: 'token de autenticação não encontrado'
+      } as ErrorMessage;
+    }
+
+    const { data } = await api.get(`${VIDEO_URL}/${videoId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!data) {
+      throw MESSEGE_VALIDITY;
+    }
+
+    return data;
+  } catch (error) {
+    return messageError(error) as ErrorMessage;
+  }
+};
+
 export const uploadVideo = async (video: File): Promise<{ STATUS: number; MESSAGE: string } | ErrorMessage> => {
   try {
     const token = getToken();
@@ -64,5 +91,64 @@ export const uploadVideo = async (video: File): Promise<{ STATUS: number; MESSAG
   } catch (error) {
     return messageError(error) as ErrorMessage;
 
+  }
+};
+
+export const deleteVideo = async (videoId: string): Promise<{ STATUS: number; MESSAGE: string } | ErrorMessage> => {
+
+  try {
+    const token = getToken();
+
+    if (!token) {
+      return {
+        STATUS: 401,
+        MESSAGE: 'token de autenticação não encontrado'
+      } as ErrorMessage;
+    }
+
+    const { data } = await api.delete(`${VIDEO_URL}/${videoId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!data) {
+      throw MESSEGE_VALIDITY;
+    }
+
+    return data;
+  } catch (error) {
+    return messageError(error) as ErrorMessage; 
+  }
+
+};
+
+export const updateVideoName = async (
+  videoId: string,
+  newName: string
+): Promise<{ STATUS: number; MESSAGE: string } | ErrorMessage> => {
+  try {
+    const token = getToken();
+
+    if (!token) {
+      return {
+        STATUS: 401,
+        MESSAGE: 'token de autenticação não encontrado'
+      } as ErrorMessage;
+    }
+
+    const { data } = await api.put(`${VIDEO_URL}/${videoId}`, { NAME: newName }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!data) {
+      throw MESSEGE_VALIDITY;
+    }
+
+    return data;
+  } catch (error) {
+    return messageError(error) as ErrorMessage;
   }
 };

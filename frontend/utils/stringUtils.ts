@@ -76,13 +76,21 @@ export const STRING_RULES = {
   } as StringRule,
 };
 
-export const formatDateBR = (dateString: string | null): string => {
+export const formatDateBR = (dateString: string | Date | null): string => {
   if (!dateString) return '';
 
-  const date = new Date(dateString);
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear();
+  try {
+    const date =
+      typeof dateString === 'string' ? new Date(dateString) : dateString;
 
-  return `${day}/${month}/${year}`;
+    if (isNaN(date.getTime())) return '';
+
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  } catch (error) {
+    return '';
+  }
 };

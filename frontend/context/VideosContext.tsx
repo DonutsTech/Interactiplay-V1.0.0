@@ -3,7 +3,15 @@
 import { IVideo } from '@/@types/video';
 import { getMe } from '@/service/auth/me';
 import { getVideos } from '@/service/videos/videosservice';
-import { Children, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  Children,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 interface VideosContextType {
   videos: IVideo[];
@@ -38,20 +46,22 @@ const VideosProvider = ({ children }: { children: React.ReactNode }) => {
         getMe(),
       ]);
 
-      if (videosResponse && 'VIDEOS' in videosResponse) {
-        setVideos(videosResponse.VIDEOS);
-        setVideoCount(videosResponse.VIDEOS.length);
+      if (Array.isArray(videosResponse)) {
+        setVideos(videosResponse);
+        setVideoCount(videosResponse.length);
       } else {
         setVideos([]);
         setVideoCount(0);
       }
 
-      if (
-        meResponse &&
-        'USER' in meResponse &&
-        meResponse.USER?.PLAN?.VIDEO_LIMIT
-      ) {
-        setVideoLimit(meResponse.USER.PLAN.VIDEO_LIMIT);
+      if (meResponse && 'USER' in meResponse && meResponse.USER?.PLAN) {
+        if (meResponse.USER.STRIPE_SUBSCRIPTION_STATUS === 'trialing') {
+          setVideoLimit(10);
+        } else if (meResponse.USER.PLAN.VIDEO_LIMIT) {
+          setVideoLimit(meResponse.USER.PLAN.VIDEO_LIMIT);
+        } else {          
+          setVideoLimit(0);
+        }
       } else {
         setVideoLimit(0);
       }
@@ -71,21 +81,22 @@ const VideosProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     loadVideos();
-  },[loadVideos]);
+  }, [loadVideos]);
 
-  const value = useMemo(() => ({
-    videos,
-    videoCount,
-    videoLimit,
-    isLoadingVideos,
-    loadVideos,
-    refreshVideos,
-  }),[videos, videoCount, videoLimit, isLoadingVideos, loadVideos, refreshVideos]);
+  const value = useMemo(
+    () => ({
+      videos,
+      videoCount,
+      videoLimit,
+      isLoadingVideos,
+      loadVideos,
+      refreshVideos,
+    }),
+    [videos, videoCount, videoLimit, isLoadingVideos, loadVideos, refreshVideos]
+  );
 
   return (
-    <VideosContext.Provider value={value}>
-      {children}
-    </VideosContext.Provider>
+    <VideosContext.Provider value={value}>{children}</VideosContext.Provider>
   );
 };
 

@@ -36,7 +36,7 @@ const InputVideo = () => {
       return;
     }
 
-    const maxSize = 2 * 1024 * 1024 * 1024; // 2GB em bytes
+    const maxSize = 2 * 1024 * 1024 * 1024;
     if (file.size > maxSize) {
       showWarning('O vídeo excede o tamanho máximo permitido de 2GB.');
       return;
