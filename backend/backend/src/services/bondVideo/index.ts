@@ -32,6 +32,11 @@ class BondVideoService {
 
   async deleteBondVideoForCampaign(campaignId: string) {
     try {
+      if (await bondVideoModel.count({ CAMPAIGN_VIDEOS: { CAMPAIGN_ID: campaignId } })) {
+        await bondVideoModel.deleteMany({
+          CAMPAIGN_VIDEOS: { CAMPAIGN_ID: campaignId },
+        });
+      }
     } catch (error) {
       throw error;
     }

@@ -1,6 +1,6 @@
-import { handlePrismaError } from "../../error";
-import type { Prisma } from "../../generated/prisma/client";
-import { prisma } from "../../prisma";
+import { handlePrismaError } from '../../error';
+import type { Prisma } from '../../generated/prisma/client';
+import { prisma } from '../../prisma';
 
 class BondModel {
   async create(params: Prisma.BondCreateArgs) {
@@ -65,3 +65,5 @@ class BondModel {
     }
   }
 }
+
+export const bondModel = new BondModel();

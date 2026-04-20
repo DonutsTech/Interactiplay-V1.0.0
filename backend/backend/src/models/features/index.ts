@@ -1,8 +1,8 @@
-import { handlePrismaError } from "../../error";
-import type { Prisma } from "../../generated/prisma/client";
-import { prisma } from "../../prisma";
+import { handlePrismaError } from '../../error';
+import type { Prisma } from '../../generated/prisma/client';
+import { prisma } from '../../prisma';
 
-class FeatureModel {
+class FeaturesModel {
   async create(params: Prisma.FeatureCreateArgs) {
     try {
       return await prisma.feature.create(params);
@@ -65,3 +65,5 @@ class FeatureModel {
     }
   }
 }
+
+export const featuresModel = new FeaturesModel();

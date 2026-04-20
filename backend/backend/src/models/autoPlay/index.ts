@@ -1,6 +1,6 @@
-import { handlePrismaError } from "../../error";
-import type { Prisma } from "../../generated/prisma/client";
-import { prisma } from "../../prisma";
+import { handlePrismaError } from '../../error';
+import type { Prisma } from '../../generated/prisma/client';
+import { prisma } from '../../prisma';
 
 class AutoPlayModel {
   async create(params: Prisma.Auto_PlayCreateArgs) {
@@ -65,3 +65,5 @@ class AutoPlayModel {
     }
   }
 }
+
+export const autoPlayModel = new AutoPlayModel();

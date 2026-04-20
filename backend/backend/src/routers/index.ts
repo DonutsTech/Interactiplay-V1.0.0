@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import type { IRouter } from '../@types/interface/router';
 import AuthRouter from './auth';
+import AutoPlayRouter from './autoPlay';
+import { CampaignApiRouter } from './campaign';
+import ExternalLinkRouter from './externalLink';
 import HistoryPlaysRouter from './historyPlays';
 import PlanRouter from './plan';
 import UserRouter from './user';
@@ -18,8 +21,10 @@ export const applyApiRouters = (router: Router): void => {
     HistoryPlaysRouter,
     VideoRouter,
     UserRouter,
-    // CampaignApiRouter,
     VideoRouter,
+    CampaignApiRouter,
+    AutoPlayRouter,
+    ExternalLinkRouter,
   ];
   applyRouters(router, routers);
 };

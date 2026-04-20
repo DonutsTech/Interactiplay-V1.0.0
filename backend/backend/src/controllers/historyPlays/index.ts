@@ -1,5 +1,5 @@
-import type { NextFunction, Request, Response } from "express";
-import { historyPlaysService } from "../../services/historyPlays";
+import type { NextFunction, Request, Response } from 'express';
+import { historyPlaysService } from '../../services/historyPlays';
 
 class HistoryPlaysController {
   async getHistoryPlaysByUserId(request: Request, response: Response, next: NextFunction) {
@@ -22,6 +22,7 @@ class HistoryPlaysController {
     }
   }
 
+  /*
   async test(request: Request, response: Response, next: NextFunction) {
     try {
       const historyPlay = await historyPlaysService.testClock();
@@ -30,6 +31,7 @@ class HistoryPlaysController {
       next(error);
     }
   }
+  */
 }
 
 export const historyPlaysController = new HistoryPlaysController();

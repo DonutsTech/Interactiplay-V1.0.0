@@ -77,7 +77,6 @@ export const createStripeCustomer = async (email: string, name: string) => {
       }
 
       if (subscription) {
-        console.log('Subscription found for customer:', subscription);
         return {
           STRIPE_CUSTOMER_ID: customer.id,
           STRIPE_SUBSCRIPTION_ID: subscription.id ? subscription.id : '',
@@ -88,6 +87,7 @@ export const createStripeCustomer = async (email: string, name: string) => {
           STRIPE_TRIAL_START: trialStart ? formatNummberForDate(trialStart) : '',
           ACTIVE: subscription.status === 'active' || subscription.status === 'trialing',
           ...(plan ? { PLAN: { connect: { ID: plan.ID } } } : {}),
+          ...(plan ?  { HISTORY_PLAYS: { create: { QTD_PLAYS: 0,  STATUS:  subscription.status === 'trialing' ? 'teste' : 'ativo' } }} : {}),
         };
       }
     }

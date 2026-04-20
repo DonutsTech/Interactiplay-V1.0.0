@@ -1,8 +1,8 @@
-import { handlePrismaError } from "../../error";
-import type { Prisma } from "../../generated/prisma/client";
-import { prisma } from "../../prisma";
+import { handlePrismaError } from '../../error';
+import type { Prisma } from '../../generated/prisma/client';
+import { prisma } from '../../prisma';
 
-class ExternalLink {
+class ExternalLinkModel {
   async create(params: Prisma.External_LinkCreateArgs) {
     try {
       return await prisma.external_Link.create(params);
@@ -66,4 +66,4 @@ class ExternalLink {
   }
 }
 
-export const externalLink = new ExternalLink();
+export const externalLinkModel = new ExternalLinkModel();

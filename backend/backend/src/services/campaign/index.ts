@@ -5,9 +5,19 @@ import { CustomError } from '../../error';
 import type { Prisma } from '../../generated/prisma/browser';
 import { analyticsModel } from '../../models/analytics';
 import { campaignModel } from '../../models/campaign';
+import { autoPlayService } from '../autoPlay';
 import { bondService } from '../bond';
 import { bondVideoService } from '../bondVideo';
 import { campaignVideoService } from '../campaignVideo';
+import { externalLinkService } from '../externalLink';
+import { featuresService } from '../features';
+import { ganchoService } from '../gancho';
+import { modelPlayService } from '../modelPlay';
+import { modelTimeService } from '../modelTime';
+import { pixelService } from '../pixel';
+import { testABService } from '../testAB';
+import { thumbService } from '../thumb/iindex';
+import { timelineService } from '../timeline';
 import { userService } from '../user';
 
 const CAMPAIGN_DEFAULT_INCLUDE: Prisma.CampaignInclude = {
@@ -31,11 +41,6 @@ const CAMPAIGN_DEFAULT_INCLUDE: Prisma.CampaignInclude = {
       GANCHO: true,
     },
   },
-};
-
-const EMBED_IFRAME: { EMBED_IFRAME: string; EMBED_JS: string } = {
-  EMBED_IFRAME: `<iframe src="https://interactiplay.com/player/{VIDEO_ID}?campaignId={CAMPAIGN_ID}" width="640" height="360" frameborder="0" allowfullscreen></iframe>`,
-  EMBED_JS: `<div id="interactiplay-player-{VIDEO_ID}" data-campaign-id="{CAMPAIGN_ID}"></div><script src="https://interactiplay.com/player.js" async></script>`,
 };
 
 class CampaignService {
@@ -134,7 +139,8 @@ class CampaignService {
       await campaignModel.updateBy({
         where: { ID: create.ID },
         data: {
-          ...EMBED_IFRAME,
+          EMBED_IFRAME: `<iframe src="http://ec2-13-219-76-98.compute-1.amazonaws.com/widget/index.html" name='{"campaign": "${create.ID}"}'></iframe>`,
+          EMBED_JS: `<div id="interactiplay" data-campaign="${create.ID}"></div> <script src="http://ec2-13-219-76-98.compute-1.amazonaws.com/widget/index.mjs"></script>`,
         },
       });
 
@@ -154,6 +160,40 @@ class CampaignService {
       await campaignVideoService.deleteCampaignVideoForCampaign(id);
 
       await this.createCampaignAll(id, data);
+
+      const updatedCampaign = await campaignModel.updateBy({
+        where: { ID: id },
+        data: {
+          NAME: data.NAME,
+        },
+        include: CAMPAIGN_DEFAULT_INCLUDE,
+      });
+
+      return updatedCampaign;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteCampaignForUserWithFlow(id: string) {
+    try {
+      await this.existsById(id);
+
+      await autoPlayService.deleteAutoPlayForCampaign(id);
+      await thumbService.deleteThumbForCampaign(id);
+      await ganchoService.deleteGanchoForCampaign(id);
+      await timelineService.deleteTimelineForCampaign(id);
+      await externalLinkService.deleteExternalLinkForCampaign(id);
+      await pixelService.deletePixelForCampaign(id);
+      await featuresService.deleteFeaturesForCampaign(id);
+      await bondService.deleteBondForCampaign(id);
+      await bondVideoService.deleteBondVideoForCampaign(id);
+      await campaignVideoService.deleteCampaignVideoForCampaign(id);
+      await testABService.deleteTestABForCampaign(id);
+      await modelTimeService.deleteModelTimeForCampaign(id);
+      await modelPlayService.deleteModelPlayForCampaign(id);
+
+      await campaignModel.deleteBy({ ID: id });
     } catch (error) {
       throw error;
     }

@@ -29,7 +29,14 @@ export async function isValidateLimitVideo(
 
     const countVideoForUser = await videoService.countVideoForUser(user.ID);
 
-    if (countVideoForUser >= plan.VIDEO_LIMIT) {
+    if (user.STRIPE_SUBSCRIPTION_STATUS === 'trialing' && countVideoForUser === 10) {
+       throw new CustomError(
+        `Limite de vídeos atingido para o plano teste. Por favor, atualize seu plano para adicionar mais vídeos.`,
+        StatusCodes.BAD_REQUEST,
+      );
+    }
+
+    if (countVideoForUser === plan.VIDEO_LIMIT) {
       throw new CustomError(
         `Limite de vídeos atingido para o plano atual. Por favor, atualize seu plano para adicionar mais vídeos.`,
         StatusCodes.BAD_REQUEST,

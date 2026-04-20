@@ -2,6 +2,7 @@ import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { CustomError } from '../error';
 import { s3 } from './s3';
+import path from 'path';
 
 const s3Storage = multerS3({
   s3: s3,
@@ -67,14 +68,11 @@ export const videoUpload = multer({
   storage: s3Storage,
   limits: { fileSize: 2 * 1024 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    console.log(
-      'Video filter - File:',
-      file.originalname,
-      'Type:',
-      file.mimetype,
-      'Size:',
-      file.size,
-    );
+     const allowedExtensions = ['.mp4', '.MP4'];
+  const fileExtension = path.extname(file.originalname);
+  if (!allowedExtensions.includes(fileExtension)) {
+    return cb(new CustomError('Extensão de arquivo inválida. Use apenas .mp4'));
+  }
     if (allVideoTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {

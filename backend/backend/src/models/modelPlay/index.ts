@@ -1,6 +1,6 @@
-import { handlePrismaError } from "../../error";
-import type { Prisma } from "../../generated/prisma/client";
-import { prisma } from "../../prisma";
+import { handlePrismaError } from '../../error';
+import type { Prisma } from '../../generated/prisma/client';
+import { prisma } from '../../prisma';
 
 class ModelPlayModel {
   async create(params: Prisma.Model_PlayCreateArgs) {
@@ -26,7 +26,6 @@ class ModelPlayModel {
       handlePrismaError(error);
     }
   }
-
 
   async deleteBy(where: Prisma.Model_PlayWhereUniqueInput) {
     try {
@@ -67,4 +66,4 @@ class ModelPlayModel {
   }
 }
 
-export const modelPlay = new ModelPlayModel();
+export const modelPlayModel = new ModelPlayModel();
