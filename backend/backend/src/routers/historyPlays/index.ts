@@ -17,7 +17,7 @@ class HistoryPlaysRouter {
       isValidateUserPlan,
       historyPlaysController.testUpdate,
     );
-    router.get('/test', historyPlaysController.test);
+    //router.get('/test', historyPlaysController.test);
   }
 }
 
