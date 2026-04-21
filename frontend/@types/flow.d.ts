@@ -5,6 +5,8 @@ export interface Bond {
   BUTTON_TEXT: string;
   BUTTON_STYLE: string;
   BUTTON_MODAL: boolean;
+  X_POSITION: number;
+  Y_POSITION: number;
 }
 
 interface NodeData extends Record<string, unknown>  {

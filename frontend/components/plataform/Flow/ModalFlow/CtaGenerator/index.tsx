@@ -175,7 +175,7 @@ const CtaGenerator = ({
 
             <div className={styles.container_body_styletext}>
               <div className={styles.container_body_styletext_left}>
-                <label htmlFor="styletext">Estilo do Texto:</label>
+                <label htmlFor="styletext">Estilo:</label>
                 <select
                   name="styletext"
                   id="styletext"
@@ -188,7 +188,7 @@ const CtaGenerator = ({
                 </select>
               </div>
               <div className={styles.container_body_styletext_right}>
-                <label htmlFor="textcolor">Cor do Texto:</label>
+                <label htmlFor="textcolor">cor:</label>
                 <input
                   type="color"
                   id="textcolor"
@@ -226,7 +226,7 @@ const CtaGenerator = ({
 
             <div className={styles.container_body_buttonColor}>
               <div className={styles.container_body_buttonColor_left}>
-                <label htmlFor="buttonColor">Cor do botão:</label>
+                <label htmlFor="buttonColor">Botão:</label>
                 <input
                   type="color"
                   id="buttonColor"
@@ -235,7 +235,7 @@ const CtaGenerator = ({
                 />
               </div>
               <div className={styles.container_body_buttonColor_right}>
-                <label htmlFor="buttonTextColor">Cor do texto:</label>
+                <label htmlFor="buttonTextColor">Texto:</label>
                 <input
                   type="color"
                   id="buttonTextColor"

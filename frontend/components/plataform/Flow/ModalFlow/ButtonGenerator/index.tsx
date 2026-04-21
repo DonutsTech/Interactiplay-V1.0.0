@@ -76,10 +76,10 @@ const ButtonGenerator = ({
                 backgroundColor: bgColor,
                 textColor: textColor,
                 borderRadius: borderRadius,
-                btnTop: btnTop,
-                btnLeft: btnLeft,
               }),
               BUTTON_MODAL: true,
+              X_POSITION: btnLeft,
+              Y_POSITION: btnTop,
             };
           }
           return bond;
@@ -158,7 +158,7 @@ const ButtonGenerator = ({
 
             <div className={styles.container_body_cor}>
               <div className={styles.container_body_cor_btn}>
-                <label htmlFor="color">Cor do Botão</label>
+                <label htmlFor="color">Botão</label>
                 <input
                   type="color"
                   id="color"
@@ -167,7 +167,7 @@ const ButtonGenerator = ({
                 />
               </div>
               <div className={styles.container_body_cor_txt}>
-                <label htmlFor="color_text">Cor do Texto</label>
+                <label htmlFor="color_text">Texto</label>
                 <input
                   type="color"
                   id="color_text"

@@ -23,7 +23,7 @@ import CustomEdge from './CustomFlow/CustomEdge';
 import { MyNode, Bond } from '@/@types/flow';
 import { useVideos } from '@/context/VideosContext';
 import { useError } from '@/context/ErrorContext';
-import { nodeNew, willCreateCycle } from '@/utils/flowUteis';
+import { convertFlowToCampaignPayload, nodeNew, willCreateCycle } from '@/utils/flowUteis';
 import ModalFlow from './ModalFlow';
 import BtnG from '../BtnG';
 import { createCampaign, getCampaigns } from '@/service/campaign/capaingnServices';
@@ -32,6 +32,7 @@ import {
   ICreateCampaignVideo,
   ICreateBondsCampaign,
 } from '@/@types/campaign';
+import { isURL, isValidUrl } from '@/utils/urlValidator';
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -221,47 +222,8 @@ const Flow = () => {
   }, [nodes.length, nameCampaign]);
 
 
-  const convertFlowToCampaignPayload = useCallback(
-    (campaignName: string): ICreateCampaignPayload => {
-      const campaignVideos: ICreateCampaignVideo[] = nodes
-        .filter((node) => node.data.ORDER !== null)
-        .sort((a, b) => (a.data.ORDER || 0) - (b.data.ORDER || 0))
-        .map((node) => {
-          const bonds: ICreateBondsCampaign[] = node.data.BONDS.map((bond: Bond) => ({
-            VIDEO_ID: bond.VIDEO_ID,
-            BOND: {
-              ID: bond.VIDEO_ID,
-              VIDEO_ID: bond.VIDEO_ID,
-              BUTTON: bond.BUTTON,
-              BUTTON_TEXT: bond.BUTTON_TEXT || '',
-              BUTTON_STYLE: bond.BUTTON_STYLE || '',
-              BUTTON_START: bond.BUTTON_START || 0,
-              X_POSITION: 0,
-              Y_POSITION: 0,
-            },
-          }));
 
-          return {
-            VIDEO_ID: node.data.VIDEO.ID,
-            ORDER: node.data.ORDER || 0,
-            X_POSITION: node.data.X_POSITION || 0,
-            Y_POSITION: node.data.Y_POSITION || 0,
-            CTA: node.data.CTA,
-            CTA_TEXT: node.data.CTA_TEXT || '',
-            CTA_URL: node.data.CTA_URL || '',
-            CTA_STYLE: node.data.CTA_STYLE || '',
-            CTA_START: node.data.CTA_START || 0,
-            BONDS: bonds,
-          };
-        });
 
-      return {
-        NAME: campaignName,
-        CAMPAIGN_VIDEOS: campaignVideos,
-      };
-    },
-    [nodes]
-  );
 
   const handleSave = useCallback(async () => {
 
@@ -292,7 +254,7 @@ const Flow = () => {
       return;
     }
 
-    const payload = convertFlowToCampaignPayload(nameCampaign);
+    const payload = convertFlowToCampaignPayload(nameCampaign, nodes);
     console.log('Payload para salvar campanha:', payload);
 
     // Salva campanha

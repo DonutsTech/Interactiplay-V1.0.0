@@ -488,7 +488,6 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
               </div>
             )}
 
-            {/* Botão atual - Editável quando type='edge' */}
             {btnActive && type === 'edge' && startBtn <= timeVideo && (
               <button
                 onPointerDown={onPointerDownBtn}
@@ -514,7 +513,6 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
               </button>
             )}
 
-            {/* Outros botões - Preview apenas (não editáveis) */}
             {otherBonds.map((bond, index) => {
               if (!bond.BUTTON || bond.BUTTON_START > timeVideo) return null;
 

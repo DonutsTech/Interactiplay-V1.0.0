@@ -11,7 +11,7 @@ import { orderForEdges } from '@/utils/flowUteis';
 import { formatVideoName } from '@/utils/videoUtils';
 import { useEffect } from 'react';
 import { useFlow } from '@/context/FlowContext';
-import { Bond, DadosModal } from '@/@types/flow';
+import { Bond } from '@/@types/flow';
 import { useError } from '@/context/ErrorContext';
 
 interface CustomNodeData extends NodeProps {

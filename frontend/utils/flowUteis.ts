@@ -1,4 +1,5 @@
 import { Bond, MyNode } from '@/@types/flow';
+import { isURL } from './urlValidator';
 
 
 export const orderForEdges = (data: MyNode[]) => {
@@ -134,5 +135,42 @@ export function willCreateCycle(
 
   return false;
 }
+
+
+
+export const convertFlowToCampaignPayload = (campaignName: string, campaign: MyNode[]) => {
+
+  return{
+
+    NAME: campaignName === 'Nome da campanha' ? `Campanha ${new Date().toLocaleDateString()}` : campaignName,
+    CAMPAIGN_VIDEOS: campaign.map(({data}) => {
+    return {
+        VIDEO_ID: data.VIDEO.ID,
+        ORDER: data.ORDER || 0,
+        CTA: data.CTA,
+        CTA_START: data.CTA_START,
+        CTA_TEXT: data.CTA_TEXT,
+        CTA_URL: data.CTA_URL === "" ? "" : isURL(data.CTA_URL) ? data.CTA_URL : `https://${data.CTA_URL}`,
+        CTA_STYLE: data.CTA_STYLE,
+        X_POSITION: data.X_POSITION,
+        Y_POSITION: data.Y_POSITION,
+        BONDS: data.BONDS.map((bond: Bond) => {
+          return {
+          VIDEO_ID: data.VIDEO.ID,
+          BOND: {
+            BUTTON: bond.BUTTON,
+            BUTTON_TEXT: bond.BUTTON_TEXT,
+            BUTTON_STYLE: bond.BUTTON_STYLE,
+            BUTTON_START: bond.BUTTON_START,
+            VIDEO_ID: bond.VIDEO_ID,
+            X_POSITION: bond.X_POSITION,
+            Y_POSITION: bond.Y_POSITION,
+          }
+        }})
+      }
+    })
+  }
+}
+
 
 

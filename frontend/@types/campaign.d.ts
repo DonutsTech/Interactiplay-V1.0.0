@@ -39,11 +39,9 @@ export interface ICampaignVideo {
   CTA_START: number;
   CTA_CLICK_CAMPAING: number;
   CTA_CLICK_TEST_AB: number;
-
   X_POSITION: number;
   Y_POSITION: number;
   ORDER: number;
-
   BONDS: IBondVideo[];
   CREATED_AT: Date | null;
   UPDATED_AT: Date | null;
@@ -179,33 +177,17 @@ export interface ICreateCampaignVideo {
 
 export interface ICreateBondsCampaign {
   VIDEO_ID: string;
-  BOND: ICreateBondCampaign;
+  BOND: Bond;
 }
 
-export interface ICreateBondCampaign {
-  ID: string;
-  VIDEO_ID: string;
-  BUTTON: boolean;
-  BUTTON_TEXT: string;
-  BUTTON_STYLE: string;
-  BUTTON_START: number;
-  X_POSITION: number;
-  Y_POSITION: number;
-}
+// export interface ICreateBondCampaign {
+//   VIDEO_ID: string;
+//   BUTTON: boolean;
+//   BUTTON_TEXT: string;
+//   BUTTON_STYLE: string;
+//   BUTTON_START: number;
+//   X_POSITION: number;
+//   Y_POSITION: number;
+// }
 
 export interface IUpdateCampaignPayload extends ICreateCampaignPayload {}
-
-
-export interface ICampaignListItem {
-  ID: string;
-  NAME: string;
-  CREATED_AT: Date | null;
-  UPDATED_AT: Date | null;
-  CAMPAIGN_VIDEOS_COUNT: number;
-}
-export interface ICampaignStats {
-  TOTAL_VIEWS: number;
-  TOTAL_CTA_CLICKS: number;
-  TOTAL_BUTTON_CLICKS: number;
-  AVG_WATCH_TIME: number;
-}
