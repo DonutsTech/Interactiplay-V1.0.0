@@ -39,6 +39,7 @@ export async function uploadFileFromS3(file: Express.Multer.File) {
         Key: `videos/${file.filename}`,
         Body: fs.createReadStream(file.path),
         ContentType: file.mimetype,
+        ACL: 'public-read',
       },
     });
 

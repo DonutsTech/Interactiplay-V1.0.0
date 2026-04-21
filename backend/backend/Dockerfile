@@ -1,7 +1,10 @@
-FROM node:20-alpine AS base
+FROM node:20-slim
 
-# Instalar dependências do sistema necessárias incluindo FFmpeg
-RUN apk add --no-cache bash ffmpeg
+RUN apt-get update && \
+    apt-get install -y ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN ffmpeg -version && ffprobe -version
 
 WORKDIR /api
 
