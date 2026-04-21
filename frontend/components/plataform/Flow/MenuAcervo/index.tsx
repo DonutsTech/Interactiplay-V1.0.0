@@ -11,7 +11,7 @@ import styles from './MenuAcervo.module.scss';
 import logo from '@/assets/icons/logo_menu_mobile.svg';
 import Image from 'next/image';
 import gsap from 'gsap';
-import ArcevoPocket from './ArcevoPocket';
+import AcervoPocket from './AcervoPocket';
 
 const MENU_WIDTH = 300;
 
@@ -71,7 +71,7 @@ const MenuAcervo = forwardRef<MenuAcervoRef>((props, ref) => {
       </div>
 
       <div className={styles.menuAcervo}>
-        <ArcevoPocket />
+        <AcervoPocket />
       </div>
     </div>
   );

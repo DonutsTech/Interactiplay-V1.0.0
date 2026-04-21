@@ -84,3 +84,55 @@ export const nodeNew = (nodes: MyNode[], source: MyNode, target: MyNode) => {
 };
 
 
+export type EdgeLike = { 
+  source?: string; 
+  target?: string; 
+  id?: string 
+};
+
+export function willCreateCycle(
+  current: EdgeLike[], 
+  newEdge: EdgeLike
+): boolean {
+  if (!newEdge || !newEdge.source || !newEdge.target) return false;
+  
+  // Auto-loop direto (A -> A)
+  if (newEdge.source === newEdge.target) return true;
+
+  // Constrói grafo de adjacência a partir das edges existentes
+  const adj = new Map<string, string[]>();
+  for (const e of current) {
+    if (!e.source || !e.target) continue;
+    const arr = adj.get(e.source) ?? [];
+    arr.push(e.target);
+    adj.set(e.source, arr);
+  }
+
+
+  const duplicate = current.some(
+    e => e.source === newEdge.source && e.target === newEdge.target
+  );
+  if (duplicate) return false;
+
+
+  const start = newEdge.target!;
+  const goal = newEdge.source!;
+  const stack: string[] = [start];
+  const visited = new Set<string>();
+
+  while (stack.length > 0) {
+    const node = stack.pop()!;
+    if (node === goal) return true; 
+    if (visited.has(node)) continue;
+    visited.add(node);
+    
+    const neighbors = adj.get(node) ?? [];
+    for (const nb of neighbors) {
+      if (!visited.has(nb)) stack.push(nb);
+    }
+  }
+
+  return false;
+}
+
+

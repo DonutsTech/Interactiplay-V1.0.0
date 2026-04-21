@@ -5,7 +5,7 @@ import styles from './ArcevoPocket.module.scss';
 import { useVideos } from '@/context/VideosContext';
 import CardVideoPocket from './CardVideoPocket';
 
-const ArcevoPocket = () => {
+const AcervoPocket = () => {
   const { videos, videoCount, videoLimit } = useVideos();
 
   return (
@@ -23,4 +23,4 @@ const ArcevoPocket = () => {
   );
 };
 
-export default ArcevoPocket;
+export default AcervoPocket;

@@ -23,7 +23,7 @@ import CustomEdge from './CustomFlow/CustomEdge';
 import { MyNode } from '@/@types/flow';
 import { useVideos } from '@/context/VideosContext';
 import { useError } from '@/context/ErrorContext';
-import { nodeNew } from '@/utils/flowUteis';
+import { nodeNew, willCreateCycle } from '@/utils/flowUteis';
 import ModalFlow from './ModalFlow';
 
 const nodeTypes = {
@@ -146,6 +146,19 @@ const Flow = () => {
         return;
       }
 
+      const newEdge = {
+        source: params.source!,
+        target: params.target!,
+        id: `${params.source}-${params.target}`,
+      };
+
+      if (willCreateCycle(edges, newEdge)) {
+        showWarning(
+          'Operação inválida: essa conexão criaria um ciclo no Flow.'
+        );
+        return;
+      }
+
       const node = nodeNew(nodes, source, target);
 
       setNodes(node);
@@ -177,7 +190,7 @@ const Flow = () => {
       setTypeModal('edge');
       setModalOpen(true);
     },
-    [setEdges, setNodes, nodes]
+    [setEdges, setNodes, nodes, edges, showWarning]
   );
 
   return (
