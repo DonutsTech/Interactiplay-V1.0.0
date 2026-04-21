@@ -1,6 +1,7 @@
 import type { ObjectSchema } from 'joi';
 import { forgetAuth, loginAuth, paymentAuth, registerAuth, resetAuth } from './auth';
 import { createAutoPlay } from './autoPlay';
+import { createCampaign } from './compaign';
 import { createExternalLink } from './externalLink';
 import { updateUser } from './user';
 import { videoUpdate } from './video';
@@ -15,6 +16,7 @@ const schemas: { [key: string]: ObjectSchema } = {
   'video/update': videoUpdate,
   'autoPlay/create': createAutoPlay,
   'externalLink/create': createExternalLink,
+  'campaign/create': createCampaign,
 };
 
 export default schemas;

@@ -1,8 +1,7 @@
-import { StatusCodes } from 'http-status-codes';
-import { Prisma } from '../generated/prisma/client';
 import { CustomError } from './index';
 
 export function handlePrismaError(error: any): never {
+  /*
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     switch (error.code) {
       case 'P2002':
@@ -44,6 +43,8 @@ export function handlePrismaError(error: any): never {
   if (error instanceof Prisma.PrismaClientValidationError) {
     throw new CustomError('Erro de validação dos dados', StatusCodes.BAD_REQUEST);
   }
+  */
 
-  throw error;
+  console.log(error);
+  throw new CustomError('Erro! Tente novamente mais tarde! ');
 }

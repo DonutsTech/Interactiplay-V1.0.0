@@ -1,8 +1,7 @@
-import { StatusCodes } from "http-status-codes";
-import Stripe from "stripe";
-import { CustomError } from "./appError";
+import { CustomError } from './appError';
 
 export function handleStripeError(error: any): never {
+  /*
   if (error instanceof Stripe.errors.StripeError) {
     switch (error.type) {
       case 'StripeCardError':
@@ -19,6 +18,8 @@ export function handleStripeError(error: any): never {
         throw new CustomError('Erro desconhecido na Stripe: ' + error.message, error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR);
     }
   }
+*/
 
-  throw error;
+  console.log(error);
+  throw new CustomError('Erro ao se comunicar com o sistema! Tente novamente mais tarde');
 }

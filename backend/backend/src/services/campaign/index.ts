@@ -124,7 +124,7 @@ class CampaignService {
     try {
       await userService.existsById(userId);
 
-      let create = await campaignModel.create({
+      const create = await campaignModel.create({
         data: {
           NAME: campaignData.NAME,
           USER: {
