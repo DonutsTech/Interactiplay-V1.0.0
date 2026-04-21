@@ -16,6 +16,7 @@ import {
 import BtnG from '../BtnG';
 import { getVideos } from '@/service/videos/videosservice';
 import { useVideos } from '@/context/VideosContext';
+import { getCampaigns } from '@/service/campaign/capaingnServices';
 
 interface IActivePlan {
   PLAYS: number;
@@ -26,7 +27,24 @@ interface IActivePlan {
 const UserPlan = () => {
   const { authUser } = useContext(AuthUserContext);
   const [portalLink, setPortalLink] = useState<string | null>(null);
+  const [campaignsCount, setCampaignsCount] = useState(0);
   const { videoCount } = useVideos();
+
+  const loadCampaignsCount = async () => {
+    try {
+      const response = await getCampaigns();
+      
+      if (Array.isArray(response)) {
+        setCampaignsCount(response.length);
+      }
+
+    } catch (error) {
+      console.error('Erro ao carregar a contagem de campanhas:', error);
+    }
+
+  };
+
+  
 
   if (!authUser || !(authUser.USER && authUser.USER.PLAN)) {
     return <p>Carregando...</p>;
@@ -45,6 +63,7 @@ const UserPlan = () => {
 
   useEffect(() => {
     loadPlan();
+    loadCampaignsCount();
   }, []);
 
   const ACTIVE_PLAN: IActivePlan = {
@@ -226,7 +245,7 @@ const UserPlan = () => {
         </div>
         <div className={styles.container_stats_campanha}>
           <h4>Campanhas Ativas:</h4>
-          <p>{usedplan.campanhas} Campanhas</p>
+          <p>{campaignsCount} Campanhas</p>
         </div>
       </div>
     </div>
