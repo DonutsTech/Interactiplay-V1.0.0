@@ -1,5 +1,7 @@
+import fs from 'fs';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
+import path from 'path';
 import { CustomError } from '../error';
 import { s3 } from './s3';
 
@@ -7,9 +9,6 @@ const s3Storage = multerS3({
   s3: s3,
   bucket: 'interacti-uploads',
   key: (req, file, cb) => {
-    console.log('Multer file received:', file);
-    console.log('File size:', file.size);
-    console.log('File mimetype:', file.mimetype);
     const now = new Date();
     const dateString = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
     const time = now.getTime();
@@ -33,10 +32,35 @@ const s3Storage = multerS3({
     }
 
     const key = `${folder}${dateString}${time}${extension}`;
-    console.log('Generated S3 key:', key);
     cb(null, key);
   },
   contentType: multerS3.AUTO_CONTENT_TYPE,
+});
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    if (file.mimetype.startsWith('video/')) {
+      const uploadPath = path.resolve(__dirname, '../../uploads/videos');
+
+      if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+        console.log('✅ Pasta criada com sucesso!');
+      }
+
+      cb(null, uploadPath);
+    } else {
+      cb(new CustomError('Tipo de arquivo não suportado para armazenamento local'), '');
+    }
+  },
+  filename: (req, file, cb) => {
+    const now = new Date();
+    const dateString = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
+    const time = now.getTime();
+    const extension = path.extname(file.originalname);
+    const filename = `${dateString}${time}${extension}`;
+
+    cb(null, filename);
+  },
 });
 
 const allImageTypes = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/webp'];
@@ -56,13 +80,12 @@ export const imageUpload = multer({
 });
 
 export const videoUpload = multer({
-  storage: s3Storage,
+  storage: storage,
   limits: { fileSize: 2 * 1024 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (allVideoTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      console.log('Video rejected - Invalid type:', file.mimetype);
       cb(new CustomError('Somente vídeos MP4 são permitidos'));
     }
   },

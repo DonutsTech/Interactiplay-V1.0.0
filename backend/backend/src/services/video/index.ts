@@ -1,9 +1,8 @@
 import ffmpeg from 'fluent-ffmpeg';
 import { StatusCodes } from 'http-status-codes';
 import { promisify } from 'util';
-import type { MulterS3File } from '../../@types/file';
 import type { createVideo, UpdateVideo } from '../../@types/interface/video';
-import { deleteFileFromS3 } from '../../config/s3';
+import { deleteFileFromS3, uploadFileFromS3 } from '../../config/s3';
 import { CustomError } from '../../error';
 import { videoModel } from '../../models/video';
 import { campaignVideoService } from '../campaignVideo';
@@ -99,9 +98,9 @@ class VideoService {
     }
   }
 
-  async createVideoForUser(userId: string, file: MulterS3File) {
+  async createVideoForUser(userId: string, file: Express.Multer.File) {
     try {
-      const metadata = (await ffprobeAsync(file.location)) as ffmpeg.FfprobeData;
+      const metadata = (await ffprobeAsync(file.path)) as ffmpeg.FfprobeData;
 
       if (!metadata || !metadata.format || !metadata.streams) {
         throw new CustomError('Não foi possível obter a duração do vídeo', StatusCodes.BAD_REQUEST);
@@ -133,10 +132,16 @@ class VideoService {
         WIDTH: stream.width || 0,
       };
 
+      const result = await uploadFileFromS3(file);
+
+      if (result === '') {
+        throw new CustomError('Erro ao fazer upload do vídeo', StatusCodes.INTERNAL_SERVER_ERROR);
+      }
+
       const video = await videoModel.create({
         data: {
           ...create,
-          URL: file.location,
+          URL: result,
           USER: {
             connect: {
               ID: userId,
