@@ -1,6 +1,7 @@
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
-import fs from 'fs';
+import { NodeHttpHandler } from '@smithy/node-http-handler';
+import { Agent } from 'http';
+import { Agent as HttpsAgent } from 'https';
 
 export const s3 = new S3Client({
   region: process.env.AWS_REGION!,
@@ -8,10 +9,20 @@ export const s3 = new S3Client({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
-  requestHandler: {
-    requestTimeout: 300000,
-    connectionTimeout: 60000,
-  },
+  requestHandler: new NodeHttpHandler({
+    connectionTimeout: 10_000,
+    socketTimeout: 300_000, // tempo de transferência
+    httpAgent: new Agent({
+      keepAlive: true,
+      maxSockets: 50,
+    }),
+    httpsAgent: new HttpsAgent({
+      keepAlive: true,
+      maxSockets: 50,
+    }),
+  }),
+
+  maxAttempts: 3,
 });
 
 function extractKeyFromUrl(url: string): string {
@@ -30,6 +41,7 @@ export async function deleteFileFromS3(key: string) {
   await s3.send(command);
 }
 
+/*
 export async function uploadFileFromS3(file: Express.Multer.File) {
   try {
     const command = new Upload({
@@ -39,7 +51,6 @@ export async function uploadFileFromS3(file: Express.Multer.File) {
         Key: `videos/${file.filename}`,
         Body: fs.createReadStream(file.path),
         ContentType: file.mimetype,
-        ACL: 'public-read',
       },
     });
 
@@ -53,3 +64,4 @@ export async function uploadFileFromS3(file: Express.Multer.File) {
     fs.unlinkSync(file.path);
   }
 }
+*/

@@ -70,12 +70,17 @@ class CampaignService {
 
   async getCampaignById(id: string) {
     try {
-      await this.existsById(id);
-
       const campaign = await campaignModel.findBy<CampaignBasic>({
         where: { ID: id },
         include: CAMPAIGN_DEFAULT_INCLUDE,
       });
+
+      if (!campaign) {
+        throw new CustomError(
+          'Campanha não encontrada, por favor verifique o id',
+          StatusCodes.NOT_FOUND,
+        );
+      }
 
       return campaign;
     } catch (error) {

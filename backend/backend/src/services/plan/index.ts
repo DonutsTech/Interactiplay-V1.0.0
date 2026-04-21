@@ -1,13 +1,16 @@
-import { StatusCodes } from "http-status-codes";
-import type { createPlan } from "../../@types/interface/plan";
-import { CustomError } from "../../error";
-import type { Plan } from "../../generated/prisma/client";
-import { planModel } from "../../models/plan";
+import { StatusCodes } from 'http-status-codes';
+import type { createPlan } from '../../@types/interface/plan';
+import { CustomError } from '../../error';
+import type { Plan } from '../../generated/prisma/client';
+import { planModel } from '../../models/plan';
 
 class PlanService {
   async existsById(id: string) {
     if (!(await planModel.count({ ID: id }))) {
-      throw new CustomError('Plano não encontrado, por favor verifique o seu  email', StatusCodes.NOT_FOUND)
+      throw new CustomError(
+        'Plano não encontrado, por favor verifique o seu  email',
+        StatusCodes.NOT_FOUND,
+      );
     }
   }
 
@@ -44,8 +47,6 @@ class PlanService {
 
   async showId(id: string): Promise<Plan> {
     try {
-      await this.existsById(id);
-
       const plan = await planModel.findBy({ where: { ID: id } });
 
       if (!plan) {

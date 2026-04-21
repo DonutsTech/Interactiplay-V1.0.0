@@ -34,8 +34,6 @@ class TumbService {
           );
         }
 
-        await this.existsById(featuresIds);
-
         const thumb = await thumbModel.findBy({
           where: {
             ID: featuresIds,

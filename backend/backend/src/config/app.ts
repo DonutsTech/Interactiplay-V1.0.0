@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import path from 'path';
 import { setErrors } from '../middleware';
 import { applyApiRouters, applyPublicRouters, applyWebHookRouters } from '../routers';
+import VideoRouter from '../routers/video';
 import { corsOpenConfig, corsRestrictedConfig } from './cors';
 
 export default class App {
@@ -21,16 +22,21 @@ export default class App {
     this.express.use(express.json());
 
     this.express.use('/api', corsRestrictedConfig);
-    this.express.use('/data',  corsRestrictedConfig);
+    this.express.use('/data', corsRestrictedConfig);
 
     this.express.use('/public', corsOpenConfig);
-    this.express.use('/widget', corsOpenConfig, express.static(path.resolve(__dirname, '../../widget')));
+    this.express.use(
+      '/widget',
+      corsOpenConfig,
+      express.static(path.resolve(__dirname, '../../widget')),
+    );
   }
 
   private routes(): void {
     const publicRouter = express.Router();
     const privateRouter = express.Router();
 
+    VideoRouter.create(privateRouter);
     applyApiRouters(privateRouter);
     applyPublicRouters(publicRouter);
 
@@ -52,7 +58,7 @@ export default class App {
     this.express.use((_req, res) => {
       res.status(StatusCodes.NOT_FOUND).json({
         STATUS: StatusCodes.NOT_FOUND,
-        MESSAGE: "Rota não encontrada",
+        MESSAGE: 'Rota não encontrada',
       });
     });
   }

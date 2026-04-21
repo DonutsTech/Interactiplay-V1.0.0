@@ -8,7 +8,9 @@ import { s3 } from './s3';
 const s3Storage = multerS3({
   s3: s3,
   bucket: 'interacti-uploads',
+  contentType: multerS3.AUTO_CONTENT_TYPE,
   key: (req, file, cb) => {
+    console.log(file);
     const now = new Date();
     const dateString = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
     const time = now.getTime();
@@ -34,7 +36,6 @@ const s3Storage = multerS3({
     const key = `${folder}${dateString}${time}${extension}`;
     cb(null, key);
   },
-  contentType: multerS3.AUTO_CONTENT_TYPE,
 });
 
 const storage = multer.diskStorage({
@@ -80,8 +81,8 @@ export const imageUpload = multer({
 });
 
 export const videoUpload = multer({
-  storage: storage,
-  limits: { fileSize: 2 * 1024 * 1024 * 1024 },
+  storage: s3Storage,
+  limits: { fileSize: 2 * 1024 * 1024 * 1024, files: 1 },
   fileFilter: (req, file, cb) => {
     if (allVideoTypes.includes(file.mimetype)) {
       cb(null, true);

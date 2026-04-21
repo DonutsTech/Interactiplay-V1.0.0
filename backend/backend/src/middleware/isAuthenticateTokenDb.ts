@@ -2,8 +2,8 @@ import bcrypt from 'bcryptjs';
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { CustomError } from '../error';
+import { userModel } from '../models/user';
 import { authService } from '../services/auth';
-import { userService } from '../services/user';
 
 export async function isAuthenticateTokenDb(
   request: Request,
@@ -25,9 +25,10 @@ export async function isAuthenticateTokenDb(
 
     const checkinToken = await authService.checkingToken(token);
 
-    console.log('Token verificado:', checkinToken);
-
-    const user = await userService.showId(checkinToken.sub);
+    const user = await userModel.findBy({
+      where: { ID: checkinToken.sub },
+      include: { PLAN: true },
+    });
 
     if (!user) {
       throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);

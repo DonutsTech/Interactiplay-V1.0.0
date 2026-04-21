@@ -80,8 +80,6 @@ class UserService {
 
   async showId(id: string) {
     try {
-      await this.existsById(id);
-
       const user = await userModel.findBy({
         where: { ID: id },
         include: {

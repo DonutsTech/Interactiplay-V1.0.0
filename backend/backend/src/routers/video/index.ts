@@ -1,12 +1,21 @@
 import type { Router } from 'express';
+import { videoUpload } from '../../config/multerConfig';
 import { videoController } from '../../controllers/video';
 import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
 import { isValidateLimitVideo } from '../../middleware/isValidateLimitVideo';
 import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
-import { videoUpload } from '../../config/multerConfig';
 
 class VideoRouter {
   public static create(router: Router) {
+    router.post(
+      '/user/videos',
+      isAuthenticateTokenDb,
+      isValidateUserPlan,
+      isValidateLimitVideo,
+      videoUpload.single('video'),
+      videoController.createVideoForUser,
+    );
+
     router.get(
       '/user/videos',
       isAuthenticateTokenDb,
@@ -25,15 +34,6 @@ class VideoRouter {
       isAuthenticateTokenDb,
       isValidateUserPlan,
       videoController.getVideoById,
-    );
-
-    router.post(
-      '/user/videos',
-      isAuthenticateTokenDb,
-      isValidateUserPlan,
-      isValidateLimitVideo,
-      videoUpload.single('video'),
-      videoController.createVideoForUser,
     );
     router.put(
       '/user/videos/:id',

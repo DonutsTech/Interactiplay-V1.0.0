@@ -7,7 +7,6 @@ import ExternalLinkRouter from './externalLink';
 import HistoryPlaysRouter from './historyPlays';
 import PlanRouter from './plan';
 import UserRouter from './user';
-import VideoRouter from './video';
 import WebhookRouter from './webhook';
 
 const applyRouters = (router: Router, routers: IRouter[]): void => {
@@ -19,9 +18,7 @@ export const applyApiRouters = (router: Router): void => {
     PlanRouter,
     AuthRouter,
     HistoryPlaysRouter,
-    VideoRouter,
     UserRouter,
-    VideoRouter,
     CampaignApiRouter,
     AutoPlayRouter,
     ExternalLinkRouter,
