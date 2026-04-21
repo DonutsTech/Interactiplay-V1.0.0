@@ -3,7 +3,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './Flow.module.scss';
 import { faPencil } from '@fortawesome/free-solid-svg-icons';
-import { DragEvent, useCallback, useRef, useState } from 'react';
+import { DragEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import MenuAcervo from './MenuAcervo';
 import {
@@ -20,11 +20,18 @@ import './style.css';
 import { useFlow } from '@/context/FlowContext';
 import CustomNode from './CustomFlow/CustomNode';
 import CustomEdge from './CustomFlow/CustomEdge';
-import { MyNode } from '@/@types/flow';
+import { MyNode, Bond } from '@/@types/flow';
 import { useVideos } from '@/context/VideosContext';
 import { useError } from '@/context/ErrorContext';
 import { nodeNew, willCreateCycle } from '@/utils/flowUteis';
 import ModalFlow from './ModalFlow';
+import BtnG from '../BtnG';
+import { createCampaign, getCampaigns } from '@/service/campaign/capaingnServices';
+import {
+  ICreateCampaignPayload,
+  ICreateCampaignVideo,
+  ICreateBondsCampaign,
+} from '@/@types/campaign';
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -58,7 +65,7 @@ const Flow = () => {
     setDadosModal,
   } = useFlow();
   const { videos } = useVideos();
-  const { showWarning } = useError();
+  const { showWarning, showInfo, showConfirmation } = useError();
 
   const [reactFlowInstance, setReactFlowInstance] = useState<
     ReactFlowInstance<MyNode, Edge> | undefined
@@ -68,6 +75,20 @@ const Flow = () => {
     (rfi: ReactFlowInstance<MyNode, Edge>) => setReactFlowInstance(rfi),
     []
   );
+
+  /**
+   * Limpa o flow quando o usuário sair da tela
+   * Cleanup automático no unmount do componente
+   */
+  useEffect(() => {
+    return () => {
+      // Cleanup: limpa todos os dados quando desmonta
+      setNodes([]);
+      setEdges([]);
+      setModalOpen(false);
+      setDadosModal(undefined);
+    };
+  }, [setNodes, setEdges, setModalOpen, setDadosModal]);
 
   const onDrop = useCallback(
     (event: DragEvent) => {
@@ -190,13 +211,175 @@ const Flow = () => {
       setTypeModal('edge');
       setModalOpen(true);
     },
-    [setEdges, setNodes, nodes, edges, showWarning]
+    [setEdges, setNodes, nodes, edges, showWarning, setDadosModal, setTypeModal, setModalOpen]
   );
+
+  const hasChanges = useMemo(() => {
+    const hasNodes = nodes.length > 0;
+    const hasNameChanged = nameCampaign !== 'Nome da campanha' && nameCampaign.trim().length >= 3;
+    return hasNodes || hasNameChanged;
+  }, [nodes.length, nameCampaign]);
+
+
+  const convertFlowToCampaignPayload = useCallback(
+    (campaignName: string): ICreateCampaignPayload => {
+      const campaignVideos: ICreateCampaignVideo[] = nodes
+        .filter((node) => node.data.ORDER !== null)
+        .sort((a, b) => (a.data.ORDER || 0) - (b.data.ORDER || 0))
+        .map((node) => {
+          const bonds: ICreateBondsCampaign[] = node.data.BONDS.map((bond: Bond) => ({
+            VIDEO_ID: bond.VIDEO_ID,
+            BOND: {
+              ID: bond.VIDEO_ID,
+              VIDEO_ID: bond.VIDEO_ID,
+              BUTTON: bond.BUTTON,
+              BUTTON_TEXT: bond.BUTTON_TEXT || '',
+              BUTTON_STYLE: bond.BUTTON_STYLE || '',
+              BUTTON_START: bond.BUTTON_START || 0,
+              X_POSITION: 0,
+              Y_POSITION: 0,
+            },
+          }));
+
+          return {
+            VIDEO_ID: node.data.VIDEO.ID,
+            ORDER: node.data.ORDER || 0,
+            X_POSITION: node.data.X_POSITION || 0,
+            Y_POSITION: node.data.Y_POSITION || 0,
+            CTA: node.data.CTA,
+            CTA_TEXT: node.data.CTA_TEXT || '',
+            CTA_URL: node.data.CTA_URL || '',
+            CTA_STYLE: node.data.CTA_STYLE || '',
+            CTA_START: node.data.CTA_START || 0,
+            BONDS: bonds,
+          };
+        });
+
+      return {
+        NAME: campaignName,
+        CAMPAIGN_VIDEOS: campaignVideos,
+      };
+    },
+    [nodes]
+  );
+
+  const handleSave = useCallback(async () => {
+
+
+    // Validação: nome da campanha
+    if (
+      !nameCampaign ||
+      nameCampaign.trim().length < 3 ||
+      nameCampaign === `Campanha ${new Date().toLocaleDateString()}`
+    ) {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+      return;
+    }
+
+    // Validação: pelo menos 1 vídeo
+    if (nodes.length === 0) {
+      showWarning('Adicione pelo menos um vídeo ao flow antes de salvar.');
+      return;
+    }
+
+    const disconnectedNodes = nodes.filter((node) => node.data.ORDER === null);
+    if (disconnectedNodes.length > 0) {
+      showWarning(
+        'Existem vídeos desconectados no flow. Conecte todos os vídeos antes de salvar.'
+      );
+      return;
+    }
+
+    const payload = convertFlowToCampaignPayload(nameCampaign);
+    console.log('Payload para salvar campanha:', payload);
+
+    // Salva campanha
+    const result = await createCampaign(payload);
+    console.log('Resposta da criação de campanha:', result);
+
+    // Verifica se há erro
+    if ('STATUS' in result && 'MESSAGE' in result) {
+      showWarning(result.MESSAGE);
+      return;
+    }
+
+    // Sucesso!
+    showInfo(
+      `Campanha "${nameCampaign}" salva com sucesso! ${nodes.length} vídeo(s) adicionado(s).`
+    );
+
+    // Limpa o flow após salvar
+    setNodes([]);
+    setEdges([]);
+    setNameCampaign('Nome da campanha');
+    setIsEditing(false);
+    if (modalOpen) {
+      setModalOpen(false);
+    }
+  }, [
+    nameCampaign,
+    nodes,
+    edges,
+    inputRef,
+    showWarning,
+    showInfo,
+    convertFlowToCampaignPayload,
+    setNodes,
+    setEdges,
+    modalOpen,
+    setModalOpen,
+  ]);
+
+  const handleCancel = useCallback(async () => {
+    if (nodes.length > 0) {
+      const confirmed = await showConfirmation(
+        'Todos os dados não salvos serão perdidos. Deseja continuar?',
+        {
+          title: 'Cancelar Campanha',
+          confirmText: 'Sim, cancelar',
+          cancelText: 'Não, manter',
+          type: 'warning',
+        }
+      );
+
+      if (!confirmed) return;
+    }
+
+    setNodes([]);
+    setEdges([]);
+    setNameCampaign('Nome da campanha');
+    setIsEditing(false);
+    if (modalOpen) {
+      setModalOpen(false);
+    }
+
+    showInfo('Campanha cancelada.');
+  }, [
+    nodes.length,
+    setNodes,
+    setEdges,
+    modalOpen,
+    setModalOpen,
+    showInfo,
+    showConfirmation,
+  ]);
 
   return (
     <ReactFlowProvider>
       {modalOpen && (
         <ModalFlow onClose={() => setModalOpen(false)} type={typeModal} />
+      )}
+      {hasChanges && (
+        <div className={styles.actions}>
+          <div className={`${styles.actions_btn}  ${styles.actions_btn_save}`}>
+            <BtnG goClick={handleSave} text="Salvar" />
+          </div>
+          <div className={`${styles.actions_btn}  ${styles.actions_btn_cancel}`}>
+            <BtnG goClick={handleCancel} text="Cancelar" />
+          </div>
+        </div>
       )}
       <section className={styles.flow}>
         <MenuAcervo ref={menuAcervoRef} />

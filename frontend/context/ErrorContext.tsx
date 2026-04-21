@@ -166,9 +166,7 @@ export const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
     [setIsLoading]
   );
 
-  /**
-   * Exibe toast de erro (aceita ErrorMessage ou string)
-   */
+
   const showError = useCallback(
     (error: ErrorMessage | string, options?: ShowToastOptions): Id => {
       let message: string;

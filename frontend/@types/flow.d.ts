@@ -8,7 +8,7 @@ export interface Bond {
 }
 
 interface NodeData extends Record<string, unknown>  {
-  VIDEO: IVideos;
+  VIDEO: IVideo;
   ORDER: number | null;
   BONDS: Bond[];
   CTA: boolean;
@@ -22,7 +22,7 @@ interface NodeData extends Record<string, unknown>  {
 
 export interface DadosModal  {
   TARGET: string | null;
-  VIDEO: IVideos;
+  VIDEO: IVideo;
   ORDER: number | null;
   BONDS: Bond[];
   CTA: boolean;

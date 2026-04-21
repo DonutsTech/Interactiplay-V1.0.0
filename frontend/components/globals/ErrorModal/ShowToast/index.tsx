@@ -73,7 +73,7 @@ const ShowToast = ({
         {title && (
           <strong
             style={{
-              fontSize: '16px',
+              fontSize: '14px',
               marginBottom: '4px',
               color: '#00FFF1',
             }}
