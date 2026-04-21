@@ -2,6 +2,8 @@
   width: 100vw;
   height: 100dvh;
   padding-top: 88px;
+  overflow-x: hidden;
+  position: relative;
 
   &_content {
     width: 100%;

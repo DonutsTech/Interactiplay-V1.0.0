@@ -295,6 +295,15 @@
           box-shadow: 0 4px 12px rgba($color-red-base, 0.5);
         }
       }
+
+      &:disabled {
+        background-color: $color-gray-dark-2;
+        color: $color-white;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+        pointer-events: none;
+      }
     }
   }
 

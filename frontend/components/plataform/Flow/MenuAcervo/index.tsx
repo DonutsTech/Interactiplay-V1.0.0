@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import styles from './MenuAcervo.module.scss';
 import logo from '@/assets/icons/logo_menu_mobile.svg';
 import Image from 'next/image';
 import gsap from 'gsap';
 import ArcevoPocket from './ArcevoPocket';
-
 
 const MENU_WIDTH = 300;
 
@@ -22,7 +27,7 @@ const MenuAcervo = forwardRef<MenuAcervoRef>((props, ref) => {
   useImperativeHandle(ref, () => ({
     closeMenu: () => {
       setIsOpen(false);
-    }
+    },
   }));
 
   useEffect(() => {
@@ -46,15 +51,12 @@ const MenuAcervo = forwardRef<MenuAcervoRef>((props, ref) => {
 
   useEffect(() => {
     if (menuContainerRef.current) {
-      gsap.set(menuContainerRef.current, { x: MENU_WIDTH + 48, autoAlpha: 1});
+      gsap.set(menuContainerRef.current, { x: MENU_WIDTH + 48, autoAlpha: 1 });
     }
   }, []);
 
   return (
-    <div 
-      ref={menuContainerRef} 
-      className={styles.menu}
-    >
+    <div ref={menuContainerRef} className={styles.menu}>
       <div
         className={styles.menuBtn}
         onClick={() => setIsOpen((prev) => !prev)}
@@ -67,9 +69,8 @@ const MenuAcervo = forwardRef<MenuAcervoRef>((props, ref) => {
           className={styles.menuBtn_logo}
         />
       </div>
-      <div
-        className={styles.menuAcervo}
-      >
+
+      <div className={styles.menuAcervo}>
         <ArcevoPocket />
       </div>
     </div>

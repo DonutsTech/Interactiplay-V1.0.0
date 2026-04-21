@@ -24,6 +24,7 @@ import { MyNode } from '@/@types/flow';
 import { useVideos } from '@/context/VideosContext';
 import { useError } from '@/context/ErrorContext';
 import { nodeNew } from '@/utils/flowUteis';
+import ModalFlow from './ModalFlow';
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -43,8 +44,19 @@ const Flow = () => {
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const menuAcervoRef = useRef<{ closeMenu: () => void }>(null);
-  const { nodes, edges, onNodesChange, onEdgesChange, setNodes, setEdges } =
-    useFlow();
+  const {
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    setNodes,
+    setEdges,
+    modalOpen,
+    setModalOpen,
+    typeModal,
+    setTypeModal,
+    setDadosModal,
+  } = useFlow();
   const { videos } = useVideos();
   const { showWarning } = useError();
 
@@ -138,12 +150,41 @@ const Flow = () => {
 
       setNodes(node);
       setEdges((eds) => addEdge({ ...params, type: 'customEdge' }, eds));
+
+      setDadosModal({
+        TARGET: target.id,
+        VIDEO: source.data.VIDEO,
+        ORDER: source.data.ORDER,
+        BONDS: [
+          ...source.data.BONDS,
+          {
+            VIDEO_ID: target.data.VIDEO.ID,
+            BUTTON: true,
+            BUTTON_START: 0,
+            BUTTON_TEXT: '',
+            BUTTON_STYLE: '',
+            BUTTON_MODAL: false,
+          },
+        ],
+        CTA: source.data.CTA,
+        CTA_URL: source.data.CTA_URL,
+        CTA_TEXT: source.data.CTA_TEXT,
+        CTA_STYLE: source.data.CTA_STYLE,
+        CTA_START: source.data.CTA_START,
+        X_POSITION: source.data.X_POSITION,
+        Y_POSITION: source.data.Y_POSITION,
+      });
+      setTypeModal('edge');
+      setModalOpen(true);
     },
     [setEdges, setNodes, nodes]
   );
 
   return (
     <ReactFlowProvider>
+      {modalOpen && (
+        <ModalFlow onClose={() => setModalOpen(false)} type={typeModal} />
+      )}
       <section className={styles.flow}>
         <MenuAcervo ref={menuAcervoRef} />
         <div className={styles.flow_content}>
@@ -151,6 +192,7 @@ const Flow = () => {
           <div className={styles.flow_content_header}>
             <FontAwesomeIcon
               icon={faPencil}
+              title="Click para editar o nome da Campanha"
               onClick={() => {
                 if (inputRef.current) {
                   inputRef.current.focus();
@@ -179,6 +221,11 @@ const Flow = () => {
                   : setNameCampaign(e.target.value);
                 setIsEditing(false);
               }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  inputRef.current?.blur();
+                }
+              }}
             />
           </div>
           <div className="dndflow">
@@ -195,6 +242,13 @@ const Flow = () => {
                 onDrop={onDrop}
                 onDragOver={onDragOver}
                 fitView
+                fitViewOptions={{
+                  padding: 0.3,
+                  maxZoom: 0.8,
+                }}
+                defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
+                minZoom={0.3}
+                maxZoom={2}
               >
                 <Background bgColor="#000125" />
               </ReactFlow>

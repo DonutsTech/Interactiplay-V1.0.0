@@ -19,6 +19,7 @@ import {
 } from '@/utils/videoUtils';
 import VideoModal from './VideoModal';
 import { formatDateBR } from '@/utils/stringUtils';
+import { useError } from '@/context/ErrorContext';
 
 interface VideoCardProps {
   video: IVideo;
@@ -35,6 +36,7 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
   const playPromiseRef = useRef<Promise<void> | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isVideoModal, setIsVideoModal] = useState<string | null>(null);
+  const { isLoading } = useError();
 
   // Handlers de preview com tratamento de erro
   const handleMouseEnter = async () => {
@@ -45,7 +47,6 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
       await playPromiseRef.current;
       playPromiseRef.current = null;
     } catch (error) {
-      // Silenciar erro de AbortError quando o play é interrompido
       if ((error as Error).name !== 'AbortError') {
         console.error('Erro ao reproduzir vídeo:', error);
       }
@@ -60,7 +61,6 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
       try {
         await playPromiseRef.current;
       } catch {
-        // Ignorar erro
       }
     }
 
@@ -68,11 +68,9 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     } catch (error) {
-      // Ignorar erros ao pausar
     }
   };
 
-  // Handlers de edição
   const handleEditName = () => {
     setIsEditingName(true);
   };
@@ -193,13 +191,13 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
         </div> */}
         </div>
 
-        {/* Actions Footer */}
         <div className={styles.videoCard_actions}>
           {onView && (
             <button
               className={styles.videoCard_actions_btn}
               onClick={() => onView(video)}
               title="Visualizar vídeo"
+              disabled={!video.URL || isLoading}
             >
               <FontAwesomeIcon icon={faEye} />
             </button>
@@ -209,6 +207,7 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
               className={styles.videoCard_actions_btn}
               onClick={handleEditName}
               title="Editar nome do vídeo"
+              disabled={isLoading}
             >
               <FontAwesomeIcon icon={faPencil} />
             </button>
@@ -218,6 +217,7 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
               className={`${styles.videoCard_actions_btn} ${styles.videoCard_actions_btn_delete}`}
               onClick={() => onDelete(video.ID)}
               title="Excluir vídeo"
+              disabled={isLoading}
             >
               <FontAwesomeIcon icon={faTrashCan} />
             </button>
