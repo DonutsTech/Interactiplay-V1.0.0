@@ -1,7 +1,7 @@
 // components/plataform/Flow/ModalFlow/ButtonGenerator/index.tsx
 'use client';
 
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import styles from './ButtonGenerator.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -35,6 +35,8 @@ interface ButtonGeneratorProps {
   setStart: Dispatch<SetStateAction<number>>;
   btnTop: number;
   btnLeft: number;
+  onCancel: () => void;
+  onSave: () => void;
 }
 
 const ButtonGenerator = ({
@@ -53,9 +55,10 @@ const ButtonGenerator = ({
   setStart,
   btnTop,
   btnLeft,
+  onCancel,
+  onSave,
 }: ButtonGeneratorProps) => {
   const { nodes, setNodes, dadosModal } = useFlow();
-  const [message, setMessage] = useState<string>('');
 
   const saveBtn = () => {
     if (!dadosModal) return;
@@ -94,17 +97,10 @@ const ButtonGenerator = ({
     });
 
     setNodes(updatedNodes);
-    setMessage('Configurações salvas com sucesso!');
+    
+    // Chama a função onSave do ModalFlow (fecha modal e mostra toast)
+    onSave();
   };
-
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage('');
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
 
   const hasSequentialBond = () => {
     if (!dadosModal) return false;
@@ -124,7 +120,7 @@ const ButtonGenerator = ({
       <h4 className={styles.container_title}>Conexão</h4>
 
       <div className={styles.container_header}>
-        {canToggleSequential && (
+        {canToggleSequential ? (
           <div className={styles.checkBox_wrapper}>
             <input
               type="checkbox"
@@ -137,13 +133,17 @@ const ButtonGenerator = ({
               {btnActive ? 'Click' : 'Sequência'}
             </label>
           </div>
+        ) : (
+          <p className={styles.container_header_warning}>
+            <FontAwesomeIcon icon={faTriangleExclamation} color="#FFD700" />{' '}
+            Este vídeo já possui uma conexão de sequência ativa.
+          </p>
         )}
       </div>
 
       <div className={styles.container_body}>
         {btnActive ? (
           <>
-            {/* Texto do Botão */}
             <div className={styles.container_body_text}>
               <label htmlFor="text">Texto do Botão*</label>
               <input
@@ -156,7 +156,6 @@ const ButtonGenerator = ({
               />
             </div>
 
-            {/* Cores */}
             <div className={styles.container_body_cor}>
               <div className={styles.container_body_cor_btn}>
                 <label htmlFor="color">Cor do Botão</label>
@@ -178,7 +177,6 @@ const ButtonGenerator = ({
               </div>
             </div>
 
-            {/* Border Radius */}
             <div className={styles.container_body_cantos}>
               <div className={styles.container_body_cantos_input}>
                 <label htmlFor="borderRadius">Cantos Arredondados</label>
@@ -199,7 +197,6 @@ const ButtonGenerator = ({
               </span>
             </div>
 
-            {/* Delay */}
             <div className={styles.container_body_delay}>
               <div className={styles.container_body_delay_input}>
                 <label htmlFor="delay">Start em segundos</label>
@@ -252,8 +249,6 @@ const ButtonGenerator = ({
         )}
       </div>
 
-      {message && <p className={styles.msg}>{message}</p>}
-
       <div className={styles.container_footer}>
         <button
           className={classNames({
@@ -271,7 +266,7 @@ const ButtonGenerator = ({
             [styles.container_footer_btn]: true,
             [styles.container_footer_btn_cancel]: true,
           })}
-          onClick={() => setMessage('')}
+          onClick={onCancel}
         >
           Cancelar
           <FontAwesomeIcon icon={faBan} />

@@ -32,6 +32,7 @@ const CardVideoPocket = ({ video } : { video: IVideo }) => {
         autoPlay
         playsInline
         className={styles.cardVideoPocket_video}
+        preload="metadata"
       >
         <source src={video.URL} type="video/mp4" />
         Your browser does not support the video tag.

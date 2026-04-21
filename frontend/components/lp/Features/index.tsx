@@ -65,6 +65,7 @@ const Features = () => {
                 loop
                 playsInline
                 className={styles.features_container_content_item_video}
+                preload="metadata"
               >
                 <source src={item.video} type="video/mp4" />
               </video>

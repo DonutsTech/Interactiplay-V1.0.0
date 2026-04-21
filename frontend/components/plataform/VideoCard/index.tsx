@@ -147,6 +147,7 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
               muted
               loop
               playsInline
+              preload="metadata"
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
               onError={() => setImageError(true)}

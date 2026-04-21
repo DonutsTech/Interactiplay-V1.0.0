@@ -9,6 +9,7 @@ import ButtonGenerator from './ButtonGenerator';
 import CtaGenerator from './CtaGenerator';
 import { formatDuration } from '@/utils/videoUtils';
 import { Bond } from '@/@types/flow';
+import { useError } from '@/context/ErrorContext';
 
 interface ModalFlowProps {
   onClose: () => void;
@@ -19,11 +20,15 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef<boolean>(false);
-
+  const initialNodesRef = useRef<any[]>([]);
+  
+  const initialCtaStateRef = useRef<any>(null);
+  const initialBtnStateRef = useRef<any>(null);
+  const wasPreviouslyConfiguredRef = useRef<boolean>(false);
   const { dadosModal, setNodes, nodes, setEdges } = useFlow();
+  const { showInfo, showSuccess } = useError();
   const [timeVideo, setTimeVideo] = useState<number>(0);
 
-  // Estados para CTA (quando type === 'node')
   const [ctaActive, setCtaActive] = useState<boolean>(false);
   const [ctaText, setCtaText] = useState<string>('');
   const [alignment, setAlignment] = useState<string>('center');
@@ -38,7 +43,6 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
   const [ctaTop, setCtaTop] = useState<number>(50);
   const [ctaLeft, setCtaLeft] = useState<number>(50);
 
-  // Estados para Button (quando type === 'edge')
   const [btnActive, setBtnActive] = useState<boolean>(true);
   const [textBtn, setTextBtn] = useState<string>('');
   const [bgColorBtn, setBgColorBtn] = useState<string>('#23118E');
@@ -48,11 +52,41 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
   const [btnTop, setBtnTop] = useState<number>(50);
   const [btnLeft, setBtnLeft] = useState<number>(50);
 
-  // Carrega dados existentes quando modal abre
+  const [otherBonds, setOtherBonds] = useState<Bond[]>([]);
+
   useEffect(() => {
     if (!dadosModal) return;
 
-    // Carrega dados de CTA
+    if (type === 'edge' && dadosModal.TARGET) {
+      const bond = dadosModal.BONDS.find(
+        (b) => b.VIDEO_ID === dadosModal.TARGET
+      );
+      
+      if (bond && bond.BUTTON_MODAL === false) {
+        const nodesWithoutNewConnection = nodes.map((node) => {
+          if (node.id === dadosModal.VIDEO.ID) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                BONDS: node.data.BONDS.filter(
+                  (b: Bond) => b.VIDEO_ID !== dadosModal.TARGET
+                ),
+              },
+            };
+          }
+          return node;
+        });
+        initialNodesRef.current = JSON.parse(JSON.stringify(nodesWithoutNewConnection));
+        wasPreviouslyConfiguredRef.current = false;
+      } else {
+        initialNodesRef.current = JSON.parse(JSON.stringify(nodes));
+        wasPreviouslyConfiguredRef.current = bond ? bond.BUTTON_MODAL === true : false;
+      }
+    } else {
+      initialNodesRef.current = JSON.parse(JSON.stringify(nodes));
+    }
+
     setCtaActive(dadosModal.CTA);
     setCtaText(dadosModal.CTA_TEXT);
     setStart(dadosModal.CTA_START);
@@ -70,6 +104,41 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
       setCtaTop(style.ctaTop || 50);
       setCtaLeft(style.ctaLeft || 50);
     }
+
+    // Armazena estado inicial do CTA
+    initialCtaStateRef.current = {
+      ctaActive: dadosModal.CTA,
+      ctaText: dadosModal.CTA_TEXT,
+      start: dadosModal.CTA_START,
+      buttonLink: dadosModal.CTA_URL,
+      alignment: dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0 
+        ? JSON.parse(dadosModal.CTA_STYLE).alignment || 'center'
+        : 'center',
+      textStyle: dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0
+        ? JSON.parse(dadosModal.CTA_STYLE).textStyle || 'normal'
+        : 'normal',
+      textColor: dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0
+        ? JSON.parse(dadosModal.CTA_STYLE).textColor || '#000000'
+        : '#000000',
+      buttonText: dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0
+        ? JSON.parse(dadosModal.CTA_STYLE).buttonText || ''
+        : '',
+      buttonColor: dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0
+        ? JSON.parse(dadosModal.CTA_STYLE).buttonColor || '#23118E'
+        : '#23118E',
+      buttonTextColor: dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0
+        ? JSON.parse(dadosModal.CTA_STYLE).buttonTextColor || '#FFFFFF'
+        : '#FFFFFF',
+      borderRadius: dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0
+        ? JSON.parse(dadosModal.CTA_STYLE).borderRadius || 0
+        : 0,
+      ctaTop: dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0
+        ? JSON.parse(dadosModal.CTA_STYLE).ctaTop || 50
+        : 50,
+      ctaLeft: dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0
+        ? JSON.parse(dadosModal.CTA_STYLE).ctaLeft || 50
+        : 50,
+    };
 
     // Carrega dados do Button (se for edge)
     if (type === 'edge' && dadosModal.TARGET) {
@@ -89,7 +158,51 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
           setBtnTop(btnStyle.btnTop || 50);
           setBtnLeft(btnStyle.btnLeft || 50);
         }
+
+        initialBtnStateRef.current = {
+          btnActive: bond.BUTTON,
+          textBtn: bond.BUTTON_TEXT,
+          startBtn: bond.BUTTON_START,
+          bgColorBtn: bond.BUTTON_STYLE && bond.BUTTON_STYLE.length > 0
+            ? JSON.parse(bond.BUTTON_STYLE).backgroundColor || '#23118E'
+            : '#23118E',
+          textColorBtn: bond.BUTTON_STYLE && bond.BUTTON_STYLE.length > 0
+            ? JSON.parse(bond.BUTTON_STYLE).textColor || '#FFFFFF'
+            : '#FFFFFF',
+          borderRadiusBtn: bond.BUTTON_STYLE && bond.BUTTON_STYLE.length > 0
+            ? JSON.parse(bond.BUTTON_STYLE).borderRadius || 0
+            : 0,
+          btnTop: bond.BUTTON_STYLE && bond.BUTTON_STYLE.length > 0
+            ? JSON.parse(bond.BUTTON_STYLE).btnTop || 50
+            : 50,
+          btnLeft: bond.BUTTON_STYLE && bond.BUTTON_STYLE.length > 0
+            ? JSON.parse(bond.BUTTON_STYLE).btnLeft || 50
+            : 50,
+        };
+      } else {
+        initialBtnStateRef.current = {
+          btnActive: true,
+          textBtn: '',
+          startBtn: 0,
+          bgColorBtn: '#23118E',
+          textColorBtn: '#FFFFFF',
+          borderRadiusBtn: 0,
+          btnTop: 50,
+          btnLeft: 50,
+        };
       }
+    }
+
+    // Carrega outros bonds para preview
+    if (type === 'edge' && dadosModal.TARGET) {
+      // Quando editando uma conexão, mostra os outros bonds (exceto o atual)
+      const others = dadosModal.BONDS.filter(
+        (b) => b.VIDEO_ID !== dadosModal.TARGET
+      );
+      setOtherBonds(others);
+    } else if (type === 'node') {
+      // Quando editando CTA, mostra todos os bonds
+      setOtherBonds(dadosModal.BONDS || []);
     }
   }, [dadosModal, type]);
 
@@ -131,10 +244,114 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
     draggingRef.current = false;
   };
 
+  const handleCancel = () => {
+    let hasChanges = false;
+
+    // Verifica alterações no CTA (se for tipo node)
+    if (type === 'node' && initialCtaStateRef.current) {
+      const currentCtaState = {
+        ctaActive,
+        ctaText,
+        start,
+        buttonLink,
+        alignment,
+        textStyle,
+        textColor,
+        buttonText,
+        buttonColor,
+        buttonTextColor,
+        borderRadius,
+        ctaTop,
+        ctaLeft,
+      };
+      
+      hasChanges = JSON.stringify(currentCtaState) !== JSON.stringify(initialCtaStateRef.current);
+    }
+
+    // Verifica alterações no Button (se for tipo edge)
+    if (type === 'edge' && initialBtnStateRef.current) {
+      const currentBtnState = {
+        btnActive,
+        textBtn,
+        startBtn,
+        bgColorBtn,
+        textColorBtn,
+        borderRadiusBtn,
+        btnTop,
+        btnLeft,
+      };
+      
+      hasChanges = JSON.stringify(currentBtnState) !== JSON.stringify(initialBtnStateRef.current);
+    }
+
+    const nodesChanged = JSON.stringify(nodes) !== JSON.stringify(initialNodesRef.current);
+
+    if (nodesChanged && initialNodesRef.current.length > 0) {
+      setNodes(initialNodesRef.current);
+      hasChanges = true;
+
+      if (type === 'edge' && !wasPreviouslyConfiguredRef.current && dadosModal) {
+        setEdges((edges) =>
+          edges.filter(
+            (edge) =>
+              !(
+                edge.source === dadosModal.VIDEO.ID &&
+                edge.target === dadosModal.TARGET
+              )
+          )
+        );
+      }
+    }
+
+    if (hasChanges) {
+      showInfo('Alteração cancelada');
+    }
+
+    onClose();
+  };
+
+  const handleSave = () => {
+    initialNodesRef.current = JSON.parse(JSON.stringify(nodes));
+    
+    wasPreviouslyConfiguredRef.current = true;
+    
+    if (type === 'node') {
+      initialCtaStateRef.current = {
+        ctaActive,
+        ctaText,
+        start,
+        buttonLink,
+        alignment,
+        textStyle,
+        textColor,
+        buttonText,
+        buttonColor,
+        buttonTextColor,
+        borderRadius,
+        ctaTop,
+        ctaLeft,
+      };
+    } else if (type === 'edge') {
+      initialBtnStateRef.current = {
+        btnActive,
+        textBtn,
+        startBtn,
+        bgColorBtn,
+        textColorBtn,
+        borderRadiusBtn,
+        btnTop,
+        btnLeft,
+      };
+    }
+
+    showSuccess(type === 'node' ? 'CTA salvo com sucesso!' : 'Conexão salva com sucesso!');
+    
+    onClose();
+  };
+
   const handleDelete = () => {
     if (!dadosModal) return;
 
-    // Remove bond dos nodes
     const newNodes = nodes.map((node) => {
       if (node.id === dadosModal.VIDEO.ID) {
         return {
@@ -164,6 +381,25 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
     );
   };
 
+  const hasSequentialBond = () => {
+    if (!dadosModal) return false;
+    return dadosModal.BONDS.some((bond: Bond) => bond.BUTTON === false);
+  };
+
+  const getSequentialBondInfo = () => {
+    if (!dadosModal) return null;
+    const sequentialBond = dadosModal.BONDS.find(
+      (bond: Bond) => bond.BUTTON === false
+    );
+    if (!sequentialBond) return null;
+
+    const targetNode = nodes.find((n) => n.id === sequentialBond.VIDEO_ID);
+    return {
+      targetId: sequentialBond.VIDEO_ID,
+      targetName: targetNode?.data?.NAME || 'Desconhecido',
+    };
+  };
+
   if (!dadosModal) return null;
 
   return (
@@ -171,10 +407,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
       <div
         className={styles.overlay}
         onClick={() => {
-          onClose();
-          if (type === 'edge' && !btnActive) {
-            handleDelete();
-          }
+          handleCancel();
         }}
       />
 
@@ -182,10 +415,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
         <button
           className={styles.modalFlow_close}
           onClick={() => {
-            onClose();
-            if (type === 'edge' && !btnActive) {
-              handleDelete();
-            }
+            handleCancel();
           }}
         >
           <FontAwesomeIcon icon={faCircleXmark} />
@@ -207,26 +437,30 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
               controlsList="nodownload nofullscreen noplaybackrate"
               disablePictureInPicture
               disableRemotePlayback
+              preload="metadata"
             >
               <source src={dadosModal.VIDEO.URL} type="video/mp4" />
             </video>
 
-            {ctaActive && type === 'node' && start <= timeVideo && (
+            {ctaActive && start <= timeVideo && (
               <div
-                onPointerDown={onPointerDownBtn}
-                onPointerUp={onPointerUpBtn}
+                onPointerDown={type === 'node' ? onPointerDownBtn : undefined}
+                onPointerUp={type === 'node' ? onPointerUpBtn : undefined}
                 style={{
                   position: 'absolute',
                   top: `${ctaTop}%`,
                   left: `${ctaLeft}%`,
                   transform: 'translate(-50%, -50%)',
                   textAlign: alignment as any,
-                  cursor: draggingRef.current ? 'grabbing' : 'grab',
-                  pointerEvents: 'auto',
+                  cursor: type === 'node' 
+                    ? (draggingRef.current ? 'grabbing' : 'grab')
+                    : 'default',
+                  pointerEvents: type === 'node' ? 'auto' : 'none',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   maxWidth: '90%',
+                  opacity: type === 'edge' ? 0.8 : 1,
                 }}
               >
                 <p
@@ -246,7 +480,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
                     borderRadius: `${borderRadius}px`,
                     padding: '8px 16px',
                     border: 'none',
-                    cursor: 'pointer',
+                    cursor: type === 'node' ? 'pointer' : 'default',
                   }}
                 >
                   {buttonText || 'Botão'}
@@ -254,6 +488,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
               </div>
             )}
 
+            {/* Botão atual - Editável quando type='edge' */}
             {btnActive && type === 'edge' && startBtn <= timeVideo && (
               <button
                 onPointerDown={onPointerDownBtn}
@@ -278,9 +513,43 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
                 {textBtn || 'Texto do botão'}
               </button>
             )}
+
+            {/* Outros botões - Preview apenas (não editáveis) */}
+            {otherBonds.map((bond, index) => {
+              if (!bond.BUTTON || bond.BUTTON_START > timeVideo) return null;
+
+              const btnStyle = bond.BUTTON_STYLE && bond.BUTTON_STYLE.length > 0
+                ? JSON.parse(bond.BUTTON_STYLE)
+                : {};
+
+              return (
+                <button
+                  key={`bond-preview-${index}`}
+                  style={{
+                    position: 'absolute',
+                    top: `${btnStyle.btnTop || 50}%`,
+                    left: `${btnStyle.btnLeft || 50}%`,
+                    transform: 'translate(-50%, -50%)',
+                    backgroundColor: btnStyle.backgroundColor || '#23118E',
+                    color: btnStyle.textColor || '#FFFFFF',
+                    borderRadius: `${btnStyle.borderRadius || 0}px`,
+                    padding: '8px 16px',
+                    border: 'none',
+                    cursor: 'default',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxWidth: '90%',
+                    opacity: 0.5,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  {bond.BUTTON_TEXT || 'Texto do botão'}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Informações do vídeo */}
           <div className={styles.modalFlow_view_info}>
             <div className={styles.modalFlow_view_info_left}>
               <p>
@@ -301,11 +570,20 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
               <p>
                 <strong>CTA:</strong> {dadosModal.CTA ? 'Ativo' : 'Inativo'}
               </p>
+              <p>
+                <strong>Sequência:</strong>{' '}
+                {hasSequentialBond() ? (
+                  <span style={{ color: '#5FFFFF' }}>
+                    Ativa 
+                  </span>
+                ) : (
+                  <span style={{ color: '#f2f2f2' }}>Disponível</span>
+                )}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Ferramentas (sidebar direita) */}
         <div className={styles.modalFlow_tools}>
           {type === 'edge' && (
             <ButtonGenerator
@@ -324,6 +602,8 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
               setStart={setStartBtn}
               btnTop={btnTop}
               btnLeft={btnLeft}
+              onCancel={handleCancel}
+              onSave={handleSave}
             />
           )}
 
@@ -354,6 +634,8 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
               setStart={setStart}
               ctaTop={ctaTop}
               ctaLeft={ctaLeft}
+              onCancel={handleCancel}
+              onSave={handleSave}
             />
           )}
         </div>

@@ -156,6 +156,7 @@ export default function CustomNode({
             playsInline
             draggable={false}
             src={data.VIDEO.URL}
+            preload="metadata"
           />
           <div className={styles.videoNode_card_btns}>
             <p className={styles.videoNode_card_btns_node}>

@@ -34,7 +34,11 @@ const VideoModal = ({ videoUrl, onClose }: VideoModalProps) => {
           &times;
         </button>
         {videoUrl ? (
-          <video controls className={styles.videoModal_video}>
+          <video 
+            controls
+            className={styles.videoModal_video}
+            preload="metadata"
+          >
             <source src={videoUrl} type="video/mp4" />
             Seu navegador não suporta a tag de vídeo.
           </video>

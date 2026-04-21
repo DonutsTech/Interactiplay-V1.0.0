@@ -1,6 +1,6 @@
 'use client';
 
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import styles from './CtaGenerator.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBan, faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -40,6 +40,8 @@ interface CtaGeneratorProps {
   setStart: Dispatch<SetStateAction<number>>;
   ctaTop: number;
   ctaLeft: number;
+  onCancel: () => void;
+  onSave: () => void;
 }
 
 const CtaGenerator = ({
@@ -68,9 +70,10 @@ const CtaGenerator = ({
   setStart,
   ctaTop,
   ctaLeft,
+  onCancel,
+  onSave,
 }: CtaGeneratorProps) => {
   const { nodes, setNodes, dadosModal } = useFlow();
-  const [message, setMessage] = useState<string>('');
 
   const saveCta = () => {
     if (!dadosModal) return;
@@ -103,17 +106,9 @@ const CtaGenerator = ({
     });
 
     setNodes(updatedNodes);
-    setMessage('Configurações de CTA salvas com sucesso!');
+    
+    onSave();
   };
-
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage('');
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
 
   const resetCta = () => {
     setCtaText('');
@@ -178,7 +173,6 @@ const CtaGenerator = ({
               </select>
             </div>
 
-            {/* Estilo do Texto */}
             <div className={styles.container_body_styletext}>
               <div className={styles.container_body_styletext_left}>
                 <label htmlFor="styletext">Estilo do Texto:</label>
@@ -316,8 +310,6 @@ const CtaGenerator = ({
         )}
       </div>
 
-      {message && <p className={styles.msg}>{message}</p>}
-
       <div className={styles.container_footer}>
         <button
           className={classNames({
@@ -340,7 +332,7 @@ const CtaGenerator = ({
             [styles.container_footer_btn]: true,
             [styles.container_footer_btn_cancel]: true,
           })}
-          onClick={() => setMessage('')}
+          onClick={onCancel}
         >
           Cancelar
           <FontAwesomeIcon icon={faBan} />

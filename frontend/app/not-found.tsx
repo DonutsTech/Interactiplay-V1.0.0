@@ -20,7 +20,7 @@ export default function NotFound() {
           muted
           className={styles.media_video}
           playsInline
-          preload="auto"
+          preload="metadata"
         >
           <source src="/media/videos/Monstrinho_no0.mp4" type="video/mp4" />
         </video>

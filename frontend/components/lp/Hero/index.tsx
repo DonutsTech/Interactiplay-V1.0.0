@@ -65,6 +65,7 @@ const Hero = () => {
                 loop
                 playsInline
                 className={styles.hero_container_videoMobile}
+                preload="metadata"
               >
                 Seu navegador não suporta vídeo.
               </video>
