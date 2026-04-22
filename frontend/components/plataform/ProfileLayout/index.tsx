@@ -16,7 +16,6 @@ interface ProfileLayoutProps {
   children: ReactNode;
   activeSection: string;
   sections: Array<{ id: string; label: string; path?: string }>;
-  onSectionChange: (sectionId: string) => void;
   showLogoutMobile?: boolean;
 }
 
@@ -24,7 +23,6 @@ const ProfileLayout = ({
   children,
   activeSection,
   sections,
-  onSectionChange,
   showLogoutMobile = false,
 }: ProfileLayoutProps) => {
   const { authUser, logout, loadAuthUser } = useContext(AuthUserContext);
@@ -123,14 +121,6 @@ const ProfileLayout = ({
     }
   };
 
-  const handleSectionClick = (section: (typeof sections)[0]) => {
-    if (section.path) {
-      router.push(section.path);
-    } else {
-      onSectionChange(section.id);
-    }
-  };
-
   return (
     <div className={styles.section}>
       <div className={styles.container}>
@@ -183,7 +173,7 @@ const ProfileLayout = ({
                 className={`${styles.btn} ${
                   activeSection === section.id ? styles.btn_active : ''
                 }`}
-                onClick={() => handleSectionClick(section)}
+
               >
                 {section.label}
               </button>

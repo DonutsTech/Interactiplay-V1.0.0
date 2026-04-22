@@ -13,7 +13,6 @@ export default function UserPlanPage() {
     <ProfileLayout
       activeSection="plan"
       sections={sections}
-      onSectionChange={() => {}}
       showLogoutMobile
     >
       <UserPlan />

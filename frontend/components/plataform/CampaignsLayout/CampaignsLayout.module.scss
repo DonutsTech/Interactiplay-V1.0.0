@@ -1,0 +1,49 @@
+.section {
+  width: 100vw;
+  height: auto;
+  min-height: 100dvh;
+  padding-top: 96px;
+  background: $gradient-linear-1;
+  position: relative;
+
+  .bg {
+    width: 100vw;
+    height: 160px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    // background-color: $color-darkBlue-dark-3;
+    background: $gradient-linear-1;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    height: auto;
+    position: relative;
+    padding-top: 96px;
+
+    &_header {
+      width: 100%;
+      max-width: 1440px;
+      padding-right: 48px;
+      height: 64px;
+      position: fixed;
+      top: 96px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4;
+
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 24px;
+    }
+
+  }
+
+  ;
+}
