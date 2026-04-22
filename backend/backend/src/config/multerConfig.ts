@@ -3,14 +3,15 @@ import multer from 'multer';
 import multerS3 from 'multer-s3';
 import path from 'path';
 import { CustomError } from '../error';
-import { s3 } from './s3';
+import { s3, uploadFileFromS3 } from './s3';
+
+export const MAX_SIZE = 2 * 1024 * 1024 * 1024;
 
 const s3Storage = multerS3({
   s3: s3,
   bucket: 'interacti-uploads',
   contentType: multerS3.AUTO_CONTENT_TYPE,
   key: (req, file, cb) => {
-    console.log(file);
     const now = new Date();
     const dateString = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
     const time = now.getTime();
@@ -38,31 +39,7 @@ const s3Storage = multerS3({
   },
 });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (file.mimetype.startsWith('video/')) {
-      const uploadPath = path.resolve(__dirname, '../../uploads/videos');
-
-      if (!fs.existsSync(uploadPath)) {
-        fs.mkdirSync(uploadPath, { recursive: true });
-        console.log('✅ Pasta criada com sucesso!');
-      }
-
-      cb(null, uploadPath);
-    } else {
-      cb(new CustomError('Tipo de arquivo não suportado para armazenamento local'), '');
-    }
-  },
-  filename: (req, file, cb) => {
-    const now = new Date();
-    const dateString = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
-    const time = now.getTime();
-    const extension = path.extname(file.originalname);
-    const filename = `${dateString}${time}${extension}`;
-
-    cb(null, filename);
-  },
-});
+const storage = multer.memoryStorage();
 
 const allImageTypes = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/webp'];
 const allVideoTypes = ['video/mp4'];
@@ -81,10 +58,18 @@ export const imageUpload = multer({
 });
 
 export const videoUpload = multer({
-  storage: s3Storage,
-  limits: { fileSize: 2 * 1024 * 1024 * 1024, files: 1 },
+  storage: storage,
+  limits: { fileSize: MAX_SIZE, files: 1 },
   fileFilter: (req, file, cb) => {
     if (allVideoTypes.includes(file.mimetype)) {
+      const now = new Date();
+      const dateString = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
+      const time = now.getTime();
+      const extension = path.extname(file.originalname);
+      const filename = `${dateString}${time}${extension}`;
+
+      file.filename = filename;
+
       cb(null, true);
     } else {
       cb(new CustomError('Somente vídeos MP4 são permitidos'));

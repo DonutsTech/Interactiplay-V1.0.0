@@ -1,63 +1,54 @@
-import ffmpeg from 'fluent-ffmpeg';
 import { StatusCodes } from 'http-status-codes';
-import { promisify } from 'util';
-import type { MulterS3File } from '../../@types/file';
 import type { createVideo, UpdateVideo } from '../../@types/interface/video';
-import { deleteFileFromS3 } from '../../config/s3';
+import { deleteFileFromS3, uploadFileFromS3 } from '../../config/s3';
 import { CustomError } from '../../error';
 import { videoModel } from '../../models/video';
 import { campaignVideoService } from '../campaignVideo';
 import { userService } from '../user';
-
-const ffprobeAsync = promisify(ffmpeg.ffprobe);
+import { getMetadata } from '../../utils/format/metadata';
 
 class VideoService {
-  async createVideoForUser(userId: string, file: MulterS3File) {
+  async createVideoForUser(userId: string, file: Express.Multer.File) {
     try {
-      const metadata = (await ffprobeAsync(file.location)) as ffmpeg.FfprobeData;
-
-      if (!metadata || !metadata.format || !metadata.streams) {
-        throw new CustomError('Não foi possível obter a duração do vídeo', StatusCodes.BAD_REQUEST);
+      if (!file) {
+        throw new CustomError('Arquivo de vídeo é obrigatório', StatusCodes.BAD_REQUEST);
       }
 
-      const stream = metadata.streams.find(s => s.codec_type === 'video');
-
-      if (!stream) {
-        throw new CustomError(
-          'Não foi possível obter as informações do stream de vídeo',
-          StatusCodes.BAD_REQUEST,
-        );
-      }
-
-      const create: createVideo = {
-        NAME: file.originalname,
-        SIZE: file.size,
-        FORMAT: file.mimetype.split('/')[1] || '',
-        DURATION: Math.floor(Number(metadata.format.duration)) || 0,
-        ORIENTATION:
-          stream.width && stream.height
-            ? stream.width > stream.height
-              ? 'landscape'
-              : stream.width < stream.height
-                ? 'portrait'
-                : 'square'
-            : 'landscape',
-        HEIGHT: stream.height || 0,
-        WIDTH: stream.width || 0,
-      };
-
-      /*
       const result = await uploadFileFromS3(file);
 
       if (result === '') {
         throw new CustomError('Erro ao fazer upload do vídeo', StatusCodes.INTERNAL_SERVER_ERROR);
       }
-      */
+
+      const metadata = await getMetadata(result);
+
+      if (!metadata) {
+        throw new CustomError('Não foi possível obter as informações do vídeo', StatusCodes.BAD_REQUEST);
+      }
+
+      const { duration, height, width } = metadata;
+
+      const create: createVideo = {
+        NAME: file.originalname,
+        SIZE: file.size,
+        FORMAT: file.mimetype.split('/')[1] || '',
+        DURATION: duration,
+        ORIENTATION:
+          width && height
+            ? width > height
+              ? 'landscape'
+              : width < height
+                ? 'portrait'
+                : 'square'
+            : 'landscape',
+        HEIGHT: height || 0,
+        WIDTH: width || 0,
+      };
 
       const video = await videoModel.create({
         data: {
           ...create,
-          URL: file.location,
+          URL: result,
           USER: {
             connect: {
               ID: userId,

@@ -1,5 +1,7 @@
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { NodeHttpHandler } from '@smithy/node-http-handler';
+import fs from 'fs';
 import { Agent } from 'http';
 import { Agent as HttpsAgent } from 'https';
 
@@ -41,15 +43,15 @@ export async function deleteFileFromS3(key: string) {
   await s3.send(command);
 }
 
-/*
 export async function uploadFileFromS3(file: Express.Multer.File) {
   try {
+    console.log('Uploading file to S3:', file);
     const command = new Upload({
       client: s3,
       params: {
         Bucket: 'interacti-uploads',
         Key: `videos/${file.filename}`,
-        Body: fs.createReadStream(file.path),
+        Body: file.buffer,
         ContentType: file.mimetype,
       },
     });
@@ -60,8 +62,5 @@ export async function uploadFileFromS3(file: Express.Multer.File) {
   } catch (error) {
     console.error('Error uploading file from S3:', error);
     throw error;
-  } finally {
-    fs.unlinkSync(file.path);
   }
 }
-*/
