@@ -1,11 +1,7 @@
 'use client';
 
-import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { ReactNode} from 'react';
 import { useRouter } from 'next/navigation';
-import classNames from 'classnames';
-import { ICampaign } from '@/@types/campaign';
-import { getCampaigns } from '@/service/campaign/capaingnServices';
-import { useError } from '@/context/ErrorContext';
 import BtnG from '../BtnG';
 import styles from './CampaignsLayout.module.scss';
 
@@ -20,31 +16,11 @@ const CampaignsLayout = ({
   activeSection,
 }: CampaignsLayoutProps) => {
   const router = useRouter();
-  const { handleRequest } = useError();
-  const [campanhas, setCampanhas] = useState<ICampaign[]>([]);
 
-  const loadCampanhas = useCallback(async () => {
-    const data = await handleRequest(
-      () => getCampaigns(),
-      {
-        loadingMessage: 'Carregando campanhas...',
-        suppressLoadingToast: true,
-        suppressLoading: true,
-      }
-    );
-
-    if (data && Array.isArray(data)) {
-      setCampanhas(data);
-    }
-  }, [handleRequest]);
-
-  useEffect(() => {
-    loadCampanhas();
-  }, [loadCampanhas]);
 
   return (
     <div className={styles.section}>
-      <div className={styles.bg} />
+      {/* <div className={styles.bg} /> */}
       <div className={styles.container}>
         <div className={styles.container_header}>
           <div
