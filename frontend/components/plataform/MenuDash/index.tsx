@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MouseEvent, useContext, useState, useEffect } from 'react';
+import {  useContext, useState, useEffect } from 'react';
 import logo from '@/assets/images/logo_white_dg.svg';
 import styles from './MenuDash.module.scss';
 import { useRouter, usePathname } from 'next/navigation';
