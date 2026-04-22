@@ -199,6 +199,8 @@ class CampaignService {
       await modelPlayService.deleteModelPlayForCampaign(id);
 
       await campaignModel.deleteBy({ ID: id });
+
+      return { MESSAGE: 'Campanha deletada com sucesso' };
     } catch (error) {
       throw error;
     }

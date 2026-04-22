@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { CreateCampaign } from '../../@types/interface/campaign';
+import type { CreateCampaign, UpdateCampaign } from '../../@types/interface/campaign';
 import { campaignService } from '../../services/campaign';
 
 class CampaignController {
@@ -52,6 +52,10 @@ class CampaignController {
 
   async putCampaignForUserWithFlow(request: Request, response: Response, next: NextFunction) {
     try {
+      const { id } = request.params as { id: string };
+      const body = request.body as UpdateCampaign;
+      const campaign = await campaignService.putCampaignForUserWithFlow(id, body);
+      return response.status(200).json(campaign);
     } catch (error) {
       next(error);
     }
@@ -59,6 +63,9 @@ class CampaignController {
 
   async deleteCampaignForUserWithFlow(request: Request, response: Response, next: NextFunction) {
     try {
+      const { id } = request.params as { id: string };
+      const campaign = await campaignService.deleteCampaignForUserWithFlow(id);
+      return response.status(200).json(campaign);
     } catch (error) {
       next(error);
     }

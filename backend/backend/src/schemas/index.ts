@@ -3,6 +3,7 @@ import { forgetAuth, loginAuth, paymentAuth, registerAuth, resetAuth } from './a
 import { createAutoPlay } from './autoPlay';
 import { createCampaign } from './compaign';
 import { createExternalLink } from './externalLink';
+import { createGancho } from './gancho';
 import { updateUser } from './user';
 import { videoUpdate } from './video';
 
@@ -17,6 +18,7 @@ const schemas: { [key: string]: ObjectSchema } = {
   'autoPlay/create': createAutoPlay,
   'externalLink/create': createExternalLink,
   'campaign/create': createCampaign,
+  'gancho/create': createGancho,
 };
 
 export default schemas;

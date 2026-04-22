@@ -1,3 +1,4 @@
+import type { createGancho } from '../../@types/interface/ganho';
 import { ganchoModel } from '../../models/gancho';
 
 class GanchoService {
@@ -11,6 +12,11 @@ class GanchoService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async createGanchoWithCampaign(campaignId: string, body: createGancho) {
+    try {
+    } catch (error) {}
   }
 }
 
