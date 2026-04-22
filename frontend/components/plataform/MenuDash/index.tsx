@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { MouseEvent, useContext, useState } from 'react';
 import logo from '@/assets/images/logo_white_dg.svg';
 import styles from './MenuDash.module.scss';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useIsMobile } from '@/context/isMobileContext';
 import { formatDateBR } from '@/utils/stringUtils';
 import { getPaymentActive } from '@/service/plan/payment-active';
@@ -28,6 +28,7 @@ const MenuDash = () => {
   const { handleRequest, showConfirmation, showWarning, showInfo } = useError();
   const { setUser } = useContext(UserContext);
   const router = useRouter();
+  const pathname = usePathname();
   const [dropDownOpen, setDropDownOpen] = useState<boolean>(false);
 
   if (isLoading || !authUser) {
@@ -146,15 +147,24 @@ const MenuDash = () => {
         </Link>
 
         <nav className={styles.menuDash_nav}>
-          <Link href="/dashboard" className={styles.menuDash_nav_link}>
+          <Link href="/dashboard" className={classNames({
+            [styles.menuDash_nav_link]: true,
+            [styles.menuDash_nav_link_active]: pathname === '/dashboard',
+          })}>
             Flow
           </Link>
-          <Link href="/dashboard/myvideos" className={styles.menuDash_nav_link}>
+          <Link href="/dashboard/myvideos" className={classNames({
+            [styles.menuDash_nav_link]: true,
+            [styles.menuDash_nav_link_active]: pathname === '/dashboard/myvideos',
+          })}>
             Meus Vídeos
           </Link>
           <Link
-            href="/dashboard/campanhas"
-            className={styles.menuDash_nav_link}
+            href="/dashboard/mycampaigns"
+            className={classNames({
+              [styles.menuDash_nav_link]: true,
+              [styles.menuDash_nav_link_active]: pathname === '/dashboard/mycampaigns',
+            })}
           >
             Campanhas
           </Link>

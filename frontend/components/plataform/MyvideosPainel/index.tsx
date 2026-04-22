@@ -8,11 +8,41 @@ import { getMe } from '@/service/auth/me';
 import { useVideos } from '@/context/VideosContext';
 import VideoCard from '../VideoCard';
 import { useError } from '@/context/ErrorContext';
+import { getCampaigns } from '@/service/campaign/capaingnServices';
+import { ICampaign } from '@/@types/campaign';
 
 const MyvideosPainel = () => {
   const { loadVideos, videoCount, videoLimit, videos, refreshVideos } =
     useVideos();
   const { handleRequest, showConfirmation } = useError();
+  const [campaignVideos, setCampaignVideos] = useState<string[]>([]);
+
+const loadCampaingnVideos = async () => {
+  try {
+    const response = await getCampaigns();
+    if (Array.isArray(response)) {
+      const videoIds = response.flatMap((campaign: ICampaign) =>
+        campaign.CAMPAIGN_VIDEOS 
+          ? campaign.CAMPAIGN_VIDEOS.map((video) => video.VIDEO_ID || video.VIDEO.ID)
+          : []
+      );
+      
+      return [...new Set(videoIds.filter(id => id !== null))];
+    }
+
+    return [];
+  } catch (error) {
+    return [];
+  }
+}
+
+  useEffect(() => {
+    const loadCampaignVideoIds = async () => {
+      const ids = await loadCampaingnVideos();
+      setCampaignVideos(ids);
+    };
+    loadCampaignVideoIds();
+  },[]);
 
   useEffect(() => {
     loadVideos();
@@ -116,6 +146,7 @@ const MyvideosPainel = () => {
                   video={video}
                   onDelete={handleDeleteVideo}
                   onEdit={handleEditVideo}
+                  vinculo={campaignVideos.includes(video.ID)}
                 />
               ))}
             </div>

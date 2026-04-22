@@ -244,7 +244,7 @@
       border-top: 1px solid $color-darkBlue-light-1;
       font-size: 11px;
       color: $color-ciano-light-1;
-      
+
       span {
         display: flex;
         align-items: center;
@@ -255,54 +255,74 @@
 
   // Actions Footer
   &_actions {
+    width: 100%;
     padding: 12px;
     background-color: $color-darkBlue-dark-3;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 8px;
     border-top: 1px solid $color-darkBlue-light-1;
     flex-shrink: 0;
 
-    &_btn {
-      width: 36px;
-      height: 36px;
-      border: none;
-      background-color: $color-blue-light-2;
-      color: $color-white;
-      border-radius: 8px;
-      cursor: pointer;
+    &_vinculo {
+
+
+      &_icon {
+        font-size: 20px;
+        color: $color-ciano-light-1;
+      }
+    }
+
+
+    &_buttons {
+      width: 100%;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      font-size: 15px;
+      justify-content: flex-end;
+      gap: 8px;
+      // border-top: 1px solid $color-darkBlue-light-1;
+      // flex-shrink: 0;
 
-      &:hover {
-        background-color: $color-blue-light-1;
-        transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba($color-blue-light-1, 0.4);
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
-
-      &_delete {
-        background-color: $color-red-base;
+      &_btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        background-color: $color-blue-light-2;
+        color: $color-white;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 15px;
 
         &:hover {
-          background-color: $color-red-light-1;
-          box-shadow: 0 4px 12px rgba($color-red-base, 0.5);
+          background-color: $color-blue-light-1;
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba($color-blue-light-1, 0.4);
         }
-      }
 
-      &:disabled {
-        background-color: $color-gray-dark-2;
-        color: $color-white;
-        cursor: not-allowed;
-        box-shadow: none;
-        transform: none;
-        pointer-events: none;
+        &:active {
+          transform: scale(0.95);
+        }
+
+        &_delete {
+          background-color: $color-red-base;
+
+          &:hover {
+            background-color: $color-red-light-1;
+            box-shadow: 0 4px 12px rgba($color-red-base, 0.5);
+          }
+        }
+
+        &:disabled {
+          background-color: $color-gray-dark-2;
+          color: $color-white;
+          cursor: not-allowed;
+          box-shadow: none;
+          transform: none;
+          pointer-events: none;
+        }
       }
     }
   }

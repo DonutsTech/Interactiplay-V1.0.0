@@ -8,6 +8,7 @@ import {
   faCheck,
   faClock,
   faEye,
+  faLock,
   faPencil,
   faTimes,
   faTrashCan,
@@ -26,9 +27,16 @@ interface VideoCardProps {
   onDelete?: (videoId: string) => void;
   onEdit?: (videoId: string, newName: string) => void;
   onView?: (video: IVideo) => void;
+  vinculo?: boolean; // Placeholder para futura funcionalidade de vinculação a campanhas
 }
 
-const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
+const VideoCard = ({
+  video,
+  onEdit,
+  onDelete,
+  onView,
+  vinculo = false,
+}: VideoCardProps) => {
   const [imageError, setImageError] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState(video.NAME);
@@ -60,15 +68,13 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
     if (playPromiseRef.current) {
       try {
         await playPromiseRef.current;
-      } catch {
-      }
+      } catch {}
     }
 
     try {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleEditName = () => {
@@ -186,43 +192,52 @@ const VideoCard = ({ video, onEdit, onDelete, onView }: VideoCardProps) => {
               <strong>Dimensões:</strong> {video.WIDTH}x{video.HEIGHT}
             </span>
           </div>
-          {/* TODO: Placeholder para indicador de campanha futura */}
-          {/* <div className={styles.videoCard_info_campaign}>
-          <span>📊 Vinculado a: Nome da Campanha</span>
-        </div> */}
         </div>
 
         <div className={styles.videoCard_actions}>
-          {onView && (
-            <button
-              className={styles.videoCard_actions_btn}
-              onClick={() => onView(video)}
-              title="Visualizar vídeo"
-              disabled={!video.URL || isLoading}
+          {vinculo && (
+            <div
+              className={styles.videoCard_actions_vinculo}
+              title="Vídeo vinculado a campanha"
             >
-              <FontAwesomeIcon icon={faEye} />
-            </button>
+              <FontAwesomeIcon
+                icon={faLock}
+                className={styles.videoCard_actions_vinculo_icon}
+              />
+            </div>
           )}
-          {onEdit && (
-            <button
-              className={styles.videoCard_actions_btn}
-              onClick={handleEditName}
-              title="Editar nome do vídeo"
-              disabled={isLoading}
-            >
-              <FontAwesomeIcon icon={faPencil} />
-            </button>
-          )}
-          {onDelete && (
-            <button
-              className={`${styles.videoCard_actions_btn} ${styles.videoCard_actions_btn_delete}`}
-              onClick={() => onDelete(video.ID)}
-              title="Excluir vídeo"
-              disabled={isLoading}
-            >
-              <FontAwesomeIcon icon={faTrashCan} />
-            </button>
-          )}
+          <div className={styles.videoCard_actions_buttons}>
+            {onView && (
+              <button
+                className={styles.videoCard_actions_buttons_btn}
+                onClick={() => onView(video)}
+                title="Visualizar vídeo"
+                disabled={!video.URL || isLoading}
+              >
+                <FontAwesomeIcon icon={faEye} />
+              </button>
+            )}
+            {onEdit && (
+              <button
+                className={styles.videoCard_actions_buttons_btn}
+                onClick={handleEditName}
+                title="Editar nome do vídeo"
+                disabled={isLoading}
+              >
+                <FontAwesomeIcon icon={faPencil} />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                className={`${styles.videoCard_actions_buttons_btn} ${styles.videoCard_actions_buttons_btn_delete}`}
+                onClick={() => onDelete(video.ID)}
+                title="Excluir vídeo"
+                disabled={isLoading || vinculo}
+              >
+                <FontAwesomeIcon icon={faTrashCan} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </>
