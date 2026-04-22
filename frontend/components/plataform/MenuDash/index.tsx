@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MouseEvent, useContext, useState } from 'react';
+import { MouseEvent, useContext, useState, useEffect } from 'react';
 import logo from '@/assets/images/logo_white_dg.svg';
 import styles from './MenuDash.module.scss';
 import { useRouter, usePathname } from 'next/navigation';
@@ -30,6 +30,10 @@ const MenuDash = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [dropDownOpen, setDropDownOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    setDropDownOpen(false);
+  }, [pathname]);
 
   if (isLoading || !authUser) {
     return (
@@ -223,7 +227,6 @@ const MenuDash = () => {
             <Link
               href="/dashboard/user"
               className={styles.menuDash_user_menu_dropdown_link}
-              onClick={() => setDropDownOpen(false)}
             >
               <FontAwesomeIcon
                 icon={faUserAstronaut}
