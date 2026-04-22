@@ -163,7 +163,7 @@ const MenuDash = () => {
             href="/dashboard/mycampaigns"
             className={classNames({
               [styles.menuDash_nav_link]: true,
-              [styles.menuDash_nav_link_active]: pathname === '/dashboard/mycampaigns',
+              [styles.menuDash_nav_link_active]: pathname.includes('/dashboard/mycampaigns'),
             })}
           >
             Campanhas

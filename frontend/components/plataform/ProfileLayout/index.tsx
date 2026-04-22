@@ -116,7 +116,7 @@ const ProfileLayout = ({
         name: '',
         email: '',
         selectedPlan: '',
-      })
+      });
       router.push('/acess/login');
     }
   };
@@ -173,7 +173,7 @@ const ProfileLayout = ({
                 className={`${styles.btn} ${
                   activeSection === section.id ? styles.btn_active : ''
                 }`}
-
+                onClick={() => router.push(section.path || '#')}
               >
                 {section.label}
               </button>

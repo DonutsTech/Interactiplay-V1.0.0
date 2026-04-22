@@ -1,10 +1,13 @@
 'use client';
 
-import { ReactNode } from 'react';
-import styles from './CampaignsLayout.module.scss';
-import { usePathname, useRouter } from 'next/navigation';
-import BtnG from '../BtnG';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import classNames from 'classnames';
+import { ICampaign } from '@/@types/campaign';
+import { getCampaigns } from '@/service/campaign/capaingnServices';
+import { useError } from '@/context/ErrorContext';
+import BtnG from '../BtnG';
+import styles from './CampaignsLayout.module.scss';
 
 interface CampaignsLayoutProps {
   children: ReactNode;
@@ -15,9 +18,29 @@ interface CampaignsLayoutProps {
 const CampaignsLayout = ({
   children,
   activeSection,
-  sections,
 }: CampaignsLayoutProps) => {
   const router = useRouter();
+  const { handleRequest } = useError();
+  const [campanhas, setCampanhas] = useState<ICampaign[]>([]);
+
+  const loadCampanhas = useCallback(async () => {
+    const data = await handleRequest(
+      () => getCampaigns(),
+      {
+        loadingMessage: 'Carregando campanhas...',
+        suppressLoadingToast: true,
+        suppressLoading: true,
+      }
+    );
+
+    if (data && Array.isArray(data)) {
+      setCampanhas(data);
+    }
+  }, [handleRequest]);
+
+  useEffect(() => {
+    loadCampanhas();
+  }, [loadCampanhas]);
 
   return (
     <div className={styles.section}>
@@ -25,12 +48,7 @@ const CampaignsLayout = ({
       <div className={styles.container}>
         <div className={styles.container_header}>
           <div
-            className={classNames({
-              [styles.container_header_btn]: true,
-              [styles.container_header_btn_campanha]: true,
-              [styles.container_header_btn_active]:
-                activeSection === 'campanha',
-            })}
+            className={`${styles.container_header_btn} ${styles.container_header_btn_campanha}`}
           >
             <BtnG
               text="Campanhas"
@@ -40,11 +58,7 @@ const CampaignsLayout = ({
           </div>
 
           <div
-            className={classNames({
-              [styles.container_header_btn]: true,
-              [styles.container_header_btn_testeab]: true,
-              [styles.container_header_btn_active]: activeSection === 'testeab',
-            })}
+            className={`${styles.container_header_btn} ${styles.container_header_btn_testeab}`}
           >
             <BtnG
               text="Teste AB"
