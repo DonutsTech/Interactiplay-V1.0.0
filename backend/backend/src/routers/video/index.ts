@@ -4,7 +4,6 @@ import { videoController } from '../../controllers/video';
 import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
 import { isValidateLimitVideo } from '../../middleware/isValidateLimitVideo';
 import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
-import { isValidateVideoSize } from '../../middleware/isValidateVideoSize';
 
 class VideoRouter {
   public static create(router: Router) {
@@ -13,7 +12,6 @@ class VideoRouter {
       isAuthenticateTokenDb,
       isValidateUserPlan,
       isValidateLimitVideo,
-      isValidateVideoSize,
       videoUpload.single('video'),
       videoController.createVideoForUser,
     );

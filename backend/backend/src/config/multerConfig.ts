@@ -61,6 +61,11 @@ export const videoUpload = multer({
   storage: storage,
   limits: { fileSize: MAX_SIZE, files: 1 },
   fileFilter: (req, file, cb) => {
+    if (file.size > MAX_SIZE) {
+      cb(new CustomError('O tamanho do vídeo excede o limite permitido de 2GB'));
+      return;
+    }
+
     if (allVideoTypes.includes(file.mimetype)) {
       const now = new Date();
       const dateString = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
