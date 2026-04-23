@@ -282,16 +282,6 @@
           }
         }
 
-        &_cancel {
-          button {
-            background-color: $color-red-base;
-
-            &:hover {
-              background-color: $color-red-light-1;
-            }
-          }
-        }
-
         &_save {
           button {
             background-color: $color-green-base;

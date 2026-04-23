@@ -8,7 +8,7 @@ import { getMe } from '@/service/auth/me';
 import { useVideos } from '@/context/VideosContext';
 import VideoCard from '../VideoCard';
 import { useError } from '@/context/ErrorContext';
-import { getCampaigns } from '@/service/campaign/capaingnServices';
+import { getCampaigns } from '@/service/campaign/capaignServices';
 import { ICampaign } from '@/@types/campaign';
 
 const MyvideosPainel = () => {

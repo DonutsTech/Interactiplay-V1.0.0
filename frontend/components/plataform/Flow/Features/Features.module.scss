@@ -132,7 +132,7 @@
 
                 &::before {
                   content: "";
-                  float: right;
+                  // float: right;
                   display: inline-block;
                   margin: 5px 0 5px 10px;
                   border-radius: 7px;
@@ -416,6 +416,10 @@
           transform: scale(1.01);
         }
 
+        &_disabled {
+          pointer-events: none;
+          background-color: $color-gray-dark-2;
+        }
       }
     }
 

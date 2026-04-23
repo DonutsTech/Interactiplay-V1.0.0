@@ -16,7 +16,7 @@ import {
 import BtnG from '../BtnG';
 import { getVideos } from '@/service/videos/videosservice';
 import { useVideos } from '@/context/VideosContext';
-import { getCampaigns } from '@/service/campaign/capaingnServices';
+import { getCampaigns } from '@/service/campaign/capaignServices';
 
 interface IActivePlan {
   PLAYS: number;

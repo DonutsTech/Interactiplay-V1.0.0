@@ -27,7 +27,7 @@ import { convertFlowToCampaignPayload, nodeNew, willCreateCycle } from '@/utils/
 import ModalFlow from './ModalFlow';
 import Features from './Features';
 import BtnG from '../BtnG';
-import { createCampaign } from '@/service/campaign/capaingnServices';
+import { createCampaign } from '@/service/campaign/capaignServices';
 import {
   ICreateCampaignPayload,
   ICreateCampaignVideo,

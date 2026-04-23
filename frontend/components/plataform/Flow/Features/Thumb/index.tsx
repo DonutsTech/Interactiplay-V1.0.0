@@ -10,34 +10,36 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons';
 
 const Thumb = () => {
-
   const [thumbActive, setThumbActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string>('Nenhuma imagem selecionada.');
+  const [fileName, setFileName] = useState<string>(
+    'Nenhuma imagem selecionada.'
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const { isLoading, setIsLoading, showError, showSuccess } = useError();
 
   // Mock de envio para o backend
   const mockSendThumb = async (file: File | null, ativo: boolean) => {
     setIsLoading(true);
-    return new Promise<{ success: boolean; message: string }>((resolve, reject) => {
-      setTimeout(() => {
-        if (ativo && file) {
-          resolve({ success: true, message: 'Thumb enviada e ativada!' });
-        } else if (!ativo) {
-          resolve({ success: true, message: 'Thumb desativada.' });
-        } else {
-          reject(new Error('Erro ao enviar thumb.'));
-        }
-        setIsLoading(false);
-      }, 1200);
-    });
+    return new Promise<{ success: boolean; message: string }>(
+      (resolve, reject) => {
+        setTimeout(() => {
+          if (ativo && file) {
+            resolve({ success: true, message: 'Thumb enviada e ativada!' });
+          } else if (!ativo) {
+            resolve({ success: true, message: 'Thumb desativada.' });
+          } else {
+            reject(new Error('Erro ao enviar thumb.'));
+          }
+          setIsLoading(false);
+        }, 1200);
+      }
+    );
   };
 
   // Resetar Thumb (desativa, não apaga arquivo)
   const resetThumb = () => {
     setThumbActive(false);
-    showSuccess('Thumb desativada.');
   };
 
   // Excluir arquivo Thumb (apaga arquivo e desativa)
@@ -71,13 +73,11 @@ const Thumb = () => {
     }
   };
 
-  // Seleção de arquivo
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     handleFile(file);
   };
 
-  // Função para tratar arquivo (input ou drop)
   const handleFile = (file?: File) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
@@ -93,7 +93,6 @@ const Thumb = () => {
     setFileName(file.name);
   };
 
-  // Drag and drop handlers
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -110,28 +109,26 @@ const Thumb = () => {
   return (
     <div className={styles.tool}>
       <div className={styles.tool_content}>
-        {!thumbActive && (
-          <div className={styles.toggle}>
-            <div className={styles.checkBox_wrapper}>
-              <input
-                type="checkbox"
-                name="thumbActive"
-                id="thumbActive"
-                checked={thumbActive}
-                onChange={() => {
-                  const active = !thumbActive;
-                  setThumbActive(active);
-                  if (!active) {
-                    resetThumb();
-                  }
-                }}
-              />
-              <label htmlFor="thumbActive">
-                {thumbActive ? 'Ativo' : 'Ativar'}
-              </label>
-            </div>
+        <div className={styles.toggle}>
+          <div className={styles.checkBox_wrapper}>
+            <input
+              type="checkbox"
+              name="thumbActive"
+              id="thumbActive"
+              checked={thumbActive}
+              onChange={() => {
+                const active = !thumbActive;
+                setThumbActive(active);
+                if (!active) {
+                  resetThumb();
+                }
+              }}
+            />
+            <label htmlFor="thumbActive">
+              {thumbActive ? 'Ativo' : 'Ativar'}
+            </label>
           </div>
-        )}
+        </div>
 
         {thumbActive && (
           <div className={styles.container}>
@@ -179,11 +176,10 @@ const Thumb = () => {
                 <span>{fileName}</span>
               </span>
               <div className={styles.btnBox_btns}>
-                <div className={`${styles.btnBox_btns_btn} ${styles.btnBox_btns_btn_excluir}`}>
-                  <BtnG
-                    text="Excluir Thumb"
-                    goClick={handleDelete}
-                  />
+                <div
+                  className={`${styles.btnBox_btns_btn} ${styles.btnBox_btns_btn_excluir}`}
+                >
+                  <BtnG text="Excluir Thumb" goClick={handleDelete} />
                 </div>
               </div>
             </div>
@@ -191,18 +187,8 @@ const Thumb = () => {
         )}
 
         <div className={styles.actions}>
-          <div className={`${styles.actions_btn} ${styles.actions_btn_cancel}`}>
-            <BtnG
-              text="Cancelar"
-              goClick={resetThumb}
-            />
-          </div>
           <div className={`${styles.actions_btn} ${styles.actions_btn_save}`}>
-            <BtnG
-              text="Salvar"
-              goClick={handleSave}
-              disabled={isLoading}
-            />
+            <BtnG text="Salvar" goClick={handleSave} disabled={isLoading} />
           </div>
         </div>
       </div>

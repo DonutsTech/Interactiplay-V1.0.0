@@ -29,6 +29,7 @@ interface IStep {
 const Features = ({ campaing, onClose }: IFeaturesProps) => {
   const [isToggled, setIsToggled] = useState(true);
   const [stepIndex, setStepIndex] = useState(0);
+  const { isLoading } = useError();
 
   const steps: IStep[] = [
     {
@@ -197,7 +198,10 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
               {steps.slice(0, steps.length).map((_, i) => (
                 <div
                   key={i}
-                  className={`${styles.tools_footer_step} ${stepIndex === i ? styles.tools_footer_step_active : ''}`}
+                  className={`${styles.tools_footer_step} 
+                  ${stepIndex === i ? styles.tools_footer_step_active : ''}
+                  ${isLoading ? styles.tools_footer_step_disabled : ''}
+                  `}
                   onClick={() => {
                     setStepIndex(i);
                   }}

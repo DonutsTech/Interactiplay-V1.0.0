@@ -8,7 +8,7 @@ import { ICampaign } from '@/@types/campaign';
 import {
   getCampaigns,
   deleteCampaign,
-} from '@/service/campaign/capaingnServices';
+} from '@/service/campaign/capaignServices';
 import CardCampaign from './CardCampaign';
 import { ErrorMessage } from '@/@types/error';
 import { useRouter } from 'next/navigation';
