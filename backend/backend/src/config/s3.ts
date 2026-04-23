@@ -4,7 +4,6 @@ import { NodeHttpHandler } from '@smithy/node-http-handler';
 import { createReadStream } from 'fs';
 import { Agent } from 'http';
 import { Agent as HttpsAgent } from 'https';
-import { deleteFile } from '../utils/deleteFile';
 
 export const s3 = new S3Client({
   region: process.env.AWS_REGION!,
@@ -63,11 +62,8 @@ export async function uploadFileFromS3(file: Express.Multer.File) {
 
     const result = await command.done();
 
-    await deleteFile(file.path);
-
     return result.Location || '';
   } catch (error) {
-    await deleteFile(file.path);
     console.error('Error uploading file from S3:', error);
     throw error;
   }

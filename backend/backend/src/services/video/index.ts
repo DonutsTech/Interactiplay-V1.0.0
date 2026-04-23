@@ -3,6 +3,7 @@ import type { createVideo, UpdateVideo } from '../../@types/interface/video';
 import { deleteFileFromS3, uploadFileFromS3 } from '../../config/s3';
 import { CustomError } from '../../error';
 import { videoModel } from '../../models/video';
+import { deleteFile } from '../../utils/deleteFile';
 import { getMetadata } from '../../utils/format/metadata';
 import { campaignVideoService } from '../campaignVideo';
 import { userService } from '../user';
@@ -14,7 +15,16 @@ class VideoService {
         throw new CustomError('Arquivo de vídeo é obrigatório', StatusCodes.BAD_REQUEST);
       }
 
-      const metadata = await getMetadata(file.path);
+      console.time('parallel-processing');
+
+      const [uploadResult, metadata] = await Promise.all([
+        uploadFileFromS3(file),
+        getMetadata(file.path),
+      ]);
+
+      console.time('parallel-processing-acabou');
+
+      await deleteFile(file.path);
 
       if (!metadata) {
         throw new CustomError(
@@ -23,9 +33,7 @@ class VideoService {
         );
       }
 
-      const result = await uploadFileFromS3(file);
-
-      if (result === '') {
+      if (uploadResult === '') {
         throw new CustomError('Erro ao fazer upload do vídeo', StatusCodes.INTERNAL_SERVER_ERROR);
       }
 
@@ -51,7 +59,7 @@ class VideoService {
       const video = await videoModel.create({
         data: {
           ...create,
-          URL: result,
+          URL: uploadResult,
           USER: {
             connect: {
               ID: userId,

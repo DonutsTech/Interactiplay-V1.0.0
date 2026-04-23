@@ -1,4 +1,4 @@
-import ffmpeg from 'fluent-ffmpeg';
+import Ffmpeg from 'fluent-ffmpeg';
 import { CustomError } from '../../error';
 
 interface VideoMetadata {
@@ -17,11 +17,15 @@ export function getMetadata(file: string, timeoutMs = 15000): Promise<VideoMetad
       reject(new CustomError('Timeout ao obter metadados do vídeo', 500));
     }, timeoutMs);
 
-    const command = ffmpeg().input(file).inputOptions([
+    const command = Ffmpeg().input(file).inputOptions([
       '-analyzeduration',
-      '2000000', // 2 segundos para análise
+      '500000', // 0.5 segundo (bem restritivo)
       '-probesize',
-      '50000000', // 50MB para probe
+      '2000000', // 2MB apenas (muito restritivo)
+      '-v',
+      'error', // Suprime logs desnecessários
+      '-threads',
+      '1', // Usa apenas 1 thread para ser mais rápido
     ]);
 
     command.ffprobe((err, metadata) => {
@@ -57,6 +61,7 @@ export function getMetadata(file: string, timeoutMs = 15000): Promise<VideoMetad
 }
 
 /*
+
 import { exec } from "child_process";
 import { CustomError } from "../../error";
 
