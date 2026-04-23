@@ -3,9 +3,9 @@ import type { createVideo, UpdateVideo } from '../../@types/interface/video';
 import { deleteFileFromS3, uploadFileFromS3 } from '../../config/s3';
 import { CustomError } from '../../error';
 import { videoModel } from '../../models/video';
+import { getMetadata } from '../../utils/format/metadata';
 import { campaignVideoService } from '../campaignVideo';
 import { userService } from '../user';
-import { getMetadata } from '../../utils/format/metadata';
 
 class VideoService {
   async createVideoForUser(userId: string, file: Express.Multer.File) {
@@ -14,16 +14,19 @@ class VideoService {
         throw new CustomError('Arquivo de vídeo é obrigatório', StatusCodes.BAD_REQUEST);
       }
 
+      const metadata = await getMetadata(file.path);
+
+      if (!metadata) {
+        throw new CustomError(
+          'Não foi possível obter as informações do vídeo',
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
       const result = await uploadFileFromS3(file);
 
       if (result === '') {
         throw new CustomError('Erro ao fazer upload do vídeo', StatusCodes.INTERNAL_SERVER_ERROR);
-      }
-
-      const metadata = await getMetadata(result);
-
-      if (!metadata) {
-        throw new CustomError('Não foi possível obter as informações do vídeo', StatusCodes.BAD_REQUEST);
       }
 
       const { duration, height, width } = metadata;

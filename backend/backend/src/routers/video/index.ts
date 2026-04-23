@@ -22,19 +22,23 @@ class VideoRouter {
       isValidateUserPlan,
       videoController.getVideosAllForUser,
     );
+
     router.get(
       '/user/videos/:id',
       isAuthenticateTokenDb,
       isValidateUserPlan,
       videoController.getVideoByIdForUser,
     );
+
     router.get('/videos', isAuthenticateTokenDb, isValidateUserPlan, videoController.getVideosAll);
+
     router.get(
       '/videos/:id',
       isAuthenticateTokenDb,
       isValidateUserPlan,
       videoController.getVideoById,
     );
+
     router.put(
       '/user/videos/:id',
       isAuthenticateTokenDb,
@@ -42,6 +46,7 @@ class VideoRouter {
       schemaValidator('video/update'),
       videoController.putVideoForUser,
     );
+
     router.delete(
       '/user/videos/:id',
       isAuthenticateTokenDb,

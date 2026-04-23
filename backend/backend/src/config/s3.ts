@@ -1,9 +1,10 @@
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { NodeHttpHandler } from '@smithy/node-http-handler';
-import fs from 'fs';
+import { createReadStream } from 'fs';
 import { Agent } from 'http';
 import { Agent as HttpsAgent } from 'https';
+import { deleteFile } from '../utils/deleteFile';
 
 export const s3 = new S3Client({
   region: process.env.AWS_REGION!,
@@ -45,21 +46,28 @@ export async function deleteFileFromS3(key: string) {
 
 export async function uploadFileFromS3(file: Express.Multer.File) {
   try {
-    console.log('Uploading file to S3:', file);
+    const fileStream = createReadStream(file.path);
+
     const command = new Upload({
       client: s3,
       params: {
         Bucket: 'interacti-uploads',
         Key: `videos/${file.filename}`,
-        Body: file.buffer,
+        Body: fileStream,
         ContentType: file.mimetype,
       },
+      partSize: 5 * 1024 * 1024,
+      queueSize: 3,
+      leavePartsOnError: false,
     });
 
     const result = await command.done();
 
+    await deleteFile(file.path);
+
     return result.Location || '';
   } catch (error) {
+    await deleteFile(file.path);
     console.error('Error uploading file from S3:', error);
     throw error;
   }
