@@ -4,6 +4,7 @@ import { AuthUserProvider } from './AuthUserContext';
 import { ErrorProvider } from './ErrorContext';
 import { VideosProvider } from './VideosContext';
 import { FlowProvider } from './FlowContext';
+import { EditCampaignProvider } from './EditCampaignContext';
 
 type ProviderProps = {
   children: React.ReactNode;
@@ -26,6 +27,7 @@ const provider: ProviderComponent[] = [
   AuthUserProvider,
   VideosProvider,
   FlowProvider,
+  EditCampaignProvider,
 ];
 
 export const AppProvider = composeProviders(provider);

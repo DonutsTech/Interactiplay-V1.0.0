@@ -10,6 +10,7 @@ import CtaGenerator from './CtaGenerator';
 import { formatDuration } from '@/utils/videoUtils';
 import { Bond } from '@/@types/flow';
 import { useError } from '@/context/ErrorContext';
+import { orderForEdges } from '@/utils/flowUteis';
 
 interface ModalFlowProps {
   onClose: () => void;
@@ -72,6 +73,16 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
                 BONDS: node.data.BONDS.filter(
                   (b: Bond) => b.VIDEO_ID !== dadosModal.TARGET
                 ),
+              },
+            };
+          }
+          // Reseta o ORDER do target node para null quando cancelar uma nova conexão
+          if (node.id === dadosModal.TARGET) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                ORDER: null,
               },
             };
           }
@@ -287,7 +298,10 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
     const nodesChanged = JSON.stringify(nodes) !== JSON.stringify(initialNodesRef.current);
 
     if (nodesChanged && initialNodesRef.current.length > 0) {
-      setNodes(initialNodesRef.current);
+      // Restaura os nodes iniciais e recalcula as ordens
+      const restoredNodes = initialNodesRef.current;
+      const reorderedNodes = orderForEdges(restoredNodes);
+      setNodes(reorderedNodes || restoredNodes);
       hasChanges = true;
 
       if (type === 'edge' && !wasPreviouslyConfiguredRef.current && dadosModal) {

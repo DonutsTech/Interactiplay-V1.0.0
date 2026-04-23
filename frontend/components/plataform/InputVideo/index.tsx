@@ -20,9 +20,10 @@ const InputVideo = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-
+    
     if (!file) return;
 
+    
     if (videoCount >= videoLimit) {
       showWarning(
         'Limite de vídeos atingido. Por favor, exclua um vídeo existente para adicionar um novo.'
@@ -36,7 +37,8 @@ const InputVideo = () => {
       return;
     }
 
-    const maxSize = 2 * 1024 * 1024 * 1024;
+    const maxSize = 2000000000;
+        console.log('tamanho do arquivo:', file.size, maxSize);
     if (file.size > maxSize) {
       showWarning('O vídeo excede o tamanho máximo permitido de 2GB.');
       return;
@@ -82,7 +84,7 @@ const InputVideo = () => {
           </p>
           <input
             type="file"
-            accept="video/mp4,video/webm,video/ogg,video/quicktime"
+            accept="video/mp4"
             title="Clique ou arraste o arquivo"
             className={styles.inputVideo_input}
             onChange={handleVideoUpload}

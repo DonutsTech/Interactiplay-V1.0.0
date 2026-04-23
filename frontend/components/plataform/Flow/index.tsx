@@ -25,14 +25,17 @@ import { useVideos } from '@/context/VideosContext';
 import { useError } from '@/context/ErrorContext';
 import { convertFlowToCampaignPayload, nodeNew, willCreateCycle } from '@/utils/flowUteis';
 import ModalFlow from './ModalFlow';
+import Features from './Features';
 import BtnG from '../BtnG';
-import { createCampaign, getCampaigns } from '@/service/campaign/capaingnServices';
+import { createCampaign } from '@/service/campaign/capaingnServices';
 import {
   ICreateCampaignPayload,
   ICreateCampaignVideo,
   ICreateBondsCampaign,
+  ICampaign,
 } from '@/@types/campaign';
 import { isURL, isValidUrl } from '@/utils/urlValidator';
+import { useEditCampaign } from '@/context/EditCampaignContext';
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -48,10 +51,14 @@ const onDragOver = (event: DragEvent) => {
 };
 
 const Flow = () => {
+  const { editingCampaign, setEditingCampaign } = useEditCampaign();
   const [nameCampaign, setNameCampaign] = useState('Nome da campanha');
   const [isEditing, setIsEditing] = useState(false);
+  const [featuresModalOpen, setFeaturesModalOpen] = useState(false);
+  const [savedCampaign, setSavedCampaign] = useState<ICampaign | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const menuAcervoRef = useRef<{ closeMenu: () => void }>(null);
+
   const {
     nodes,
     edges,
@@ -77,10 +84,6 @@ const Flow = () => {
     []
   );
 
-  /**
-   * Limpa o flow quando o usuário sair da tela
-   * Cleanup automático no unmount do componente
-   */
   useEffect(() => {
     return () => {
       // Cleanup: limpa todos os dados quando desmonta
@@ -90,6 +93,16 @@ const Flow = () => {
       setDadosModal(undefined);
     };
   }, [setNodes, setEdges, setModalOpen, setDadosModal]);
+
+  // Detecta se há uma campanha sendo editada no context
+  useEffect(() => {
+    if (editingCampaign) {
+      setSavedCampaign(editingCampaign);
+      setFeaturesModalOpen(true);
+      // Limpa o context após abrir o modal
+      setEditingCampaign(null);
+    }
+  }, [editingCampaign, setEditingCampaign]);
 
   const onDrop = useCallback(
     (event: DragEvent) => {
@@ -227,8 +240,6 @@ const Flow = () => {
 
   const handleSave = useCallback(async () => {
 
-
-    // Validação: nome da campanha
     if (
       !nameCampaign ||
       nameCampaign.trim().length < 3 ||
@@ -240,7 +251,6 @@ const Flow = () => {
       return;
     }
 
-    // Validação: pelo menos 1 vídeo
     if (nodes.length === 0) {
       showWarning('Adicione pelo menos um vídeo ao flow antes de salvar.');
       return;
@@ -257,22 +267,23 @@ const Flow = () => {
     const payload = convertFlowToCampaignPayload(nameCampaign, nodes);
     console.log('Payload para salvar campanha:', payload);
 
-    // Salva campanha
     const result = await createCampaign(payload);
     console.log('Resposta da criação de campanha:', result);
 
-    // Verifica se há erro
     if ('STATUS' in result && 'MESSAGE' in result) {
       showWarning(result.MESSAGE);
       return;
     }
 
-    // Sucesso!
+    // Armazena a campanha criada e abre o modal Features
+    setSavedCampaign(result as ICampaign);
+    setFeaturesModalOpen(true);
+
     showInfo(
       `Campanha "${nameCampaign}" salva com sucesso! ${nodes.length} vídeo(s) adicionado(s).`
     );
 
-    // Limpa o flow após salvar
+    // Limpa o flow
     setNodes([]);
     setEdges([]);
     setNameCampaign('Nome da campanha');
@@ -333,6 +344,17 @@ const Flow = () => {
       {modalOpen && (
         <ModalFlow onClose={() => setModalOpen(false)} type={typeModal} />
       )}
+
+      {featuresModalOpen && savedCampaign && (
+        <Features
+          campaing={savedCampaign}
+          onClose={() => {
+            setFeaturesModalOpen(false);
+            setSavedCampaign(null);
+          }}
+        />
+      )}
+
       {hasChanges && (
         <div className={styles.actions}>
           <div className={`${styles.actions_btn}  ${styles.actions_btn_save}`}>

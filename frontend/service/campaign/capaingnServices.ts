@@ -52,8 +52,22 @@ export const getCampaignById = async(
   campaignId: string
 ): Promise<ICampaign | ErrorMessage> => {
   try {
+    const token = getToken();
+
+    if (!token) {
+      return {
+        STATUS: 401,
+        MESSAGE: 'Token de autenticação não encontrado.',
+      } as ErrorMessage;
+    }
+
     const { data } = await api.get<ICampaign>(
-      `${CAMPAIGN_URL}/${campaignId}`
+      `${CAMPAIGN_URL}/${campaignId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
     if (!data) {

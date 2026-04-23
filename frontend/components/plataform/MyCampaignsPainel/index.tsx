@@ -1,6 +1,7 @@
 'use client';
 
 import { useError } from '@/context/ErrorContext';
+import { useEditCampaign } from '@/context/EditCampaignContext';
 import styles from './MyCampaignsPainel.module.scss';
 import { useCallback, useEffect, useState } from 'react';
 import { ICampaign } from '@/@types/campaign';
@@ -10,9 +11,12 @@ import {
 } from '@/service/campaign/capaingnServices';
 import CardCampaign from './CardCampaign';
 import { ErrorMessage } from '@/@types/error';
+import { useRouter } from 'next/navigation';
 
 const MyCampaignsPainel = () => {
   const { handleRequest, showConfirmation } = useError();
+  const { setEditingCampaign } = useEditCampaign();
+  const router = useRouter();
   const [campanhas, setCampanhas] = useState<ICampaign[]>([]);
 
   const loadCampanhas = useCallback(async () => {
@@ -58,9 +62,11 @@ const MyCampaignsPainel = () => {
 
   const handleEdit = useCallback(
     async (campaign: ICampaign) => {
-     // TODO: Implementar visualização da campanha
-    console.log('Editar campanha:', campaign);
-    }, []);
+      setEditingCampaign(campaign);
+      router.push('/dashboard');
+    },
+    [router, setEditingCampaign]
+  );
 
   const handleView = useCallback((campaign: ICampaign) => {
     // TODO: Implementar visualização da campanha
