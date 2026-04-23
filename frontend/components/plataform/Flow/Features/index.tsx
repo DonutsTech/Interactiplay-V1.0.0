@@ -13,6 +13,7 @@ import {
 import BtnG from '../../BtnG';
 import classNames from 'classnames';
 import { useError } from '@/context/ErrorContext';
+import AutoPlay from './AutoPlay';
 
 interface IFeaturesProps {
   campaing: ICampaign;
@@ -42,6 +43,9 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
       step: 1,
       name: 'Auto Play',
       description: 'Ative o autoplay para iniciar o vídeo em loop automático.',
+      children: <AutoPlay 
+        duration={campaing.CAMPAIGN_VIDEOS[0].VIDEO.DURATION}
+      />,
     },
     {
       step: 2,
@@ -66,7 +70,6 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
     },
   ];
 
-  console.log('Current stepIndex:', stepIndex, 'é', steps[stepIndex].step);
 
   return (
     <section className={styles.wrapper}>
