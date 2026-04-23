@@ -1,0 +1,92 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.inputThumb {
+  border: 2px dashed #aaa;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  background: #181a20;
+  transition: background 0.2s;
+}
+.inputThumb_disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.inputThumb_icon {
+  font-size: 32px;
+  color: #00bcd4;
+  margin-bottom: 8px;
+}
+.inputThumb_text {
+  color: #fff;
+  margin-bottom: 8px;
+}
+.inputThumb_input {
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 8px;
+}
+.inputThumb_msg {
+  color: #ff5252;
+  margin-top: 8px;
+}
+.inputThumb_spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.inputThumb_spinnerIcon {
+  color: #00bcd4;
+}
+.inputThumb_spinnerText {
+  color: #fff;
+}
+.recommendation {
+  color: #aaa;
+  font-size: 12px;
+}
+.btnBox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.btnBox_name {
+  color: #fff;
+  font-size: 14px;
+}
+.btnBox_btns {
+  display: flex;
+  gap: 8px;
+}
+.btnBox_btns_btn {
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btnBox_btns_btn_excluir {
+  background: #ff5252;
+}
+.btnBox_btns_btn_salvar {
+  background: #00bcd4;
+}
+.btnBox_btns_btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
