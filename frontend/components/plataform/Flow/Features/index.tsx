@@ -30,13 +30,12 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
   const [isToggled, setIsToggled] = useState(true);
   const [stepIndex, setStepIndex] = useState(0);
 
-
-
   const steps: IStep[] = [
     {
       step: 0,
       name: 'Thumb',
       description: 'Adicione uma imagem para personalizar sua campanha.',
+      children: <Thumb />,
     },
     {
       step: 1,
@@ -164,17 +163,32 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
           <div className={styles.tools}>
             <div className={styles.tools_body}>
               <div className={styles.tools_body_content}>
-                {steps.filter((s) => s.step === stepIndex).map((s) => (
-                  <div key={s.step} className={styles.tools_body_content_item}>
-                  <div className={styles.tools_body_content_item_header}>
-                    <h4 className={styles.tools_body_content_item_header_title}>{s.name}</h4>
-                    <p className={styles.tools_body_content_item_header_desc}>{s.description}</p>
-                  </div>
-                  <div className={styles.tools_body_content_item_body}>
-
-                  </div>
-                  </div>
-                ))}
+                {steps
+                  .filter((s) => s.step === stepIndex)
+                  .map((s) => (
+                    <div
+                      key={s.step}
+                      className={styles.tools_body_content_item}
+                    >
+                      <div className={styles.tools_body_content_item_header}>
+                        <h4
+                          className={
+                            styles.tools_body_content_item_header_title
+                          }
+                        >
+                          {s.name}
+                        </h4>
+                        <p
+                          className={styles.tools_body_content_item_header_desc}
+                        >
+                          {s.description}
+                        </p>
+                      </div>
+                      <div className={styles.tools_body_content_item_body}>
+                        {s.children}
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
 
@@ -183,9 +197,9 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
               {steps.slice(0, steps.length).map((_, i) => (
                 <div
                   key={i}
-                  className={ `${styles.tools_footer_step} ${stepIndex === i ? styles.tools_footer_step_active : ''}` }
+                  className={`${styles.tools_footer_step} ${stepIndex === i ? styles.tools_footer_step_active : ''}`}
                   onClick={() => {
-                    setStepIndex(i)
+                    setStepIndex(i);
                   }}
                 />
               ))}

@@ -1,138 +1,209 @@
-// Thumb feature migrado do IP para V100
 'use client';
 
 import { useRef, useState } from 'react';
-import styles from './styles.module.scss';
+import styles from './Thumb.module.scss';
+import BtnG from '@/components/plataform/BtnG';
 import classNames from 'classnames';
+import { useError } from '@/context/ErrorContext';
+import { AnimatedLogo } from '@/components/globals/AnimateLogo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUpFromBracket, faCheck, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons';
-// TODO: Implemente os serviços reais no V100
-// import { thumbService, thumbServiceDelete } from '@/services/thumbService';
+import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons';
 
-interface ThumbProps {
-  token: string;
-  campaignId: string;
-  fetchCampaignData: () => Promise<void>;
-  image: boolean;
-}
+const Thumb = () => {
 
-const Thumb = ({ token, campaignId, fetchCampaignData, image }: ThumbProps) => {
-  const [msg, setMsg] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [thumbActive, setThumbActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>('Nenhuma imagem selecionada.');
   const inputRef = useRef<HTMLInputElement>(null);
+  const { isLoading, setIsLoading, showError, showSuccess } = useError();
 
+  // Mock de envio para o backend
+  const mockSendThumb = async (file: File | null, ativo: boolean) => {
+    setIsLoading(true);
+    return new Promise<{ success: boolean; message: string }>((resolve, reject) => {
+      setTimeout(() => {
+        if (ativo && file) {
+          resolve({ success: true, message: 'Thumb enviada e ativada!' });
+        } else if (!ativo) {
+          resolve({ success: true, message: 'Thumb desativada.' });
+        } else {
+          reject(new Error('Erro ao enviar thumb.'));
+        }
+        setIsLoading(false);
+      }, 1200);
+    });
+  };
+
+  // Resetar Thumb (desativa, não apaga arquivo)
+  const resetThumb = () => {
+    setThumbActive(false);
+    showSuccess('Thumb desativada.');
+  };
+
+  // Excluir arquivo Thumb (apaga arquivo e desativa)
+  const handleDelete = () => {
+    setSelectedFile(null);
+    setFileName('Nenhuma imagem selecionada.');
+    setThumbActive(false);
+    showSuccess('Thumb excluída.');
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  // Salvar Thumb (ativa se arquivo, inativa se não)
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      if (!selectedFile) {
+        // Salva como inativo
+        await mockSendThumb(null, false);
+        setThumbActive(false);
+        showSuccess('Thumb salva como inativa.');
+      } else {
+        // Salva como ativo
+        await mockSendThumb(selectedFile, true);
+        setThumbActive(true);
+        showSuccess('Thumb enviada e ativada!');
+      }
+    } catch (err: any) {
+      showError(err.message || 'Erro ao salvar thumb.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Seleção de arquivo
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file?.type.startsWith('image/')) {
-      setMsg('Por favor, selecione um arquivo de imagem válido.');
-      setTimeout(() => setMsg(''), 3000);
+    handleFile(file);
+  };
+
+  // Função para tratar arquivo (input ou drop)
+  const handleFile = (file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showError('Por favor, selecione um arquivo de imagem válido.');
       return;
     }
-    const maxSize = 5 * 1024 * 1024;
+    const maxSize = 50 * 1024 * 1024;
     if (file.size > maxSize) {
-      setMsg('A imagem deve ter no max 5mb.');
-      setTimeout(() => setMsg(''), 3000);
+      showError('A imagem deve ter no máximo 50MB.');
       return;
     }
     setSelectedFile(file);
     setFileName(file.name);
-    setMsg('');
   };
 
-  const handleUpload = async () => {
-    if (selectedFile === null) {
-      setMsg('selecione uma imagem primeiro.');
-      setTimeout(() => setMsg(''), 3000);
-      return;
-    }
-    setLoading(true);
-    setMsg('');
-    try {
-      // const response = await thumbService(campaignId, token, selectedFile);
-      // setMsg(response.message || 'Thumbnail enviada com sucesso!');
-      setMsg('Thumbnail enviada com sucesso! (mock)');
-      setTimeout(() => setMsg(''), 3000);
-      if (inputRef.current) inputRef.current.value = '';
-      setSelectedFile(null);
-      setFileName('Nenhuma imagem selecionada.');
-      await fetchCampaignData();
-    } catch (error) {
-      setMsg(error instanceof Error ? error.message : 'Erro ao enviar thumbnail');
-      setTimeout(() => setMsg(''), 3000);
-    } finally {
-      setLoading(false);
-    }
+  // Drag and drop handlers
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (isLoading) return;
+    const file = event.dataTransfer.files?.[0];
+    handleFile(file);
   };
 
-  const handleDelete = async () => {
-    setLoading(true);
-    try {
-      // await thumbServiceDelete(campaignId, token);
-      await fetchCampaignData();
-    } catch (error) {
-      setMsg(error instanceof Error ? error.message : 'Erro ao excluir thumbnail');
-      setTimeout(() => setMsg(''), 3000);
-    } finally {
-      setLoading(false);
-    }
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
   };
 
   return (
-    <div className={styles.content}>
-      <div className={classNames({
-        [styles.inputThumb]: true,
-        [styles.inputThumb_disabled]: loading || msg !== '',
-      })}>
-        {loading && (
-          <div className={styles.inputThumb_spinner}>
-            <FontAwesomeIcon icon={faSpinner} spin className={styles.inputThumb_spinnerIcon} />
-            <span className={styles.inputThumb_spinnerText}>Enviando thumbnail...</span>
+    <div className={styles.tool}>
+      <div className={styles.tool_content}>
+        {!thumbActive && (
+          <div className={styles.toggle}>
+            <div className={styles.checkBox_wrapper}>
+              <input
+                type="checkbox"
+                name="thumbActive"
+                id="thumbActive"
+                checked={thumbActive}
+                onChange={() => {
+                  const active = !thumbActive;
+                  setThumbActive(active);
+                  if (!active) {
+                    resetThumb();
+                  }
+                }}
+              />
+              <label htmlFor="thumbActive">
+                {thumbActive ? 'Ativo' : 'Ativar'}
+              </label>
+            </div>
           </div>
         )}
-        <FontAwesomeIcon icon={faArrowUpFromBracket} className={styles.inputThumb_icon} />
-        <p className={styles.inputThumb_text}>Clique ou arraste a imagem</p>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          title='Clique ou arraste a imagem'
-          className={styles.inputThumb_input}
-          onChange={handleFileChange}
-          disabled={loading || msg !== ''}
-        />
-        {msg !== '' && <p className={styles.inputThumb_msg}>{msg}</p>}
-      </div>
-      <span className={styles.recommendation}>
-        Recomenda-se uma imagem com proporção 16:9 e tamanho mínimo de 1280x720 pixels.<span />
-      </span>
-      <div className={styles.btnBox}>
-        <span className={styles.btnBox_name}>
-          Arquivo atual: <br />
-          <span>{fileName}</span>
-        </span>
-        <div className={styles.btnBox_btns}>
-          <button
-            className={classNames({
-              [styles.btnBox_btns_btn]: true,
-              [styles.btnBox_btns_btn_excluir]: true,
-            })}
-            disabled={loading || !image}
-            onClick={handleDelete}
-          >
-            Excluir <FontAwesomeIcon icon={faTrash} />
-          </button>
-          <button
-            className={classNames({
-              [styles.btnBox_btns_btn]: true,
-              [styles.btnBox_btns_btn_salvar]: true,
-            })}
-            onClick={handleUpload}
-            disabled={selectedFile === null || loading}
-          >
-            Salvar <FontAwesomeIcon icon={faCheck} />
-          </button>
+
+        {thumbActive && (
+          <div className={styles.container}>
+            <div
+              className={classNames({
+                [styles.inputThumb]: true,
+                [styles.inputThumb_disabled]: isLoading,
+              })}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+            >
+              {isLoading && (
+                <div className={styles.inputThumb_spinner}>
+                  <AnimatedLogo size={40} />
+                  <span className={styles.inputThumb_spinnerText}>
+                    Enviando thumbmail...
+                  </span>
+                </div>
+              )}
+              <FontAwesomeIcon
+                icon={faArrowUpFromBracket}
+                className={styles.inputThumb_icon}
+              />
+              <p className={styles.inputThumb_text}>
+                Clique ou arraste sua imagem aqui
+              </p>
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/*"
+                title="Clique ou arraste a imagem"
+                className={styles.inputThumb_input}
+                disabled={isLoading}
+                onChange={handleFileChange}
+              />
+            </div>
+            <span className={styles.recommendation}>
+              Recomenda-se uma imagem com proporção 16:9 e tamanho mínimo de
+              1280x720 pixels.
+              <span />
+            </span>
+            <div className={styles.btnBox}>
+              <span className={styles.btnBox_name}>
+                Arquivo atual: <br />
+                <span>{fileName}</span>
+              </span>
+              <div className={styles.btnBox_btns}>
+                <div className={`${styles.btnBox_btns_btn} ${styles.btnBox_btns_btn_excluir}`}>
+                  <BtnG
+                    text="Excluir Thumb"
+                    goClick={handleDelete}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className={styles.actions}>
+          <div className={`${styles.actions_btn} ${styles.actions_btn_cancel}`}>
+            <BtnG
+              text="Cancelar"
+              goClick={resetThumb}
+            />
+          </div>
+          <div className={`${styles.actions_btn} ${styles.actions_btn_save}`}>
+            <BtnG
+              text="Salvar"
+              goClick={handleSave}
+              disabled={isLoading}
+            />
+          </div>
         </div>
       </div>
     </div>

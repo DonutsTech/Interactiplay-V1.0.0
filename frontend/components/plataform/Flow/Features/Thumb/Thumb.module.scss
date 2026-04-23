@@ -1,0 +1,308 @@
+.tool {
+  width: 100%;
+  height: 100%;
+
+  &_content {
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    // border: yellow 1px solid;
+
+    .toggle {
+      width: 100%;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+
+      .checkBox_wrapper {
+        width: 100%;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+
+        input {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 64px;
+          height: 32px;
+          background-color: $color-white;
+          border: 2px solid transparent;
+          border-radius: 30px 100px 100px 100px;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+          outline: none;
+          cursor: pointer;
+          position: relative;
+          transition: all 500ms ease-in-out;
+
+          &:hover {
+            opacity: 0.9;
+          }
+
+          &::before {
+            content: "";
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) scale(0.7);
+            border-radius: 30px 100px 100px 100px;
+            background-color: $color-ciano-dark-2;
+            box-sizing: border-box;
+            transition: all 500ms ease-in-out;
+          }
+
+          &:checked {
+            background-color: $color-ciano-dark-2;
+            border-color: $color-white;
+            border-radius: 100px 100px 30px 100px;
+            box-shadow: 0px 0px 10px rgba(143, 255, 255, 0.7);
+
+            &::before {
+              left: 50%;
+              background-color: $color-white;
+              border-radius: 100px 100px 30px 100px;
+            }
+          }
+        }
+
+        label {
+          width: 96px;
+          color: $color-white;
+          font-size: 20px;
+          font-weight: 600;
+          transition: all 300ms ease-in-out;
+        }
+      }
+    }
+
+    .container {
+      width: 100%;
+      flex: 1;
+      height: auto;
+      min-height: 100%;
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 16px;
+      padding: 48px 0;
+
+      .inputThumb {
+        width: 90%;
+        margin: 0 auto;
+        aspect-ratio: 16 / 9;
+        height: 180px;
+        background-color: $color-darkBlue-dark-3;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        transition: all 200ms ease-in-out;
+        cursor: pointer;
+
+        &_icon {
+          font-size: 64px;
+          opacity: 0.8;
+          transition: all 200ms ease-in-out;
+          color: $color-gray-dark-1;
+        }
+
+        &_text {
+          // width: 80%;
+          color: $color-gray-dark-1;
+          display: none;
+          margin: 0 auto;
+          font-size: 12px;
+          font-weight: 400;
+          position: absolute;
+          bottom: 8px;
+          text-align: center;
+          transition: all 200ms ease-in-out;
+
+        }
+
+        &_input {
+          opacity: 0;
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          cursor: pointer;
+        }
+
+        &_spinner {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          z-index: 2;
+          border-radius: 8px;
+        }
+
+        &_spinnerIcon {
+          font-size: 48px;
+          color: $color-white;
+          margin-bottom: 8px;
+          opacity: 0.9;
+        }
+
+        &:hover {
+          border: 2px dashed $color-white;
+
+          .inputThumb_icon {
+            scale: 0.9;
+          }
+
+          .inputThumb_text {
+            display: inline-block;
+            scale: 0.9;
+            opacity: 0.8;
+          }
+        }
+
+        &_disabled {
+          pointer-events: none;
+        }
+      }
+
+      .recommendation {
+        width: 90%;
+        margin: 0 auto;
+        text-align: left;
+        font-size: 12px;
+        color: $color-gray-dark-2;
+        font-weight: 400;
+
+        span {
+          position: relative;
+
+          &::before {
+            content: '';
+            position: absolute;
+            border-radius: 2px;
+            width: 24px;
+            height: 16px;
+            background-color: $color-gray-dark-2;
+            right: -32px;
+            bottom: 0;
+          }
+        }
+      }
+
+      .btnBox {
+        width: 90%;
+        margin: 0 auto;
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 16px;
+        margin-top: 24px;
+
+        &_name {
+          font-size: 16px;
+          font-weight: 500;
+          color: $color-white;
+
+          span {
+            color: $color-gray-dark-1;
+            font-weight: 400;
+          }
+        }
+
+        &_btns {
+          width: 100%;
+          display: flex;
+          flex-flow: row nowrap;
+          align-items: flex-start;
+          justify-content: flex-start;
+          gap: 16px;
+
+          &_btn {
+            width: 144px;
+            height: 32px;
+
+            button {
+              width: 100%;
+              height: 100%;
+              background-color: $color-purple-base;
+              transition: all 300ms ease-in-out;
+
+              &:hover {
+                background-color: $color-purple-light-1;
+                transform: scale(0.98);
+              }
+            }
+          }
+        }
+      }
+
+    }
+
+    .actions {
+      width: 100%;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      padding-right: 16px;
+
+      &_btn {
+        width: 120px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        button {
+          width: 100%;
+          height: 100%;
+          transition: all 300ms ease-in-out;
+
+          &:hover {
+            transform: scale(0.98);
+          }
+        }
+
+        &_cancel {
+          button {
+            background-color: $color-red-base;
+
+            &:hover {
+              background-color: $color-red-light-1;
+            }
+          }
+        }
+
+        &_save {
+          button {
+            background-color: $color-green-base;
+
+            &:hover {
+              background-color: $color-green-light-1;
+            }
+          }
+        }
+
+      }
+    }
+  }
+}
