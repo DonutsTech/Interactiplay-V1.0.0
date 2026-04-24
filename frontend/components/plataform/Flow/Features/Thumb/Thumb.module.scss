@@ -20,6 +20,10 @@
       align-items: center;
       justify-content: center;
 
+      &_solo {
+        padding-top: 240px;
+      }
+
       .checkBox_wrapper {
         width: 100%;
         display: flex;
