@@ -8,6 +8,7 @@ import { useError } from '@/context/ErrorContext';
 import { AnimatedLogo } from '@/components/globals/AnimateLogo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons';
+import ToggleActive from '@/components/globals/ToggleActive';
 
 const Thumb = () => {
   const [thumbActive, setThumbActive] = useState(false);
@@ -110,24 +111,10 @@ const Thumb = () => {
     <div className={styles.tool}>
       <div className={styles.tool_content}>
         <div className={`${styles.toggle} ${!thumbActive ? styles.toggle_solo : ''}`}>
-          <div className={styles.checkBox_wrapper}>
-            <input
-              type="checkbox"
-              name="thumbActive"
-              id="thumbActive"
-              checked={thumbActive}
-              onChange={() => {
-                const active = !thumbActive;
-                setThumbActive(active);
-                if (!active) {
-                  resetThumb();
-                }
-              }}
-            />
-            <label htmlFor="thumbActive">
-              {thumbActive ? 'Ativo' : 'Ativar'}
-            </label>
-          </div>
+          <ToggleActive
+            active={thumbActive}
+            onToggle={() => setThumbActive((prev) => !prev)}
+          />
         </div>
 
         {thumbActive && (
