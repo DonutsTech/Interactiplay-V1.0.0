@@ -1,18 +1,18 @@
 'use client';
 
 import { ICampaign } from '@/@types/campaign';
-import styles from './Features.module.scss';
-import { ReactNode, useState } from 'react';
-import Thumb from './Thumb';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useError } from '@/context/ErrorContext';
 import {
   faCircleXmark,
   faMoon,
   faSun,
 } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ReactNode, useState } from 'react';
 import BtnG from '../../BtnG';
-import classNames from 'classnames';
-import { useError } from '@/context/ErrorContext';
+import Embed from '../../Embed';
+import styles from './Features.module.scss';
+import Thumb from './Thumb';
 
 interface IFeaturesProps {
   campaing: ICampaign;
@@ -122,7 +122,9 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
                 />
               </div>
             </div>
-            <div className={styles.view_body}></div>
+            <div className={styles.view_body}>
+              <Embed campaing={campaing} />
+            </div>
             <div className={styles.view_actions}>
               <div className={`${styles.btn} ${styles.btn_flow}`}>
                 <BtnG
@@ -198,7 +200,7 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
               {steps.slice(0, steps.length).map((_, i) => (
                 <div
                   key={i}
-                  className={`${styles.tools_footer_step} 
+                  className={`${styles.tools_footer_step}
                   ${stepIndex === i ? styles.tools_footer_step_active : ''}
                   ${isLoading ? styles.tools_footer_step_disabled : ''}
                   `}
