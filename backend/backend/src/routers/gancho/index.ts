@@ -3,7 +3,7 @@ import { ganchoController } from '../../controllers/gancho';
 import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
 import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
 
-class GanhoRouter {
+class GanchoRouter {
   public static create(router: Router): void {
     router.post(
       '/user/campaigns/:id/gancho',
@@ -15,4 +15,4 @@ class GanhoRouter {
   }
 }
 
-export default GanhoRouter;
+export default GanchoRouter;

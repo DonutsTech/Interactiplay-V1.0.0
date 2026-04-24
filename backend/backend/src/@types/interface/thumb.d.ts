@@ -1,0 +1,3 @@
+interface createThumb {
+  URL: string;
+}

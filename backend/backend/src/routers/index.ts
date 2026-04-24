@@ -4,8 +4,11 @@ import AuthRouter from './auth';
 import AutoPlayRouter from './autoPlay';
 import { CampaignApiRouter } from './campaign';
 import ExternalLinkRouter from './externalLink';
+import GanchoRouter from './gancho';
 import HistoryPlaysRouter from './historyPlays';
+import PixelRouter from './pixel';
 import PlanRouter from './plan';
+import ThumbRouter from './thumb';
 import UserRouter from './user';
 import WebhookRouter from './webhook';
 
@@ -22,6 +25,9 @@ export const applyApiRouters = (router: Router): void => {
     CampaignApiRouter,
     AutoPlayRouter,
     ExternalLinkRouter,
+    GanchoRouter,
+    PixelRouter,
+    ThumbRouter,
   ];
   applyRouters(router, routers);
 };

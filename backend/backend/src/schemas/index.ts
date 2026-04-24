@@ -4,6 +4,8 @@ import { createAutoPlay } from './autoPlay';
 import { createCampaign } from './compaign';
 import { createExternalLink } from './externalLink';
 import { createGancho } from './gancho';
+import { createPixel } from './pixel';
+import { createTimeline } from './timeline';
 import { updateUser } from './user';
 import { videoUpdate } from './video';
 
@@ -19,6 +21,8 @@ const schemas: { [key: string]: ObjectSchema } = {
   'externalLink/create': createExternalLink,
   'campaign/create': createCampaign,
   'gancho/create': createGancho,
+  'pixel/create': createPixel,
+  'timeline/create': createTimeline,
 };
 
 export default schemas;

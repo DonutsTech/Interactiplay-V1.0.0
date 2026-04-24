@@ -16,7 +16,7 @@ import { modelPlayService } from '../modelPlay';
 import { modelTimeService } from '../modelTime';
 import { pixelService } from '../pixel';
 import { testABService } from '../testAB';
-import { thumbService } from '../thumb/iindex';
+import { thumbService } from '../thumb';
 import { timelineService } from '../timeline';
 import { userService } from '../user';
 
