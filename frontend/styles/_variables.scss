@@ -142,3 +142,23 @@ $clamp-default: clamp(0.875rem, 0.8rem + 0.375vw, 1.25rem);
     user-select: none;
   }
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeOn {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

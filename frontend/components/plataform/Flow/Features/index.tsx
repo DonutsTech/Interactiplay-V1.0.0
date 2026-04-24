@@ -14,6 +14,8 @@ import Embed from '../../Embed';
 import AutoPlay from './AutoPlay';
 import styles from './Features.module.scss';
 import Thumb from './Thumb';
+import SmartTimeline from './SmartTimeline';
+import HeadLine from './HeadLine';
 
 interface IFeaturesProps {
   campaing: ICampaign;
@@ -52,11 +54,13 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
       name: 'Smart Timeline',
       description:
         'Utilize smart Timeline e personalize a experiência de seu público.',
+      children: <SmartTimeline />,
     },
     {
       step: 3,
       name: 'Headline',
       description: 'Defina um headline chamativo para captar atenção.',
+      children: <HeadLine />,
     },
     {
       step: 4,

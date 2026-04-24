@@ -4,6 +4,7 @@ import { useState } from 'react';
 import styles from './AutoPlay.module.scss';
 import BtnG from '@/components/plataform/BtnG';
 import { useError } from '@/context/ErrorContext';
+import ToggleActive from '@/components/globals/ToggleActive';
 
 interface IAutoPlayProps {
   duration: number;
@@ -18,21 +19,10 @@ const AutoPlay = ({ duration }: IAutoPlayProps) => {
     <div className={styles.tool}>
       <div className={styles.tool_content}>
         <div className={`${styles.toggle} ${!autoPlayActive ? styles.toggle_solo : ''}`}>
-          <div className={styles.checkBox_wrapper}>
-            <input
-              type="checkbox"
-              name="autoPlayActive"
-              id="autoPlayActive"
-              checked={autoPlayActive}
-              onChange={() => {
-                const active = !autoPlayActive;
-                setAutoPlayActive(active);
-              }}
-            />
-            <label htmlFor="autoPlayActive">
-              {autoPlayActive ? 'Ativo' : 'Ativar'}
-            </label>
-          </div>
+          <ToggleActive 
+            active={autoPlayActive}
+            onToggle={() => setAutoPlayActive(prev => !prev)}
+          />
         </div>
         {autoPlayActive && (
           <div className={styles.container}>

@@ -1,0 +1,192 @@
+  .tool {
+    width: 100%;
+    height: 100%;
+
+    &_content {
+      width: 100%;
+      height: auto;
+      min-height: 90%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      // border: yellow 1px solid;
+
+      .toggle {
+        width: 100%;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+
+        &_solo {
+          padding-top: 180px;
+        }
+      }
+
+      .container {
+        width: 100%;
+        flex: 1;
+        height: auto;
+        min-height: 100%;
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 24px;
+        padding: 48px 0;
+        animation: fadeOn 0.3s ease-in-out;
+
+        .colorBox {
+          width: 90%;
+          margin: 0 auto;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 16px;
+
+          label {
+            font-size: clamp(0.875rem, 0.7321rem + 0.2976vw, 1rem);
+            font-weight: 600;
+            color: $color-white;
+          }
+
+          input {
+            width: 60%;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            padding: 0;
+            cursor: pointer;
+          }
+        }
+
+        .heightBox {
+          width: 90%;
+          margin: 0 auto;
+          display: flex;
+          flex-flow: column nowrap;
+          align-items: flex-start;
+          justify-content: flex-start;
+          gap: 16px;
+
+          label {
+            font-size: clamp(0.875rem, 0.7321rem + 0.2976vw, 1rem);
+            font-weight: 600;
+            color: $color-white;
+          }
+
+          .heightInput {
+            width: 100%;
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 16px;
+
+            input {
+              flex: 1;
+              -webkit-appearance: none;
+              appearance: none;
+              // background-color: transparent;
+              border-radius: 8px;
+              width: 70%;
+
+              &::-webkit-slider-runnable-track {
+                height: 8px;
+                background: linear-gradient(to right, $color-ciano-dark-1 0%, $color-ciano-dark-1 var(--value), $color-white var(--value), $color-white 100%);
+                border-radius: 4px;
+              }
+
+              &::-moz-range-track {
+                height: 8px;
+                // background: $color-white;
+                border-radius: 4px;
+              }
+
+              &::-moz-range-progress {
+                height: 8px;
+                background: $color-ciano-dark-1;
+                border-radius: 8px;
+              }
+
+              &::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                background: $color-ciano-dark-1;
+                border-radius: 50%;
+                cursor: pointer;
+                margin-top: -6px;
+              }
+
+              &::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                background: $color-ciano-dark-1;
+                border: none;
+                border-radius: 50%;
+                cursor: pointer;
+              }
+            }
+          }
+        }
+
+        .view {
+          width: 90%;
+          margin: 0 auto;
+          height: 64px;
+          display: flex;
+          flex-flow: column nowrap;
+          align-items: center;
+          justify-content: flex-end;
+        }
+
+      }
+
+    }
+
+    .actions {
+      width: 100%;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      padding-right: 16px;
+
+      &_btn {
+        width: 120px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        button {
+          width: 100%;
+          height: 100%;
+          transition: all 300ms ease-in-out;
+
+          &:hover {
+            transform: scale(0.98);
+          }
+
+        }
+
+        &_save {
+          button {
+            background-color: $color-green-base;
+
+            &:hover {
+              background-color: $color-green-light-1;
+            }
+          }
+        }
+
+      }
+    }
+  }
