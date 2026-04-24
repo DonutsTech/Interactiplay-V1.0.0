@@ -8,6 +8,8 @@ import BtnG from '@/components/plataform/BtnG';
 
 const SmartTimeline = () => {
   const [smartTimelineActive, setSmartTimelineActive] = useState(false);
+  const [height, setHeight] = useState(10);
+  const [color, setColor] = useState('#f2f2f2');
   const { isLoading } = useError();
 
   return (
@@ -23,7 +25,40 @@ const SmartTimeline = () => {
         </div>
         {smartTimelineActive && (
           <div className={styles.container}>
-            <p>Configurações do Smart Timeline aqui</p>
+            <div className={styles.colorBox}>
+              <label htmlFor="color">Cor:</label>
+              <input
+                type="color"
+                id="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+              />
+            </div>
+            <div className={styles.heightBox}>
+              <label htmlFor="height">Altura</label>
+              <div className={styles.heightInput}>
+                <input
+                  type="range"
+                  id="height"
+                  min={10}
+                  max={48}
+                  value={height}
+                  step={1}
+                  onChange={(e) => setHeight(Number(e.target.value))}
+                />
+                <span>{height}px</span>
+              </div>
+            </div>
+            <div className={styles.view}>
+              <div
+                style={{
+                  backgroundColor: color,
+                  height: `${height}px`,
+                  width: '100%',
+                  margin: '0 auto',
+                }}
+              />
+            </div>
           </div>
         )}
       </div>

@@ -36,6 +36,7 @@
       justify-content: flex-start;
       gap: 16px;
       padding: 48px 0;
+      animation: fadeOn 0.3s ease-in-out;
 
       .inputThumb {
         width: 90%;

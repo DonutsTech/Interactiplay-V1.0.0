@@ -76,6 +76,8 @@ const ButtonGenerator = ({
                 backgroundColor: bgColor,
                 textColor: textColor,
                 borderRadius: borderRadius,
+                btnLeft: btnLeft,
+                btnTop: btnTop,
               }),
               BUTTON_MODAL: true,
               X_POSITION: btnLeft,

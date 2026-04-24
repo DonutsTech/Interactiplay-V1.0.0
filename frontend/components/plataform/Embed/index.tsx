@@ -46,7 +46,15 @@ const Embed = ({ campaing }: IEmbedProps) => {
   };
 
   return (
-    <section style={{ width: '100%', height: '100%' }}>
+    <section
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
       <div
         style={{
           position: 'relative',
