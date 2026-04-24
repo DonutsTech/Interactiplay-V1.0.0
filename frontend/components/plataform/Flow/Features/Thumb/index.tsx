@@ -109,7 +109,7 @@ const Thumb = () => {
   return (
     <div className={styles.tool}>
       <div className={styles.tool_content}>
-        <div className={styles.toggle}>
+        <div className={`${styles.toggle} ${!thumbActive ? styles.toggle_solo : ''}`}>
           <div className={styles.checkBox_wrapper}>
             <input
               type="checkbox"

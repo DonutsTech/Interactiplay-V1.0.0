@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactNode, useState } from 'react';
 import BtnG from '../../BtnG';
 import Embed from '../../Embed';
+import AutoPlay from './AutoPlay';
 import styles from './Features.module.scss';
 import Thumb from './Thumb';
 
@@ -42,6 +43,9 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
       step: 1,
       name: 'Auto Play',
       description: 'Ative o autoplay para iniciar o vídeo em loop automático.',
+      children: (
+        <AutoPlay duration={campaing.CAMPAIGN_VIDEOS[0].VIDEO.DURATION} />
+      ),
     },
     {
       step: 2,
@@ -65,8 +69,6 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
       description: 'Adicione seu pixel para rastreamento de conversões.',
     },
   ];
-
-  console.log('Current stepIndex:', stepIndex, 'é', steps[stepIndex].step);
 
   return (
     <section className={styles.wrapper}>
