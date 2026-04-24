@@ -1,23 +1,23 @@
 // components/plataform/Flow/ModalFlow/ButtonGenerator/index.tsx
 'use client';
 
-import { Dispatch, SetStateAction } from 'react';
-import styles from './ButtonGenerator.module.scss';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faBan,
-  faCheck,
-  faTriangleExclamation,
-} from '@fortawesome/free-solid-svg-icons';
-import classNames from 'classnames';
+import { Bond } from '@/@types/flow';
+import { useFlow } from '@/context/FlowContext';
 import {
   formatNumber,
   getInputWidth,
   getSlider,
   handleStartChange,
 } from '@/utils/rangeUtils';
-import { useFlow } from '@/context/FlowContext';
-import { Bond } from '@/@types/flow';
+import {
+  faBan,
+  faCheck,
+  faTriangleExclamation,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import classNames from 'classnames';
+import { Dispatch, SetStateAction } from 'react';
+import styles from './ButtonGenerator.module.scss';
 
 interface ButtonGeneratorProps {
   duration: number;
@@ -76,6 +76,8 @@ const ButtonGenerator = ({
                 backgroundColor: bgColor,
                 textColor: textColor,
                 borderRadius: borderRadius,
+                btnLeft: btnLeft,
+                btnTop: btnTop,
               }),
               BUTTON_MODAL: true,
               X_POSITION: btnLeft,
@@ -97,7 +99,7 @@ const ButtonGenerator = ({
     });
 
     setNodes(updatedNodes);
-    
+
     // Chama a função onSave do ModalFlow (fecha modal e mostra toast)
     onSave();
   };
@@ -242,9 +244,9 @@ const ButtonGenerator = ({
             <br />
             <br />
             <span>
-              <FontAwesomeIcon icon={faTriangleExclamation} color="#FFD700"  />
+              <FontAwesomeIcon icon={faTriangleExclamation} color="#FFD700" />
             </span>{' '}
-              Só pode haver uma conexão do tipo sequência por vídeo.
+            Só pode haver uma conexão do tipo sequência por vídeo.
           </p>
         )}
       </div>
