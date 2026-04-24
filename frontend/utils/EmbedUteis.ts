@@ -40,3 +40,7 @@ export const btnEdgeStyle = (btn: buttonStyle): CSSProperties => {
     left: `${btn.btnLeft}%`,
   };
 };
+
+export const titleStyle = () => {
+  return {};
+};
