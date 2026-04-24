@@ -71,7 +71,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
 
           if (current === c.ID) {
             return (
-              <>
+              <div key={c.ID}>
                 <video
                   key={i}
                   src={c.VIDEO.URL}
@@ -121,7 +121,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
                     ))}
                   </>
                 )}
-              </>
+              </div>
             );
           }
         })}
