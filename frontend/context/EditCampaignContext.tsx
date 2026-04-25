@@ -34,6 +34,13 @@ export const EditCampaignProvider = ({ children }: { children: ReactNode }) => {
   );
   const [modalOpenF, setModalOpenF] = useState<boolean>(false);
 
+  const fecthCampaignForEdit = (campaignId: string) => {
+    try {
+    } catch (error) {
+      console.error('Erro ao buscar campanha para edição:', error);
+    }
+  };
+
   const value = useMemo(
     () => ({
       editingCampaign,
