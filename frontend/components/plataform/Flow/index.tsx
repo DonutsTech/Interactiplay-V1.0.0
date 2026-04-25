@@ -78,7 +78,7 @@ const Flow = () => {
     setDadosModal,
   } = useFlow();
   const { videos } = useVideos();
-  const { showWarning, showInfo, showConfirmation } = useError();
+  const { showWarning, showInfo, showConfirmation, showSuccess } = useError();
 
   const [reactFlowInstance, setReactFlowInstance] = useState<
     ReactFlowInstance<MyNode, Edge> | undefined
@@ -251,12 +251,10 @@ const Flow = () => {
     if (
       !nameCampaign ||
       nameCampaign.trim().length < 3 ||
-      nameCampaign === `Campanha ${new Date().toLocaleDateString()}`
+      nameCampaign === 'Nome da campanha'
     ) {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-      return;
+      setNameCampaign(`${new Date().toLocaleDateString()}`);
+      showInfo('Nome da campanha definido como data atual.');
     }
 
     if (nodes.length === 0) {
@@ -272,6 +270,8 @@ const Flow = () => {
       return;
     }
 
+    console.log('Dados do Flow antes de salvar:', { nameCampaign});
+
     const payload = convertFlowToCampaignPayload(nameCampaign, nodes);
     console.log('Payload para salvar campanha:', payload);
 
@@ -284,10 +284,11 @@ const Flow = () => {
     }
 
     // Armazena a campanha criada e abre o modal Features
+    setModalOpenF(true);
     setSavedCampaign(result as ICampaign);
     setFeaturesModalOpen(true);
 
-    showInfo(
+    showSuccess(
       `Campanha "${nameCampaign}" salva com sucesso! ${nodes.length} vídeo(s) adicionado(s).`
     );
 

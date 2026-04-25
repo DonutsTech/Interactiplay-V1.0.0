@@ -116,8 +116,8 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
       setButtonColor(style.buttonColor || '#23118E');
       setButtonTextColor(style.buttonTextColor || '#FFFFFF');
       setBorderRadius(style.borderRadius || 0);
-      setCtaTop(style.ctaTop || 50);
-      setCtaLeft(style.ctaLeft || 50);
+      setCtaTop(style.ctaTop);
+      setCtaLeft(style.ctaLeft);
     }
 
     // Armazena estado inicial do CTA
@@ -156,11 +156,11 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
           : 0,
       ctaTop:
         dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0
-          ? JSON.parse(dadosModal.CTA_STYLE).ctaTop || 50
+          ? JSON.parse(dadosModal.CTA_STYLE).ctaTop
           : 50,
       ctaLeft:
         dadosModal.CTA_STYLE && dadosModal.CTA_STYLE.length > 0
-          ? JSON.parse(dadosModal.CTA_STYLE).ctaLeft || 50
+          ? JSON.parse(dadosModal.CTA_STYLE).ctaLeft
           : 50,
     };
 
@@ -179,8 +179,8 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
           setBgColorBtn(btnStyle.backgroundColor || '#23118E');
           setTextColorBtn(btnStyle.textColor || '#FFFFFF');
           setBorderRadiusBtn(btnStyle.borderRadius || 0);
-          setBtnTop(btnStyle.btnTop || 50);
-          setBtnLeft(btnStyle.btnLeft || 50);
+          setBtnTop(btnStyle.btnTop);
+          setBtnLeft(btnStyle.btnLeft);
         }
 
         initialBtnStateRef.current = {
@@ -201,11 +201,11 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
               : 0,
           btnTop:
             bond.BUTTON_STYLE && bond.BUTTON_STYLE.length > 0
-              ? JSON.parse(bond.BUTTON_STYLE).btnTop || 50
+              ? JSON.parse(bond.BUTTON_STYLE).btnTop
               : 50,
           btnLeft:
             bond.BUTTON_STYLE && bond.BUTTON_STYLE.length > 0
-              ? JSON.parse(bond.BUTTON_STYLE).btnLeft || 50
+              ? JSON.parse(bond.BUTTON_STYLE).btnLeft
               : 50,
         };
       } else {
@@ -269,6 +269,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
   const onPointerUpBtn = (e: React.PointerEvent) => {
     try {
       (e.target as Element).releasePointerCapture(e.pointerId);
+      console.log('Posição atualizada:', { ctaTop, ctaLeft, btnTop, btnLeft });
     } catch {}
     draggingRef.current = false;
   };
@@ -506,7 +507,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   maxWidth: '90%',
-                  opacity: type === 'edge' ? 0.8 : 1,
+                  opacity: type === 'edge' ? 0.9 : 1,
                 }}
               >
                 <p
@@ -572,8 +573,8 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
                   key={`bond-preview-${index}`}
                   style={{
                     position: 'absolute',
-                    top: `${btnStyle.btnTop || 50}%`,
-                    left: `${btnStyle.btnLeft || 50}%`,
+                    top: `${btnStyle.btnTop}%`,
+                    left: `${btnStyle.btnLeft}%`,
                     transform: 'translate(-50%, -50%)',
                     backgroundColor: btnStyle.backgroundColor || '#23118E',
                     color: btnStyle.textColor || '#FFFFFF',

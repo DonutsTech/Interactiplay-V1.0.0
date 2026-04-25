@@ -107,6 +107,7 @@ const CtaGenerator = ({
 
     setNodes(updatedNodes);
     
+    // console.log(updatedNodes)
     onSave();
   };
 
