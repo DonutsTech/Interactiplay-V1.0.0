@@ -6,10 +6,12 @@ import {
   Dispatch,
   ReactNode,
   SetStateAction,
+  useCallback,
   useContext,
   useMemo,
   useState,
 } from 'react';
+import { useError } from './ErrorContext';
 
 interface EditCampaignContextType {
   editingCampaign: ICampaign | undefined;
@@ -34,12 +36,18 @@ export const EditCampaignProvider = ({ children }: { children: ReactNode }) => {
   );
   const [modalOpenF, setModalOpenF] = useState<boolean>(false);
 
-  const fecthCampaignForEdit = (campaignId: string) => {
-    try {
-    } catch (error) {
-      console.error('Erro ao buscar campanha para edição:', error);
+  const { handleRequest } = useError();
+
+  const fecthCampaignForEdit = useCallback(async () => {
+    const data = await handleRequest(() => getCampaigns(), {
+      loadingMessage: 'Carregando campanhas...',
+      suppressLoadingToast: true,
+      suppressLoading: true,
+    });
+
+    if (data && Array.isArray(data)) {
     }
-  };
+  }, [handleRequest]);
 
   const value = useMemo(
     () => ({
