@@ -12,7 +12,7 @@ class CampaignApiRouter {
       campaignController.getCampaignsAllForUser,
     );
     router.get(
-      '/campaigns/:id',
+      '/user/campaigns/:id',
       isAuthenticateTokenDb,
       isValidateUserPlan,
       campaignController.getCampaignById,

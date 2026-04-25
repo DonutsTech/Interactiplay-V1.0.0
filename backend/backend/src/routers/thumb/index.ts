@@ -10,7 +10,7 @@ class ThumbRouter {
       '/user/campaigns/:id/thumb',
       isAuthenticateTokenDb,
       isValidateUserPlan,
-      imageUpload.single('thumb'),
+      imageUpload.single('image'),
       thumbController.createThumbWithCampaign,
     );
 
