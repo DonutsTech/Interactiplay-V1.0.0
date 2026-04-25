@@ -10,6 +10,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { useError } from './ErrorContext';
 
 interface EditCampaignContextType {
   editingCampaign: ICampaign | undefined;
@@ -33,6 +34,8 @@ export const EditCampaignProvider = ({ children }: { children: ReactNode }) => {
     undefined
   );
   const [modalOpenF, setModalOpenF] = useState<boolean>(false);
+
+  const { handleRequest } = useError();
 
   const fecthCampaignForEdit = (campaignId: string) => {
     try {

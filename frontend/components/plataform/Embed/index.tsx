@@ -89,7 +89,15 @@ const Embed = ({ campaing }: IEmbedProps) => {
   };
 
   return (
-    <section style={{ width: '100%', height: '100%' }}>
+    <section style={{ 
+      width: '100%', 
+      height: '100%', 
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '16px',
+    }}>
       {campaing.FEATURE && campaing.FEATURE.GANCHO && (
         <div>
           <h2>{campaing.FEATURE.GANCHO.TITLE}</h2>
@@ -104,6 +112,8 @@ const Embed = ({ campaing }: IEmbedProps) => {
           height: 'auto',
           aspectRatio: '16/9',
           backgroundColor: '#000125',
+          overflow: 'hidden',
+          borderRadius: '8px',
         }}
       >
         {!isPlaying && (
@@ -159,7 +169,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
                   {c.CTA && (
                     <div
                       className={style['embed-div']}
-                      style={{ ...divStyle(cta) }}
+                      style={{ ...divStyle(cta),  }}
                     >
                       <p style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</p>
                       <button

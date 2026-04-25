@@ -142,7 +142,7 @@ export const convertFlowToCampaignPayload = (campaignName: string, campaign: MyN
 
   return{
 
-    NAME: campaignName === 'Nome da campanha' ? `Campanha ${new Date().toLocaleDateString()}` : campaignName,
+    NAME: campaignName,
     CAMPAIGN_VIDEOS: campaign.map(({data}) => {
     return {
         VIDEO_ID: data.VIDEO.ID,
