@@ -1,21 +1,21 @@
 'use client';
 
-import { useError } from '@/context/ErrorContext';
-import { useEditCampaign } from '@/context/EditCampaignContext';
-import styles from './MyCampaignsPainel.module.scss';
-import { useCallback, useEffect, useState } from 'react';
 import { ICampaign } from '@/@types/campaign';
-import {
-  getCampaigns,
-  deleteCampaign,
-} from '@/service/campaign/capaignServices';
-import CardCampaign from './CardCampaign';
 import { ErrorMessage } from '@/@types/error';
+import { useEditCampaign } from '@/context/EditCampaignContext';
+import { useError } from '@/context/ErrorContext';
+import {
+  deleteCampaign,
+  getCampaigns,
+} from '@/service/campaign/capaignServices';
 import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import CardCampaign from './CardCampaign';
+import styles from './MyCampaignsPainel.module.scss';
 
 const MyCampaignsPainel = () => {
   const { handleRequest, showConfirmation } = useError();
-  const { setEditingCampaign } = useEditCampaign();
+  const { setEditingCampaign, setModalOpenF } = useEditCampaign();
   const router = useRouter();
   const [campanhas, setCampanhas] = useState<ICampaign[]>([]);
 
@@ -62,7 +62,8 @@ const MyCampaignsPainel = () => {
 
   const handleEdit = useCallback(
     async (campaign: ICampaign) => {
-      setEditingCampaign(campaign);
+      setEditingCampaign(campaign.ID);
+      setModalOpenF(false);
       router.push('/dashboard');
     },
     [router, setEditingCampaign]

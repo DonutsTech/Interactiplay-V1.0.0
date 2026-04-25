@@ -1,41 +1,46 @@
 'use client';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import styles from './Flow.module.scss';
-import { faPencil } from '@fortawesome/free-solid-svg-icons';
-import { DragEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import classNames from 'classnames';
-import MenuAcervo from './MenuAcervo';
+import { ICampaign } from '@/@types/campaign';
+import { MyNode } from '@/@types/flow';
+import { useEditCampaign } from '@/context/EditCampaignContext';
+import { useError } from '@/context/ErrorContext';
+import { useFlow } from '@/context/FlowContext';
+import { useVideos } from '@/context/VideosContext';
+import { createCampaign } from '@/service/campaign/capaignServices';
 import {
-  ReactFlowProvider,
-  ReactFlow,
+  convertFlowToCampaignPayload,
+  nodeNew,
+  willCreateCycle,
+} from '@/utils/flowUteis';
+import { faPencil } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
   addEdge,
   Background,
   Connection,
   Edge,
+  ReactFlow,
   ReactFlowInstance,
+  ReactFlowProvider,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import './style.css';
-import { useFlow } from '@/context/FlowContext';
-import CustomNode from './CustomFlow/CustomNode';
-import CustomEdge from './CustomFlow/CustomEdge';
-import { MyNode, Bond } from '@/@types/flow';
-import { useVideos } from '@/context/VideosContext';
-import { useError } from '@/context/ErrorContext';
-import { convertFlowToCampaignPayload, nodeNew, willCreateCycle } from '@/utils/flowUteis';
-import ModalFlow from './ModalFlow';
-import Features from './Features';
-import BtnG from '../BtnG';
-import { createCampaign } from '@/service/campaign/capaignServices';
+import classNames from 'classnames';
 import {
-  ICreateCampaignPayload,
-  ICreateCampaignVideo,
-  ICreateBondsCampaign,
-  ICampaign,
-} from '@/@types/campaign';
-import { isURL, isValidUrl } from '@/utils/urlValidator';
-import { useEditCampaign } from '@/context/EditCampaignContext';
+  DragEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import BtnG from '../BtnG';
+import CustomEdge from './CustomFlow/CustomEdge';
+import CustomNode from './CustomFlow/CustomNode';
+import Features from './Features';
+import styles from './Flow.module.scss';
+import MenuAcervo from './MenuAcervo';
+import ModalFlow from './ModalFlow';
+import './style.css';
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -51,7 +56,13 @@ const onDragOver = (event: DragEvent) => {
 };
 
 const Flow = () => {
-  const { editingCampaign, setEditingCampaign } = useEditCampaign();
+  const {
+    modalOpenF,
+    setModalOpenF,
+    loadingIdCampaign,
+    errorIdCampaign,
+    dataIdCampaign,
+  } = useEditCampaign();
   const [nameCampaign, setNameCampaign] = useState('Nome da campanha');
   const [isEditing, setIsEditing] = useState(false);
   const [featuresModalOpen, setFeaturesModalOpen] = useState(false);
@@ -96,13 +107,11 @@ const Flow = () => {
 
   // Detecta se há uma campanha sendo editada no context
   useEffect(() => {
-    if (editingCampaign) {
-      setSavedCampaign(editingCampaign);
+    if (modalOpenF) {
       setFeaturesModalOpen(true);
-      // Limpa o context após abrir o modal
-      setEditingCampaign(null);
+      setModalOpenF(false);
     }
-  }, [editingCampaign, setEditingCampaign]);
+  }, []);
 
   const onDrop = useCallback(
     (event: DragEvent) => {
@@ -225,21 +234,26 @@ const Flow = () => {
       setTypeModal('edge');
       setModalOpen(true);
     },
-    [setEdges, setNodes, nodes, edges, showWarning, setDadosModal, setTypeModal, setModalOpen]
+    [
+      setEdges,
+      setNodes,
+      nodes,
+      edges,
+      showWarning,
+      setDadosModal,
+      setTypeModal,
+      setModalOpen,
+    ]
   );
 
   const hasChanges = useMemo(() => {
     const hasNodes = nodes.length > 0;
-    const hasNameChanged = nameCampaign !== 'Nome da campanha' && nameCampaign.trim().length >= 3;
+    const hasNameChanged =
+      nameCampaign !== 'Nome da campanha' && nameCampaign.trim().length >= 3;
     return hasNodes || hasNameChanged;
   }, [nodes.length, nameCampaign]);
 
-
-
-
-
   const handleSave = useCallback(async () => {
-
     if (
       !nameCampaign ||
       nameCampaign.trim().length < 3 ||
@@ -345,9 +359,9 @@ const Flow = () => {
         <ModalFlow onClose={() => setModalOpen(false)} type={typeModal} />
       )}
 
-      {featuresModalOpen && savedCampaign && (
+      {featuresModalOpen && (
         <Features
-          campaing={savedCampaign}
+          campaing={dataIdCampaign}
           onClose={() => {
             setFeaturesModalOpen(false);
             setSavedCampaign(null);
@@ -360,7 +374,9 @@ const Flow = () => {
           <div className={`${styles.actions_btn}  ${styles.actions_btn_save}`}>
             <BtnG goClick={handleSave} text="Salvar" />
           </div>
-          <div className={`${styles.actions_btn}  ${styles.actions_btn_cancel}`}>
+          <div
+            className={`${styles.actions_btn}  ${styles.actions_btn_cancel}`}
+          >
             <BtnG goClick={handleCancel} text="Cancelar" />
           </div>
         </div>
