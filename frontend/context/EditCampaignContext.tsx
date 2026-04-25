@@ -1,9 +1,6 @@
 'use client';
 
 import { ICampaign } from '@/@types/campaign';
-import { ErrorMessage } from '@/@types/error';
-import { useCallDataBase } from '@/hook/useCallDataBase';
-import api from '@/service/config';
 import {
   createContext,
   Dispatch,
@@ -15,14 +12,10 @@ import {
 } from 'react';
 
 interface EditCampaignContextType {
-  editingCampaign: string | undefined;
-  setEditingCampaign: Dispatch<SetStateAction<string | undefined>>;
+  editingCampaign: ICampaign | undefined;
+  setEditingCampaign: Dispatch<SetStateAction<ICampaign | undefined>>;
   modalOpenF: boolean;
   setModalOpenF: Dispatch<SetStateAction<boolean>>;
-  dataIdCampaign: ICampaign;
-  loadingIdCampaign: boolean;
-  errorIdCampaign: ErrorMessage | undefined;
-  fecthIdCampaign: () => void;
 }
 
 const DEFAULT_CONTEXT: EditCampaignContextType = {
@@ -30,28 +23,16 @@ const DEFAULT_CONTEXT: EditCampaignContextType = {
   setEditingCampaign: () => {},
   modalOpenF: false,
   setModalOpenF: () => {},
-  dataIdCampaign: {} as ICampaign,
-  loadingIdCampaign: false,
-  errorIdCampaign: undefined,
-  fecthIdCampaign: () => {},
 };
 
 const EditCampaignContext =
   createContext<EditCampaignContextType>(DEFAULT_CONTEXT);
 
 export const EditCampaignProvider = ({ children }: { children: ReactNode }) => {
-  const [editingCampaign, setEditingCampaign] = useState<string | undefined>(
-    DEFAULT_CONTEXT.editingCampaign
+  const [editingCampaign, setEditingCampaign] = useState<ICampaign | undefined>(
+    undefined
   );
   const [modalOpenF, setModalOpenF] = useState<boolean>(false);
-
-  const [dataIdCampaign, loadingIdCampaign, errorIdCampaign, fecthIdCampaign] =
-    useCallDataBase<ICampaign>({
-      axiosInstance: api,
-      method: 'get',
-      url: '/user/campaigns/',
-      uuid: editingCampaign,
-    });
 
   const value = useMemo(
     () => ({
@@ -59,21 +40,8 @@ export const EditCampaignProvider = ({ children }: { children: ReactNode }) => {
       setEditingCampaign,
       modalOpenF,
       setModalOpenF,
-      dataIdCampaign,
-      loadingIdCampaign,
-      errorIdCampaign,
-      fecthIdCampaign,
     }),
-    [
-      editingCampaign,
-      setEditingCampaign,
-      modalOpenF,
-      setModalOpenF,
-      dataIdCampaign,
-      loadingIdCampaign,
-      errorIdCampaign,
-      fecthIdCampaign,
-    ]
+    [editingCampaign, setEditingCampaign, modalOpenF, setModalOpenF]
   );
 
   return (

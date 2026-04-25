@@ -62,8 +62,8 @@ const MyCampaignsPainel = () => {
 
   const handleEdit = useCallback(
     async (campaign: ICampaign) => {
-      setEditingCampaign(campaign.ID);
-      setModalOpenF(false);
+      setEditingCampaign(campaign);
+      setModalOpenF(true);
       router.push('/dashboard');
     },
     [router, setEditingCampaign]

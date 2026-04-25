@@ -56,13 +56,7 @@ const onDragOver = (event: DragEvent) => {
 };
 
 const Flow = () => {
-  const {
-    modalOpenF,
-    setModalOpenF,
-    loadingIdCampaign,
-    errorIdCampaign,
-    dataIdCampaign,
-  } = useEditCampaign();
+  const { modalOpenF, setModalOpenF, editingCampaign } = useEditCampaign();
   const [nameCampaign, setNameCampaign] = useState('Nome da campanha');
   const [isEditing, setIsEditing] = useState(false);
   const [featuresModalOpen, setFeaturesModalOpen] = useState(false);
@@ -359,9 +353,9 @@ const Flow = () => {
         <ModalFlow onClose={() => setModalOpen(false)} type={typeModal} />
       )}
 
-      {featuresModalOpen && (
+      {featuresModalOpen && editingCampaign && (
         <Features
-          campaing={dataIdCampaign}
+          campaing={editingCampaign}
           onClose={() => {
             setFeaturesModalOpen(false);
             setSavedCampaign(null);
