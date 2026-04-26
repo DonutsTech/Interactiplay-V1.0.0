@@ -1,7 +1,7 @@
-import { ErrorMessage } from "@/@types/error";
-import { messageError } from "@/utils/error";
-import { getToken } from "../token";
-import api from "../config";
+import { ErrorMessage } from '@/@types/error';
+import { messageError } from '@/utils/error';
+import api from '../config';
+import { getToken } from '../token';
 
 export interface GanchoResponse {
   ID: string;
@@ -47,10 +47,8 @@ export const postCampaignGancho = async (
       }
     );
 
-    console.log(data);
-
     return data;
   } catch (error: ErrorMessage | unknown) {
     return messageError(error) as ErrorMessage;
   }
-}
+};

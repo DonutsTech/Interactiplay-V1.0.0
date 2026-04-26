@@ -6,9 +6,13 @@ import { useEditCampaign } from '@/context/EditCampaignContext';
 import { useError } from '@/context/ErrorContext';
 import { useFlow } from '@/context/FlowContext';
 import { useVideos } from '@/context/VideosContext';
-import { createCampaign } from '@/service/campaign/capaignServices';
+import {
+  createCampaign,
+  updateCampaign,
+} from '@/service/campaign/capaignServices';
 import {
   convertFlowToCampaignPayload,
+  mapToFlow,
   nodeNew,
   willCreateCycle,
 } from '@/utils/flowUteis';
@@ -55,8 +59,14 @@ const onDragOver = (event: DragEvent) => {
   event.dataTransfer.dropEffect = 'move';
 };
 
-const Flow = () => {
-  const { modalOpenF, setModalOpenF, editingCampaign, setEditingCampaign } = useEditCampaign();
+const Flow = ({ id = undefined }: { id: string | undefined }) => {
+  const {
+    modalOpenF,
+    setModalOpenF,
+    editingCampaign,
+    setEditingCampaign,
+    fecthCampaignForEdit,
+  } = useEditCampaign();
   const [nameCampaign, setNameCampaign] = useState('Nome da campanha');
   const [isEditing, setIsEditing] = useState(false);
   const [featuresModalOpen, setFeaturesModalOpen] = useState(false);
@@ -98,6 +108,21 @@ const Flow = () => {
       setDadosModal(undefined);
     };
   }, [setNodes, setEdges, setModalOpen, setDadosModal]);
+
+  useEffect(() => {
+    if (id) {
+      if (editingCampaign && editingCampaign.ID !== id) {
+        fecthCampaignForEdit(id);
+      }
+
+      if (editingCampaign && editingCampaign.ID === id) {
+        const { nodes, edges } = mapToFlow(editingCampaign);
+        setNameCampaign(editingCampaign.NAME);
+        setNodes(nodes);
+        setEdges(edges);
+      }
+    }
+  }, [id]);
 
   // Detecta se há uma campanha sendo editada no context
   useEffect(() => {
@@ -272,32 +297,33 @@ const Flow = () => {
       return;
     }
 
-    console.log('Dados do Flow antes de salvar:', { nameCampaign});
+    console.log('Dados do Flow antes de salvar:', { nameCampaign });
 
     const payload = convertFlowToCampaignPayload(nameCampaign, nodes);
     console.log('Payload para salvar campanha:', payload);
 
-    const result = await createCampaign(payload);
-    console.log('Resposta da criação de campanha:', result);
+    let result;
+
+    if (id) {
+      result = await updateCampaign(id, payload);
+    } else {
+      result = await createCampaign(payload);
+    }
 
     if ('STATUS' in result && 'MESSAGE' in result) {
       showWarning(result.MESSAGE);
       return;
     }
 
-
     setEditingCampaign(result as ICampaign);
     setModalOpenF(true);
     setSavedCampaign(result as ICampaign);
     setFeaturesModalOpen(true);
 
-    console.log('Campanha salva com sucesso:', result);
-
     showSuccess(
-      `Campanha "${nameCampaign}" salva com sucesso! ${nodes.length} vídeo(s) adicionado(s).`
+      `Campanha "${nameCampaign}" ${id ? 'atualizada' : 'salva'} com sucesso! ${nodes.length} vídeo(s) adicionado(s).`
     );
 
-    // Limpa o flow
     setNodes([]);
     setEdges([]);
     setNameCampaign('Nome da campanha');
@@ -318,6 +344,29 @@ const Flow = () => {
     modalOpen,
     setModalOpen,
   ]);
+
+  const handleCancelUpdate = useCallback(async () => {
+    const confirmed = await showConfirmation(
+      'Todos os dados não salvos serão perdidos. Deseja continuar?',
+      {
+        title: 'Cancelar Campanha',
+        confirmText: 'Sim, cancelar',
+        cancelText: 'Não, manter',
+        type: 'warning',
+      }
+    );
+
+    if (!confirmed) return;
+
+    if (editingCampaign) {
+      const { nodes, edges } = mapToFlow(editingCampaign);
+      setNameCampaign(editingCampaign.NAME);
+      setNodes(nodes);
+      setEdges(edges);
+    }
+
+    showInfo('Campanha cancelada.');
+  }, []);
 
   const handleCancel = useCallback(async () => {
     if (nodes.length > 0) {
@@ -378,14 +427,25 @@ const Flow = () => {
           <div
             className={`${styles.actions_btn}  ${styles.actions_btn_cancel}`}
           >
-            <BtnG goClick={handleCancel} text="Cancelar" />
+            <BtnG
+              goClick={() => {
+                if (id) {
+                  handleCancelUpdate();
+                } else {
+                  handleCancel();
+                }
+              }}
+              text="Cancelar"
+            />
           </div>
         </div>
       )}
       <section className={styles.flow}>
         <MenuAcervo ref={menuAcervoRef} />
         <div className={styles.flow_content}>
-          <h2 className={styles.flow_content_title}>Flow</h2>
+          <h2 className={styles.flow_content_title}>
+            {id ? 'Editar Flow' : 'Flow'}
+          </h2>
           <div className={styles.flow_content_header}>
             <FontAwesomeIcon
               icon={faPencil}

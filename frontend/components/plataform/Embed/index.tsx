@@ -4,6 +4,8 @@ import CustomVolume from '@/components/globals/CustomVolume';
 import {
   btnEdgeStyle,
   btnStyle,
+  ctaBtnStyle,
+  ctaPStyle,
   divStyle,
   pStyle,
   subTitleStyle,
@@ -269,6 +271,9 @@ const Embed = ({ campaing }: IEmbedProps) => {
                             setCurrent(BOND.VIDEO_ID);
                             setTimeVideo(0);
                             videoRefs.current[BOND.VIDEO_ID].muted = false;
+                            if (c.VIDEO_ID) {
+                              videoRefs.current[c.VIDEO_ID].muted = true;
+                            }
                             videoRefs.current[BOND.VIDEO_ID]
                               .play()
                               .catch(console.error);
@@ -285,12 +290,31 @@ const Embed = ({ campaing }: IEmbedProps) => {
           );
         })}
       </div>
-      {campaing.FEATURE && campaing.FEATURE.EXTERNAL_LINK && (
-        <div>
-          <p>{campaing.FEATURE.EXTERNAL_LINK.TEXT}</p>
-          <button>{campaing.FEATURE.EXTERNAL_LINK.BUTTON_TEXT}</button>
-        </div>
-      )}
+      {campaing.FEATURE &&
+        campaing.FEATURE.EXTERNAL_LINK &&
+        campaing.FEATURE.EXTERNAL_LINK.ATIVE && (
+          <div className={style.ctaBox}>
+            <p
+              style={{
+                ...ctaPStyle(
+                  JSON.parse(campaing.FEATURE.EXTERNAL_LINK.STYLE_TEXT || '')
+                ),
+              }}
+            >
+              {campaing.FEATURE.EXTERNAL_LINK.TEXT}
+            </p>
+            <button
+              className={style.btnCta}
+              style={{
+                ...ctaBtnStyle(
+                  JSON.parse(campaing.FEATURE.EXTERNAL_LINK.BUTTON_STYLE || '')
+                ),
+              }}
+            >
+              {campaing.FEATURE.EXTERNAL_LINK.BUTTON_TEXT}
+            </button>
+          </div>
+        )}
     </section>
   );
 };

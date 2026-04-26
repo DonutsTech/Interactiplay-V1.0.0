@@ -1,12 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import styles from './CTAGeral.module.scss';
-import { useError } from '@/context/ErrorContext';
+import { ctaBtnStyle as ctaBtnStyleBG, ctaPStyle } from '@/@types/embed';
 import ToggleActive from '@/components/globals/ToggleActive';
 import BtnG from '@/components/plataform/BtnG';
+import { useEditCampaign } from '@/context/EditCampaignContext';
+import { useError } from '@/context/ErrorContext';
+import {
+  ExternalLinkRequest,
+  postCampaignExternalLink,
+} from '@/service/externalLink';
 import { getSlider } from '@/utils/rangeUtils';
+import { isURL } from '@/utils/urlValidator';
 import { formatDuration } from '@/utils/videoUtils';
+import { useEffect, useState } from 'react';
+import styles from './CTAGeral.module.scss';
 
 interface IPayloadCTAGeral {
   ctaText: string;
@@ -26,8 +33,9 @@ interface Iprops {
 }
 
 const CTAGeral = ({ duration }: Iprops) => {
+  const { editingCampaign, fecthCampaignForEdit } = useEditCampaign();
   const [CtaGeralActive, setCtaGeralActive] = useState(false);
-  const { isLoading } = useError();
+  const { isLoading, setIsLoading, showError, showSuccess } = useError();
 
   const [CtaGeralPayload, setCtaGeralPayload] = useState<IPayloadCTAGeral>({
     ctaText: '',
@@ -42,7 +50,102 @@ const CTAGeral = ({ duration }: Iprops) => {
     delay: 0,
   });
 
-  const disabled = (CtaGeralActive && (CtaGeralPayload.textBtn === '' || CtaGeralPayload.linkBtn === ''));
+  useEffect(() => {
+    if (editingCampaign?.FEATURE?.EXTERNAL_LINK?.ATIVE) {
+      const externalLink = editingCampaign.FEATURE.EXTERNAL_LINK;
+      const styleText: ctaPStyle = JSON.parse(externalLink.STYLE_TEXT || '{}');
+      const buttonStyle: ctaBtnStyleBG = JSON.parse(
+        externalLink.BUTTON_STYLE || '{}'
+      );
+      setCtaGeralActive(true);
+      setCtaGeralPayload({
+        ctaText: externalLink.TEXT || '',
+        alignCTA: styleText.alinhamentoCta || 'center',
+        styleCTA: styleText.estiloCta || 'normal',
+        colorCTA: styleText.corCta || '#000000',
+        textBtn: externalLink.BUTTON_TEXT || '',
+        linkBtn: externalLink.LINK_URL || '',
+        corBtn: buttonStyle.corBG || '#000125',
+        corTextBtn: buttonStyle.corTX || '#F2F2F2',
+        cantosBtn: buttonStyle.borderRadius || 0,
+        delay: styleText.delay || 0,
+      });
+    } else {
+      clean();
+    }
+  }, [editingCampaign]);
+
+  const clean = () => {
+    setCtaGeralActive(false);
+    setCtaGeralPayload({
+      ctaText: '',
+      alignCTA: 'center',
+      styleCTA: 'normal',
+      colorCTA: '#000000',
+      textBtn: '',
+      linkBtn: '',
+      corBtn: '#000125',
+      corTextBtn: '#F2F2F2',
+      cantosBtn: 0,
+      delay: 0,
+    });
+  };
+
+  const disabled =
+    CtaGeralActive &&
+    (CtaGeralPayload.textBtn === '' || CtaGeralPayload.linkBtn === '');
+
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      if (!editingCampaign) {
+        showError('Nenhuma campanha selecionada para editar.');
+        return;
+      }
+
+      const body = {
+        ATIVE: CtaGeralActive,
+        TEXT: CtaGeralPayload.ctaText,
+        STYLE_TEXT: JSON.stringify({
+          alinhamentoCta: CtaGeralPayload.alignCTA,
+          estiloCta: CtaGeralPayload.styleCTA,
+          corCta: CtaGeralPayload.colorCTA,
+          styleCta: CtaGeralPayload.styleCTA,
+          delay: CtaGeralPayload.delay,
+        }),
+        BUTTON_TEXT: CtaGeralPayload.textBtn,
+        BUTTON_STYLE: JSON.stringify({
+          corBG: CtaGeralPayload.corBtn,
+          corTX: CtaGeralPayload.corTextBtn,
+          borderRadius: `${CtaGeralPayload.cantosBtn}px`,
+        }),
+        LINK_URL: isURL(CtaGeralPayload.linkBtn)
+          ? CtaGeralPayload.linkBtn
+          : `https://${CtaGeralPayload.linkBtn}`,
+      };
+
+      const result = await postCampaignExternalLink(
+        editingCampaign?.ID || '',
+        body as ExternalLinkRequest
+      );
+
+      if ('STATUS' in result && result.STATUS !== 200) {
+        showError('Erro ao salvar CTA Geral. Tente novamente.');
+        return;
+      }
+
+      showSuccess(`CTA Geral ${CtaGeralActive ? 'ativada' : 'desativada'}!`);
+
+      if (!CtaGeralActive) {
+        clean();
+      }
+    } catch (error) {
+      console.error('Error saving CTA Geral:', error);
+    } finally {
+      fecthCampaignForEdit(editingCampaign?.ID || '');
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className={styles.tool}>
@@ -276,7 +379,7 @@ const CTAGeral = ({ duration }: Iprops) => {
         <div className={`${styles.actions_btn} ${styles.actions_btn_save}`}>
           <BtnG
             text="Salvar"
-            goClick={() => console.log('Salvar clicked')}
+            goClick={() => handleSave()}
             disabled={isLoading || disabled}
           />
         </div>

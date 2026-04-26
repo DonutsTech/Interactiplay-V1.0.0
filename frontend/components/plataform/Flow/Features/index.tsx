@@ -19,6 +19,7 @@ import HeadLine from './HeadLine';
 import CTAGeral from './CTAGeral';
 import { formatDuration } from '@/utils/videoUtils';
 import Pixel from './Pixel';
+import { useRouter } from 'next/navigation';
 
 interface IFeaturesProps {
   campaing: ICampaign;
@@ -37,6 +38,7 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
   const { isLoading } = useError();
+  const router = useRouter();
 
   // console.log('Campanha recebida em Features:', campaing);
 
@@ -48,7 +50,7 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
     return totalDuration;
   };
 
-    useEffect(() => {
+  useEffect(() => {
     const duration = calc();
     setTotalDuration(duration);
   }, [campaing]);
@@ -65,7 +67,7 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
       name: 'Auto Play',
       description: 'Ative o autoplay para iniciar o vídeo em loop automático.',
       children: (
-        <AutoPlay duration={campaing.CAMPAIGN_VIDEOS[0].VIDEO.DURATION}  />
+        <AutoPlay duration={campaing.CAMPAIGN_VIDEOS[0].VIDEO.DURATION} />
       ),
     },
     {
@@ -156,7 +158,7 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
               <div className={`${styles.btn} ${styles.btn_flow}`}>
                 <BtnG
                   text="Editar no Flow"
-                  goClick={() => console.log('clicou no Flow')}
+                  goClick={() => { router.push(`/dashboard/${campaing.ID}`) }}
                 />
               </div>
               <div className={styles.action}>

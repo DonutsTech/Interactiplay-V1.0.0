@@ -28,3 +28,17 @@ export interface subTitleStyle {
   estiloSHL: string;
   corSHL: string;
 }
+
+export interface ctaPStyle {
+  alinhamentoCta: string;
+  estiloCta: string;
+  styleCta: string;
+  corCta: string;
+  delay: number;
+}
+
+export interface ctaBtnStyle {
+  corBG: string;
+  corTX: string;
+  borderRadius: number;
+}

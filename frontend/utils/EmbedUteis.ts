@@ -1,4 +1,11 @@
-import { buttonStyle, ctaStyle, subTitleStyle as TypeSubTitleStyle, titleStyle as TypeTitleStyle } from '@/@types/embed';
+import {
+  buttonStyle,
+  ctaBtnStyle as CtaButtonStyle,
+  ctaPStyle as ctaPStyleBtn,
+  ctaStyle,
+  subTitleStyle as TypeSubTitleStyle,
+  titleStyle as TypeTitleStyle,
+} from '@/@types/embed';
 import { CSSProperties } from 'react';
 
 export const divStyle = (cta: ctaStyle): CSSProperties => {
@@ -66,6 +73,26 @@ export const subTitleStyle = (subTitle: TypeSubTitleStyle): CSSProperties => {
     color: subTitle.corSHL,
     fontStyle: subTitle.estiloSHL === 'italic' ? 'italic' : 'normal',
   };
-}
+};
 
+export const ctaPStyle = (cta: ctaPStyleBtn): CSSProperties => {
+  return {
+    textAlign: cta.alinhamentoCta as CSSProperties['textAlign'],
+    fontWeight:
+      cta.styleCta === 'bold'
+        ? '800'
+        : cta.styleCta === 'normal'
+          ? '600'
+          : '500',
+    fontStyle: cta.estiloCta === 'italic' ? 'italic' : 'normal',
+    color: cta.corCta,
+  };
+};
 
+export const ctaBtnStyle = (cta: CtaButtonStyle): CSSProperties => {
+  return {
+    backgroundColor: cta.corBG,
+    color: cta.corTX,
+    borderRadius: `${cta.borderRadius}px`,
+  };
+};
