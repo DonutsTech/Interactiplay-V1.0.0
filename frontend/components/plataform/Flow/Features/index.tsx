@@ -164,27 +164,13 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
                   <BtnG
                     text={'anterior'}
                     disabled={stepIndex === 0}
-                    goClick={() => {
-                      if (stepIndex > 0) {
-                        setStepIndex(stepIndex - 1);
-                        console.log('passo' + stepIndex);
-                      } else {
-                        console.log('Está no primeiro passo');
-                      }
-                    }}
+                    goClick={() => setStepIndex(stepIndex - 1)}
                   />
                 </div>
                 <div className={`${styles.btn} ${styles.btn_save}`}>
                   <BtnG
                     text={stepIndex === 5 ? 'Finalizar' : 'próximo'}
-                    goClick={() => {
-                      if (stepIndex < steps.length - 1) {
-                        setStepIndex(stepIndex + 1);
-                        console.log('passo' + stepIndex);
-                      } else {
-                        console.log('Finalizou o processo');
-                      }
-                    }}
+                    goClick={() => setStepIndex(stepIndex + 1)}
                   />
                 </div>
               </div>

@@ -12,12 +12,17 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import CardCampaign from './CardCampaign';
 import styles from './MyCampaignsPainel.module.scss';
+import ModalPreview from './ModalPreview';
 
 const MyCampaignsPainel = () => {
   const { handleRequest, showConfirmation } = useError();
   const { setEditingCampaign, setModalOpenF } = useEditCampaign();
   const router = useRouter();
   const [campanhas, setCampanhas] = useState<ICampaign[]>([]);
+  const [modalViewOpen, setModalViewOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState<ICampaign | null>(
+    null
+  );
 
   const loadCampanhas = useCallback(async () => {
     const data = await handleRequest(() => getCampaigns(), {
@@ -70,8 +75,8 @@ const MyCampaignsPainel = () => {
   );
 
   const handleView = useCallback((campaign: ICampaign) => {
-    // TODO: Implementar visualização da campanha
-    console.log('Visualizar campanha:', campaign);
+    setSelectedCampaign(campaign);
+    setModalViewOpen(true);
   }, []);
 
   const handleAnalytics = useCallback((campaign: ICampaign) => {
@@ -86,6 +91,16 @@ const MyCampaignsPainel = () => {
 
   return (
     <section className={styles.myCampaignsPainel}>
+      {modalViewOpen && selectedCampaign && (
+        <ModalPreview
+          campaign={selectedCampaign}
+          onClose={() => {
+            setModalViewOpen(false);
+            setSelectedCampaign(null);
+          }}
+        />
+      )}
+
       <div className={styles.content}>
         <div className={styles.header}>
           <h3>Minhas Campanhas</h3>
