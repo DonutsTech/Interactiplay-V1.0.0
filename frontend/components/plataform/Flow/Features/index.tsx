@@ -8,22 +8,22 @@ import {
   faSun,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import BtnG from '../../BtnG';
 import Embed from '../../Embed';
 import AutoPlay from './AutoPlay';
-import styles from './Features.module.scss';
-import Thumb from './Thumb';
-import SmartTimeline from './SmartTimeline';
-import HeadLine from './HeadLine';
 import CTAGeral from './CTAGeral';
-import { formatDuration } from '@/utils/videoUtils';
+import styles from './Features.module.scss';
+import HeadLine from './HeadLine';
 import Pixel from './Pixel';
-import { useRouter } from 'next/navigation';
+import SmartTimeline from './SmartTimeline';
+import Thumb from './Thumb';
 
 interface IFeaturesProps {
   campaing: ICampaign;
   onClose: () => void;
+  id: string | undefined;
 }
 
 interface IStep {
@@ -33,14 +33,12 @@ interface IStep {
   children?: ReactNode;
 }
 
-const Features = ({ campaing, onClose }: IFeaturesProps) => {
+const Features = ({ campaing, onClose, id }: IFeaturesProps) => {
   const [isToggled, setIsToggled] = useState(true);
   const [stepIndex, setStepIndex] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
   const { isLoading } = useError();
   const router = useRouter();
-
-  // console.log('Campanha recebida em Features:', campaing);
 
   const calc = () => {
     let totalDuration = 0;
@@ -108,7 +106,6 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
           <div
             className={styles.view}
             style={{
-              // backgroundColor: isToggled ? '#E4E4E4' : '#0f0f0f',
               backgroundColor: isToggled ? '#E4E4E4' : '#000125',
             }}
           >
@@ -158,7 +155,13 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
               <div className={`${styles.btn} ${styles.btn_flow}`}>
                 <BtnG
                   text="Editar no Flow"
-                  goClick={() => { router.push(`/dashboard/${campaing.ID}`) }}
+                  goClick={() => {
+                    if (id) {
+                      onClose();
+                    } else {
+                      router.push(`/dashboard/${campaing.ID}`);
+                    }
+                  }}
                 />
               </div>
               <div className={styles.action}>
