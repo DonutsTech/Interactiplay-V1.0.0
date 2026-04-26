@@ -58,7 +58,7 @@ const HeadLine = () => {
                     })
                   }
                 />
-                <div className={styles.headline_box_styles}></div>
+                {/* <div className={styles.headline_box_styles}></div> */}
                 <div className={styles.headline_box_styles_persona}>
                   <div className={styles.headline_box_styles_persona_font}>
                     <p>Estilo</p>

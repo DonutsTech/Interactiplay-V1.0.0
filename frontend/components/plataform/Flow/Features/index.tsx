@@ -8,7 +8,7 @@ import {
   faSun,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import BtnG from '../../BtnG';
 import Embed from '../../Embed';
 import AutoPlay from './AutoPlay';
@@ -16,6 +16,9 @@ import styles from './Features.module.scss';
 import Thumb from './Thumb';
 import SmartTimeline from './SmartTimeline';
 import HeadLine from './HeadLine';
+import CTAGeral from './CTAGeral';
+import { formatDuration } from '@/utils/videoUtils';
+import Pixel from './Pixel';
 
 interface IFeaturesProps {
   campaing: ICampaign;
@@ -32,7 +35,23 @@ interface IStep {
 const Features = ({ campaing, onClose }: IFeaturesProps) => {
   const [isToggled, setIsToggled] = useState(true);
   const [stepIndex, setStepIndex] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(0);
   const { isLoading } = useError();
+
+  // console.log('Campanha recebida em Features:', campaing);
+
+  const calc = () => {
+    let totalDuration = 0;
+    campaing.CAMPAIGN_VIDEOS.forEach((video) => {
+      totalDuration += video.VIDEO.DURATION;
+    });
+    return totalDuration;
+  };
+
+    useEffect(() => {
+    const duration = calc();
+    setTotalDuration(duration);
+  }, [campaing]);
 
   const steps: IStep[] = [
     {
@@ -66,11 +85,13 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
       step: 4,
       name: 'CTA Geral',
       description: 'Configure o botão de chamada para ação geral da campanha.',
+      children: <CTAGeral duration={totalDuration} />,
     },
     {
       step: 5,
       name: 'Pixel',
       description: 'Adicione seu pixel para rastreamento de conversões.',
+      children: <Pixel />,
     },
   ];
 
