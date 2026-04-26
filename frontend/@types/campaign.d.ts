@@ -111,6 +111,7 @@ export interface IThumb {
 
 export interface IGancho {
   ID: string;
+  ATIVE: boolean;
   TITLE: string;
   TITLE_STYLE: string;
   SUBTITLE: string;
@@ -123,6 +124,7 @@ export interface IGancho {
 
 export interface ITimeline {
   ID: string;
+  ATIVE: boolean;
   HEIGHT: number;
   COR: string;
   CREATED_AT: Date | null;
@@ -131,6 +133,7 @@ export interface ITimeline {
 
 export interface IExternalLink {
   ID: string;
+  ATIVE: boolean;
   TEXT: string | null;
   STYLE_TEXT: string | null;
   BUTTON_TEXT: string | null;
@@ -144,6 +147,7 @@ export interface IExternalLink {
 
 export interface IPixel {
   ID: string;
+  ATIVE: boolean;
   NAME_META: string | null;
   ID_META: string | null;
   NAME_GOOGLE: string | null;

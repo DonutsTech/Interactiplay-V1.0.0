@@ -5,6 +5,8 @@ import styles from './HeadLine.module.scss';
 import ToggleActive from '@/components/globals/ToggleActive';
 import { useError } from '@/context/ErrorContext';
 import BtnG from '@/components/plataform/BtnG';
+import { useEditCampaign } from '@/context/EditCampaignContext';
+import { postCampaignGancho } from '@/service/gancho';
 
 interface IPayloadHeadLine {
   headLine: string;
@@ -17,8 +19,9 @@ interface IPayloadHeadLine {
 }
 
 const HeadLine = () => {
+  const { editingCampaign, fecthCampaignForEdit } = useEditCampaign();
   const [headLineActive, setHeadLineActive] = useState(false);
-  const { isLoading } = useError();
+  const { isLoading, setIsLoading, showError, showSuccess } = useError();
 
   const [headLinerPayload, setHeadLinerPayload] = useState<IPayloadHeadLine>({
     headLine: '',
@@ -29,6 +32,67 @@ const HeadLine = () => {
     styleSHL: 'normal',
     colorSHL: '#000000',
   });
+
+  const clean = () => {
+    setHeadLinerPayload({
+      headLine: '',
+      styleHL: 'normal',
+      colorHL: '#000000',
+      subHeadLine: '',
+      alignSHL: 'center',
+      styleSHL: 'normal',
+      colorSHL: '#000000',
+    })
+  }
+
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      if (!editingCampaign) {
+        showError('Nenhuma campanha selecionada para editar.');
+        return;
+      }
+
+      const body = {
+        ATIVE: headLineActive,
+        TITLE: headLinerPayload.headLine,
+        TITLE_STYLE: JSON.stringify({
+          estiloHL: headLinerPayload.styleHL,
+          corHL: headLinerPayload.colorHL,
+        }),
+        SUBTITLE: headLinerPayload.subHeadLine,
+        SUBTITLE_ANIMATION: false,
+        SUBTITLE_ANIMATION_TYPE: '',
+        SUBTITLE_STYLE: JSON.stringify({
+          alinhamentoSHL: headLinerPayload.alignSHL,
+          estiloSHL: headLinerPayload.styleSHL,
+          corSHL: headLinerPayload.colorSHL,
+        }),
+      }
+
+      const result = await postCampaignGancho(
+        editingCampaign.ID,
+        body
+      );
+
+      if ('STATUS' in result && result.STATUS !== 200) {
+        showError('Erro ao salvar Head Line. Tente novamente.');
+        return;
+      }
+
+      showSuccess(`HeadLine ${headLineActive ? 'ativada' : 'desativada'}.`);
+
+      if (!headLineActive) {
+        clean();
+      }
+
+    } catch (err: any) {
+      console.error('Error in handleSave:', err);
+    } finally {
+      fecthCampaignForEdit(editingCampaign?.ID || '');
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div className={styles.tool}>
@@ -198,7 +262,7 @@ const HeadLine = () => {
         <div className={`${styles.actions_btn} ${styles.actions_btn_save}`}>
           <BtnG
             text="Salvar"
-            goClick={() => console.log('Salvar clicked')}
+            goClick={() => handleSave()}
             disabled={isLoading}
           />
         </div>
