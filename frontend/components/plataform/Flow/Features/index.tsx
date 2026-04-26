@@ -40,7 +40,6 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
   const { isLoading } = useError();
   const router = useRouter();
 
-  const router = useRouter();
   // console.log('Campanha recebida em Features:', campaing);
 
   const calc = () => {
