@@ -28,7 +28,7 @@ export default function NotFound() {
           src={numero}
           alt="Número 404"
           className={styles.media_image}
-          loading="lazy"
+          loading="eager"
           draggable={false}
         />
       </div>
@@ -37,7 +37,7 @@ export default function NotFound() {
           <Image
             src={logo}
             alt="Logo da interactiplay"
-            loading="lazy"
+            loading="eager"
             draggable={false}
             className={styles.logo}
           />

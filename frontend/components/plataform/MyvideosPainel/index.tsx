@@ -101,7 +101,6 @@ const loadCampaingnVideos = async () => {
   return (
     <section className={styles.myvideosPainel}>
       <div className={styles.myvideosPainel_content}>
-          <div className={styles.myvideosPainel_content_bg} />
         <div className={styles.myvideosPainel_content_header}>
           <div className={styles.myvideosPainel_content_header_information}>
             <h4>Meus Vídeos - Acervo</h4>

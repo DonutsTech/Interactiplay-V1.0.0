@@ -69,6 +69,8 @@
       flex-flow: column nowrap;
       align-items: flex-start;
       justify-content: space-between;
+      overflow-x: hidden;
+      overflow-y: auto;
 
       &_header {
         width: 100%;

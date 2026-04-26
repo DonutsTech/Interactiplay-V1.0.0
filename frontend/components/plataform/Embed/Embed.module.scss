@@ -79,7 +79,9 @@
   }
 
   .ganchoSubTitle {
-    width: 80%;
+    width: 60%;
+    height: auto;
+    word-break: break-word;
     font-size: 1.2em;
     font-family: $font-family-text;
   }

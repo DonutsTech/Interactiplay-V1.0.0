@@ -14,6 +14,7 @@ import {
   faCode,
 } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
+import { formatDateBR } from '@/utils/stringUtils';
 
 interface CardCampaignProps {
   campaign: ICampaign;
@@ -32,18 +33,6 @@ const CardCampaign = ({
   onAnalytics,
   onEmbed,
 }: CardCampaignProps) => {
-
-  const formatDate = (dateString: Date | null) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
-
-
 
 
   const videosCount = campaign.CAMPAIGN_VIDEOS?.length || 0;
@@ -65,12 +54,12 @@ const CardCampaign = ({
             <strong>Vídeos:</strong> {videosCount}
           </span>
           <span className={styles.campaignCard_info_detail}>
-            <strong>Criada em:</strong> {formatDate(campaign.CREATED_AT)}
+            <strong>Criada em:</strong> {formatDateBR(campaign.CREATED_AT)}
           </span>
           {campaign.UPDATED_AT &&
             campaign.UPDATED_AT !== campaign.CREATED_AT && (
               <span className={styles.campaignCard_info_detail}>
-                <strong>Atualizada em:</strong> {formatDate(campaign.UPDATED_AT)}
+                <strong>Atualizada em:</strong> {formatDateBR(campaign.UPDATED_AT)}
               </span>
             )}
         </div>
