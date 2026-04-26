@@ -19,6 +19,7 @@ import HeadLine from './HeadLine';
 import CTAGeral from './CTAGeral';
 import { formatDuration } from '@/utils/videoUtils';
 import Pixel from './Pixel';
+import { useRouter } from 'next/navigation';
 
 interface IFeaturesProps {
   campaing: ICampaign;
@@ -38,6 +39,7 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
   const [totalDuration, setTotalDuration] = useState(0);
   const { isLoading } = useError();
 
+  const router = useRouter();
   // console.log('Campanha recebida em Features:', campaing);
 
   const calc = () => {
@@ -170,7 +172,13 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
                 <div className={`${styles.btn} ${styles.btn_save}`}>
                   <BtnG
                     text={stepIndex === 5 ? 'Finalizar' : 'próximo'}
-                    goClick={() => setStepIndex(stepIndex + 1)}
+                    goClick={() => {
+                      if (stepIndex < 5) {
+                        setStepIndex(stepIndex + 1);
+                      } else {
+                        router.push('/dashboard/mycampaigns');
+                      }
+                    }}
                   />
                 </div>
               </div>
