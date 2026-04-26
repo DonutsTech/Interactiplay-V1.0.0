@@ -327,22 +327,9 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
       `Campanha "${nameCampaign}" ${id ? 'atualizada' : 'salva'} com sucesso! ${nodes.length} vídeo(s) adicionado(s).`
     );
 
-    // if (!id) {
-    //   setNodes([]);
-    //   setEdges([]);
-    //   setNameCampaign('Nome da campanha');
-    // } else {
-    //   router.push(`/dashboard/${result.ID}`);
-    // }
-
-    // setIsEditing(false);
-    // if (modalOpen) {
-    //   setModalOpen(false);
-    // }
-
     setEditingCampaign(result);
     router.push(`/dashboard/${result.ID}`);
-    
+
   }, [
     nameCampaign,
     nodes,
