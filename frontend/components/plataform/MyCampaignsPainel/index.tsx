@@ -69,7 +69,7 @@ const MyCampaignsPainel = () => {
     async (campaign: ICampaign) => {
       setEditingCampaign(campaign);
       setModalOpenF(true);
-      router.push('/dashboard');
+      router.push(`/dashboard/${campaign.ID}`);
     },
     [router, setEditingCampaign]
   );

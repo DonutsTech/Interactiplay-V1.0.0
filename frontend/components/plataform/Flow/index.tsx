@@ -45,6 +45,7 @@ import styles from './Flow.module.scss';
 import MenuAcervo from './MenuAcervo';
 import ModalFlow from './ModalFlow';
 import './style.css';
+import { useRouter } from 'next/navigation';
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -73,6 +74,7 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
   const [savedCampaign, setSavedCampaign] = useState<ICampaign | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const menuAcervoRef = useRef<{ closeMenu: () => void }>(null);
+  const router = useRouter();
 
   const {
     nodes,
@@ -308,6 +310,7 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
       result = await updateCampaign(id, payload);
     } else {
       result = await createCampaign(payload);
+
     }
 
     if ('STATUS' in result && 'MESSAGE' in result) {
@@ -324,16 +327,22 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
       `Campanha "${nameCampaign}" ${id ? 'atualizada' : 'salva'} com sucesso! ${nodes.length} vídeo(s) adicionado(s).`
     );
 
-    if (!id) {
-      setNodes([]);
-      setEdges([]);
-      setNameCampaign('Nome da campanha');
-    }
+    // if (!id) {
+    //   setNodes([]);
+    //   setEdges([]);
+    //   setNameCampaign('Nome da campanha');
+    // } else {
+    //   router.push(`/dashboard/${result.ID}`);
+    // }
 
-    setIsEditing(false);
-    if (modalOpen) {
-      setModalOpen(false);
-    }
+    // setIsEditing(false);
+    // if (modalOpen) {
+    //   setModalOpen(false);
+    // }
+
+    setEditingCampaign(result);
+    router.push(`/dashboard/${result.ID}`);
+    
   }, [
     nameCampaign,
     nodes,
@@ -418,6 +427,7 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
             setModalOpenF(false);
             setFeaturesModalOpen(false);
             setSavedCampaign(null);
+            
           }}
           id={id}
         />

@@ -99,7 +99,12 @@ const Features = ({ campaing, onClose, id }: IFeaturesProps) => {
     <section className={styles.wrapper}>
       <div className={styles.overlay} />
       <div className={styles.container}>
-        <button className={styles.close} onClick={onClose}>
+        <button className={styles.close} onClick={() => {
+          if (id) {
+            router.push(`/dashboard`);
+          }
+          onClose();
+        }}>
           <FontAwesomeIcon icon={faCircleXmark} />
         </button>
         <div className={styles.content}>
