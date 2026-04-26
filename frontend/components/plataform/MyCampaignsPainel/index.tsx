@@ -98,6 +98,7 @@ const MyCampaignsPainel = () => {
             setModalViewOpen(false);
             setSelectedCampaign(null);
           }}
+          onEdit={() => handleEdit(selectedCampaign)}
         />
       )}
 

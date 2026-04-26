@@ -269,6 +269,9 @@ const Embed = ({ campaing }: IEmbedProps) => {
                             setCurrent(BOND.VIDEO_ID);
                             setTimeVideo(0);
                             videoRefs.current[BOND.VIDEO_ID].muted = false;
+                            if (c.VIDEO_ID) {
+                              videoRefs.current[c.VIDEO_ID].muted = true;
+                            }
                             videoRefs.current[BOND.VIDEO_ID]
                               .play()
                               .catch(console.error);

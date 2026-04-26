@@ -3,16 +3,17 @@
 import { useEffect, useState } from 'react';
 import styles from './ModalPreview.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSquarePen, faSun } from '@fortawesome/free-solid-svg-icons';
 import { ICampaign } from '@/@types/campaign';
 import Embed from '../../Embed';
 
 interface IProps {
   onClose: () => void;
+  onEdit: () => void;
   campaign: ICampaign;
 }
 
-const ModalPreview = ({ onClose, campaign }: IProps) => {
+const ModalPreview = ({ onClose, onEdit, campaign }: IProps) => {
   const [isToggled, setIsToggled] = useState(true);
 
   useEffect(() => {
@@ -39,12 +40,14 @@ const ModalPreview = ({ onClose, campaign }: IProps) => {
         }}
       >
         <div className={styles.header}>
-          <p 
+          <p
             className={styles.header_title}
             style={{
               color: isToggled ? '#000125' : '#f2f2f2',
             }}
-          >{campaign.NAME}</p>
+          >
+            {campaign.NAME}
+          </p>
           <div className={styles.header_right}>
             <div className={styles.header_right_mode}>
               <FontAwesomeIcon
@@ -76,8 +79,21 @@ const ModalPreview = ({ onClose, campaign }: IProps) => {
               />
             </div>
             <button
+              className={styles.editButton}
+              title="Editar campanha"
+              onClick={onEdit}
+            >
+              <FontAwesomeIcon
+                icon={faSquarePen}
+                style={{
+                  color: isToggled ? '#000125' : '#f2f2f2',
+                }}
+              />
+            </button>
+            <button
               className={styles.closeButton}
               onClick={onClose}
+              title="Fechar visualização"
               style={{
                 color: isToggled ? '#f2f2f2' : '#000125',
                 backgroundColor: isToggled ? '#000125' : '#f2f2f2',
