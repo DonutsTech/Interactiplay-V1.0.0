@@ -279,6 +279,7 @@ model Thumb {
 
 model Gancho {
   ID                      String    @id @default(uuid())
+  ATIVE                   Boolean   @default(false)
   TITLE                   String
   TITLE_STYLE             String
   SUBTITLE                String
@@ -294,6 +295,7 @@ model Gancho {
 
 model Timeline {
   ID         String    @id @default(uuid())
+  ATIVE      Boolean   @default(false)
   HEIGHT     Int
   COR        String
   FEATURE    Feature?
@@ -305,6 +307,7 @@ model Timeline {
 
 model External_Link {
   ID           String    @id @default(uuid())
+  ATIVE        Boolean   @default(false)
   TEXT         String?
   STYLE_TEXT   String?
   BUTTON_TEXT  String?
@@ -321,6 +324,7 @@ model External_Link {
 
 model Pixel {
   ID                          String    @id @default(uuid())
+  ATIVE                       Boolean   @default(false)
   NAME_META                   String?
   ID_META                     String?
   NAME_GOOGLE                 String?

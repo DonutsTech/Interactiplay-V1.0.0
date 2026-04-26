@@ -1,4 +1,5 @@
 export interface createGancho {
+  ATIVE: boolean;
   TITLE: string;
   TITLE_STYLE: string;
   SUBTITLE: string;

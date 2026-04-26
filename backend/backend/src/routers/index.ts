@@ -9,6 +9,7 @@ import HistoryPlaysRouter from './historyPlays';
 import PixelRouter from './pixel';
 import PlanRouter from './plan';
 import ThumbRouter from './thumb';
+import TimeLineRouter from './timeline';
 import UserRouter from './user';
 import WebhookRouter from './webhook';
 
@@ -28,6 +29,7 @@ export const applyApiRouters = (router: Router): void => {
     GanchoRouter,
     PixelRouter,
     ThumbRouter,
+    TimeLineRouter,
   ];
   applyRouters(router, routers);
 };

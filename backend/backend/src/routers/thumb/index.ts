@@ -15,7 +15,7 @@ class ThumbRouter {
     );
 
     router.delete(
-      '/user/campaigns/:id/thumb',
+      '/user/campaigns/thumb/:id',
       isAuthenticateTokenDb,
       isValidateUserPlan,
       thumbController.deleteThumbById,

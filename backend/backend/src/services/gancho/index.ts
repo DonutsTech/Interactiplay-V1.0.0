@@ -18,6 +18,8 @@ class GanchoService {
 
   async createGanchoWithCampaign(campaignId: string, body: createGancho) {
     try {
+      console.log('Creating or updating gancho for campaign:', campaignId);
+      console.log('Gancho data:', body);
       await campaignService.existsById(campaignId);
 
       const featureWithCampaign = await featuresService.findFeaturesByCampaign(campaignId);
@@ -59,6 +61,8 @@ class GanchoService {
 
         return gancho;
       }
+
+      console.log('No valid feature found for campaign:', campaignId);
     } catch (error) {
       throw error;
     }

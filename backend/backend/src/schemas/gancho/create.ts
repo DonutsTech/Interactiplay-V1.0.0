@@ -1,6 +1,11 @@
 import Joi from 'joi';
 
 const createGancho = Joi.object({
+  ATIVE: Joi.boolean().required().messages({
+    'boolean.base': 'O status do gancho deve ser ativado ou desativado',
+    'any.required': 'É necessário informar se o gancho está ativo',
+  }),
+
   TITLE: Joi.string().allow('').optional().messages({
     'string.base': 'O título deve conter apenas texto',
     'string.empty': 'O título pode ficar vazio',

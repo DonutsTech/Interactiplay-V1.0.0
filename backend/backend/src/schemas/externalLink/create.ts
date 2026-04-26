@@ -1,6 +1,11 @@
 import Joi from 'joi';
 
 const createExternalLink = Joi.object({
+  ATIVE: Joi.boolean().required().messages({
+    'boolean.base': 'O status do link externo deve ser ativado ou desativado',
+    'any.required': 'É necessário informar se o link externo está ativo',
+  }),
+
   TEXT: Joi.string().max(104).allow('').optional().messages({
     'string.base': 'O texto deve ser uma string',
     'string.max': 'O texto não pode ter mais de 104 caracteres',

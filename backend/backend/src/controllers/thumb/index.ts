@@ -18,7 +18,7 @@ class ThumbController {
     try {
       const { id } = request.params as { id: string };
       const result = await thumbService.deleteThumbById(id);
-      return response.status(204).json(result);
+      return response.status(200).json(result);
     } catch (error) {
       next(error);
     }

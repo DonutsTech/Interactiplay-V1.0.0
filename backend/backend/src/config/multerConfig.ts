@@ -45,14 +45,11 @@ const allVideoTypes = ['video/mp4'];
 
 export const imageUpload = multer({
   storage: s3Storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    console.log(file);
-    cb(new CustomError('Somente imagens JPG, PNG, HEIC ou WebP são permitidas'));
     if (allImageTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      console.log('Image rejected - Invalid type:', file.mimetype);
       cb(new CustomError('Somente imagens JPG, PNG, HEIC ou WebP são permitidas'));
     }
   },
