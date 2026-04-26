@@ -5,6 +5,7 @@ import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
 import style from './Embed.module.scss';
+import CustomVolume from '@/components/globals/CustomVolume';
 
 interface IEmbedProps {
   campaing: ICampaign;
@@ -89,15 +90,17 @@ const Embed = ({ campaing }: IEmbedProps) => {
   };
 
   return (
-    <section style={{ 
-      width: '100%', 
-      height: '100%', 
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '16px',
-    }}>
+    <section
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '16px',
+      }}
+    >
       {campaing.FEATURE && campaing.FEATURE.GANCHO && (
         <div>
           <h2>{campaing.FEATURE.GANCHO.TITLE}</h2>
@@ -130,6 +133,12 @@ const Embed = ({ campaing }: IEmbedProps) => {
 
           return (
             <div key={c.ID}>
+              {/* Botão de volume customizado */}
+              {isPlaying && current === c.VIDEO.ID && (
+                <CustomVolume
+                  videoRef={current ? videoRefs.current[current] : null}
+                />
+              )}
               <video
                 id={c.VIDEO.ID}
                 ref={(el) => {
@@ -169,7 +178,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
                   {c.CTA && (
                     <div
                       className={style['embed-div']}
-                      style={{ ...divStyle(cta),  }}
+                      style={{ ...divStyle(cta) }}
                     >
                       <p style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</p>
                       <button
