@@ -1,11 +1,13 @@
 'use client';
 
 import { ICampaign } from '@/@types/campaign';
+import { getCampaignById } from '@/service/campaign/capaignServices';
 import {
   createContext,
   Dispatch,
   ReactNode,
   SetStateAction,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -17,6 +19,7 @@ interface EditCampaignContextType {
   setEditingCampaign: Dispatch<SetStateAction<ICampaign | undefined>>;
   modalOpenF: boolean;
   setModalOpenF: Dispatch<SetStateAction<boolean>>;
+  fecthCampaignForEdit: (id: string) => Promise<void>;
 }
 
 const DEFAULT_CONTEXT: EditCampaignContextType = {
@@ -24,6 +27,7 @@ const DEFAULT_CONTEXT: EditCampaignContextType = {
   setEditingCampaign: () => {},
   modalOpenF: false,
   setModalOpenF: () => {},
+  fecthCampaignForEdit: async (id: string) => {},
 };
 
 const EditCampaignContext =
@@ -37,12 +41,24 @@ export const EditCampaignProvider = ({ children }: { children: ReactNode }) => {
 
   const { handleRequest } = useError();
 
-  const fecthCampaignForEdit = (campaignId: string) => {
-    try {
-    } catch (error) {
-      console.error('Erro ao buscar campanha para edição:', error);
+  console.log(editingCampaign)
+
+  const fecthCampaignForEdit = useCallback(async (id: string) => {
+    const data = await handleRequest(
+      () => getCampaignById(id),
+      {
+        loadingMessage: 'Carregando campanhas...',
+        suppressLoadingToast: true,
+        suppressLoading: true,
+      }
+    );
+
+    console.log('Fetched campaign data:', data);
+
+    if (data && 'ID' in data) {
+      setEditingCampaign(data);
     }
-  };
+  }, [handleRequest]);
 
   const value = useMemo(
     () => ({
@@ -50,6 +66,7 @@ export const EditCampaignProvider = ({ children }: { children: ReactNode }) => {
       setEditingCampaign,
       modalOpenF,
       setModalOpenF,
+      fecthCampaignForEdit,
     }),
     [editingCampaign, setEditingCampaign, modalOpenF, setModalOpenF]
   );

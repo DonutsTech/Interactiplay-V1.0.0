@@ -1,16 +1,19 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import styles from './Thumb.module.scss';
-import BtnG from '@/components/plataform/BtnG';
-import classNames from 'classnames';
-import { useError } from '@/context/ErrorContext';
 import { AnimatedLogo } from '@/components/globals/AnimateLogo';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons';
 import ToggleActive from '@/components/globals/ToggleActive';
+import BtnG from '@/components/plataform/BtnG';
+import { useEditCampaign } from '@/context/EditCampaignContext';
+import { useError } from '@/context/ErrorContext';
+import { deleteCampaignThumb, postCampaignThumb } from '@/service/thumb';
+import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import classNames from 'classnames';
+import { useEffect, useRef, useState } from 'react';
+import styles from './Thumb.module.scss';
 
 const Thumb = () => {
+  const { editingCampaign, fecthCampaignForEdit } = useEditCampaign();
   const [thumbActive, setThumbActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>(
@@ -19,36 +22,23 @@ const Thumb = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { isLoading, setIsLoading, showError, showSuccess } = useError();
 
-  // Mock de envio para o backend
-  const mockSendThumb = async (file: File | null, ativo: boolean) => {
-    setIsLoading(true);
-    return new Promise<{ success: boolean; message: string }>(
-      (resolve, reject) => {
-        setTimeout(() => {
-          if (ativo && file) {
-            resolve({ success: true, message: 'Thumb enviada e ativada!' });
-          } else if (!ativo) {
-            resolve({ success: true, message: 'Thumb desativada.' });
-          } else {
-            reject(new Error('Erro ao enviar thumb.'));
-          }
-          setIsLoading(false);
-        }, 1200);
-      }
-    );
-  };
-
   // Resetar Thumb (desativa, não apaga arquivo)
   const resetThumb = () => {
     setThumbActive(false);
   };
+
+  useEffect(() => {
+    if (editingCampaign?.FEATURE?.THUMB_ID) {
+      setThumbActive(true);
+      setFileName(editingCampaign.FEATURE.THUMB?.IMAGE_URL.split('/').pop() || 'Imagem atual');
+    }
+  }, [editingCampaign]);
 
   // Excluir arquivo Thumb (apaga arquivo e desativa)
   const handleDelete = () => {
     setSelectedFile(null);
     setFileName('Nenhuma imagem selecionada.');
     setThumbActive(false);
-    showSuccess('Thumb excluída.');
     if (inputRef.current) inputRef.current.value = '';
   };
 
@@ -56,20 +46,46 @@ const Thumb = () => {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      if (!selectedFile) {
-        // Salva como inativo
-        await mockSendThumb(null, false);
-        setThumbActive(false);
-        showSuccess('Thumb salva como inativa.');
+      if (
+        editingCampaign === undefined
+      ) {
+        showError('Nenhuma campanha selecionada para editar.');
+        return;
+      }
+
+      if (thumbActive) {
+          const result = await postCampaignThumb(
+            editingCampaign.ID,
+            selectedFile as File
+          );
+
+          if ('STATUS' in result && result.STATUS !== 201) {
+            showError('Erro ao excluir salvar thumb. Tente novamente.');
+          }
+
+          showSuccess('Thumb salva.');
       } else {
-        // Salva como ativo
-        await mockSendThumb(selectedFile, true);
-        setThumbActive(true);
-        showSuccess('Thumb enviada e ativada!');
+        if (!editingCampaign.FEATURE?.THUMB_ID) {
+          throw new Error(
+            'Não existe nenhuma thumb para excluir nesta campanha.'
+          );
+        }
+
+        const result = await deleteCampaignThumb(
+          editingCampaign.FEATURE?.THUMB_ID
+        );
+
+        if ('STATUS' in result && result.STATUS !== 204) {
+          showError('Erro ao excluir thumb. Tente novamente.');
+        }
+
+        showSuccess('Thumb excluida.');
       }
     } catch (err: any) {
+      console.error('Error in handleSave:', err);
       showError(err.message || 'Erro ao salvar thumb.');
     } finally {
+      fecthCampaignForEdit(editingCampaign?.ID || '');
       setIsLoading(false);
     }
   };
@@ -110,7 +126,9 @@ const Thumb = () => {
   return (
     <div className={styles.tool}>
       <div className={styles.tool_content}>
-        <div className={`${styles.toggle} ${!thumbActive ? styles.toggle_solo : ''}`}>
+        <div
+          className={`${styles.toggle} ${!thumbActive ? styles.toggle_solo : ''}`}
+        >
           <ToggleActive
             active={thumbActive}
             onToggle={() => setThumbActive((prev) => !prev)}

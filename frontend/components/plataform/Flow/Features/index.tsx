@@ -65,7 +65,7 @@ const Features = ({ campaing, onClose }: IFeaturesProps) => {
       name: 'Auto Play',
       description: 'Ative o autoplay para iniciar o vídeo em loop automático.',
       children: (
-        <AutoPlay duration={campaing.CAMPAIGN_VIDEOS[0].VIDEO.DURATION} />
+        <AutoPlay duration={campaing.CAMPAIGN_VIDEOS[0].VIDEO.DURATION}  />
       ),
     },
     {

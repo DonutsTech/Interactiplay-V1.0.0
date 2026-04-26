@@ -1,16 +1,61 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './SmartTimeline.module.scss';
 import ToggleActive from '@/components/globals/ToggleActive';
 import { useError } from '@/context/ErrorContext';
 import BtnG from '@/components/plataform/BtnG';
+import { useEditCampaign } from '@/context/EditCampaignContext';
+import { postCampaignTimeLine } from '@/service/smartTime';
 
 const SmartTimeline = () => {
+  const { editingCampaign, fecthCampaignForEdit } = useEditCampaign();
   const [smartTimelineActive, setSmartTimelineActive] = useState(false);
   const [height, setHeight] = useState(10);
   const [color, setColor] = useState('#f2f2f2');
-  const { isLoading } = useError();
+  const { isLoading, setIsLoading, showError, showSuccess } = useError();
+
+  useEffect(() => {
+    if (editingCampaign?.FEATURE?.TIMELINE) {
+      const timeLineFeature = editingCampaign.FEATURE.TIMELINE;
+      setSmartTimelineActive(timeLineFeature.ATIVE);
+      setHeight(timeLineFeature.ATIVE ? timeLineFeature.HEIGHT : 10);
+      setColor(timeLineFeature.ATIVE ? timeLineFeature.COR : '#f2f2f2');
+    }
+  }, [editingCampaign]);
+
+  const handleSave = async () => {
+    setIsLoading(true);
+
+    try {
+      if (!editingCampaign) {
+        showError('Nenhuma campanha selecionada para editar.');
+        return;
+      }
+
+      const result = await postCampaignTimeLine(
+        editingCampaign.ID,
+        {
+          ATIVE: smartTimelineActive,
+          HEIGHT: height,
+          COR: color,
+        }
+      )
+
+      if ('STATUS' in result && result.STATUS !== 200) {
+        showError('Erro ao salvar Smart Timeline. Tente novamente.');
+        return;
+      }
+
+      showSuccess(`Smart Timeline ${smartTimelineActive ? 'ativada' : 'desativada'}.`);
+    } catch (erro: any) {
+      console.error('Error in handleSave:', erro);
+      showError(erro.message || 'Erro ao salvar Smart Timeline.');
+    } finally {
+      fecthCampaignForEdit(editingCampaign?.ID || '');
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div className={styles.tool}>
@@ -66,7 +111,7 @@ const SmartTimeline = () => {
         <div className={`${styles.actions_btn} ${styles.actions_btn_save}`}>
           <BtnG
             text="Salvar"
-            goClick={() => console.log('Salvar clicked')}
+            goClick={() => handleSave()}
             disabled={isLoading}
           />
         </div>

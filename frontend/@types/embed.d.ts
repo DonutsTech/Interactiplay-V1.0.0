@@ -17,3 +17,14 @@ export interface buttonStyle {
   btnTop: string;
   btnLeft: string;
 }
+
+export interface titleStyle {
+  estiloHL: string;
+  corHL: string;
+}
+
+export interface subTitleStyle {
+  alinhamentoSHL: string;
+  estiloSHL: string;
+  corSHL: string;
+}

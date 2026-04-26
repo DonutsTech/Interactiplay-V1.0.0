@@ -1,11 +1,18 @@
 import { ICampaign } from '@/@types/campaign';
 import { ctaStyle } from '@/@types/embed';
-import { btnEdgeStyle, btnStyle, divStyle, pStyle } from '@/utils/EmbedUteis';
+import CustomVolume from '@/components/globals/CustomVolume';
+import {
+  btnEdgeStyle,
+  btnStyle,
+  divStyle,
+  pStyle,
+  subTitleStyle,
+  titleStyle,
+} from '@/utils/EmbedUteis';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
 import style from './Embed.module.scss';
-import CustomVolume from '@/components/globals/CustomVolume';
 
 interface IEmbedProps {
   campaing: ICampaign;
@@ -18,18 +25,33 @@ const Embed = ({ campaing }: IEmbedProps) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [started, setStarted] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (campaing) {
-      const fristVideo = campaing.CAMPAIGN_VIDEOS.find((c) => c.ORDER === 1);
+  const fristVideo = campaing.CAMPAIGN_VIDEOS.find((c) => c.ORDER === 1);
 
-      if (fristVideo) {
-        setCurrent(fristVideo.VIDEO.ID);
-        setStarted(true);
-      }
+  useEffect(() => {
+    if (campaing && fristVideo) {
+      setCurrent(fristVideo.VIDEO.ID);
+      setStarted(true);
     }
   }, [campaing]);
 
-  useEffect(() => {});
+  useEffect(() => {
+    if (campaing.FEATURE?.AUTO_PLAY && started) {
+      const autoPlayActive = campaing.FEATURE.AUTO_PLAY.ATIVE;
+
+      if (autoPlayActive && fristVideo) {
+        setTimeout(() => {
+          videoRefs.current[fristVideo.VIDEO.ID].muted = true;
+          videoRefs.current[fristVideo.VIDEO.ID].play().catch(console.error);
+        }, 3000);
+      }
+
+      if (!autoPlayActive && fristVideo) {
+        videoRefs.current[fristVideo.VIDEO.ID].pause();
+        videoRefs.current[fristVideo.VIDEO.ID].currentTime = 0;
+        setTimeVideo(0);
+      }
+    }
+  }, [campaing]);
 
   const handleVideoStart = () => {
     if (!current) return;
@@ -71,6 +93,20 @@ const Embed = ({ campaing }: IEmbedProps) => {
 
     if (!video) return;
 
+    if (
+      campaing.FEATURE?.AUTO_PLAY &&
+      campaing.FEATURE.AUTO_PLAY.ATIVE &&
+      started
+    ) {
+      const autoPlaySecond = campaing.FEATURE.AUTO_PLAY.SECOND;
+
+      if (video.currentTime >= autoPlaySecond) {
+        video.currentTime = 0;
+        setTimeVideo(0);
+        return;
+      }
+    }
+
     const currentTime = video.currentTime;
 
     setTimeVideo(currentTime);
@@ -101,12 +137,30 @@ const Embed = ({ campaing }: IEmbedProps) => {
         gap: '16px',
       }}
     >
-      {campaing.FEATURE && campaing.FEATURE.GANCHO && (
-        <div>
-          <h2>{campaing.FEATURE.GANCHO.TITLE}</h2>
-          <p>{campaing.FEATURE.GANCHO.SUBTITLE}</p>
-        </div>
-      )}
+      {campaing.FEATURE &&
+        campaing.FEATURE.GANCHO &&
+        campaing.FEATURE.GANCHO.ATIVE && (
+          <div className={style.headlineBox}>
+            <h2
+              className={style.ganchoTitle}
+              style={{
+                ...titleStyle(JSON.parse(campaing.FEATURE.GANCHO.TITLE_STYLE)),
+              }}
+            >
+              {campaing.FEATURE.GANCHO.TITLE}
+            </h2>
+            <p
+              className={style.ganchoSubTitle}
+              style={{
+                ...subTitleStyle(
+                  JSON.parse(campaing.FEATURE.GANCHO.SUBTITLE_STYLE)
+                ),
+              }}
+            >
+              {campaing.FEATURE.GANCHO.SUBTITLE}
+            </p>
+          </div>
+        )}
       <div
         style={{
           position: 'relative',
@@ -174,44 +228,58 @@ const Embed = ({ campaing }: IEmbedProps) => {
                 <source src={c.VIDEO.URL} type="video/mp4" />
               </video>
               {isPlaying && current === c.VIDEO.ID && !started && (
-                <div style={{ width: '100%', height: '100%' }}>
-                  {c.CTA && (
+                <>
+                  {campaing.FEATURE && campaing.FEATURE.TIMELINE?.ATIVE && (
                     <div
-                      className={style['embed-div']}
-                      style={{ ...divStyle(cta) }}
-                    >
-                      <p style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</p>
-                      <button
-                        className={style['embed-btn']}
-                        style={{ ...btnStyle(cta) }}
-                        onClick={() => window.open(c.CTA_URL || '', '_blank')}
-                      >
-                        {cta.buttonText || 'Saiba mais'}
-                      </button>
-                    </div>
-                  )}
-                  {bonds.map(({ BOND, ID }) => (
-                    <button
-                      key={ID}
-                      className={style['embed-btnedge']}
+                      className={style.timeLine}
                       style={{
-                        ...btnEdgeStyle(JSON.parse(BOND.BUTTON_STYLE || '{}')),
+                        width: `${(timeVideo / c.VIDEO.DURATION) * 100}%`,
+                        height: `${campaing.FEATURE.TIMELINE.HEIGHT}px`,
+                        backgroundColor: `${campaing.FEATURE.TIMELINE.COR}`,
                       }}
-                      onClick={() => {
-                        if (BOND.VIDEO_ID) {
-                          setCurrent(BOND.VIDEO_ID);
-                          setTimeVideo(0);
-                          videoRefs.current[BOND.VIDEO_ID].muted = false;
-                          videoRefs.current[BOND.VIDEO_ID]
-                            .play()
-                            .catch(console.error);
-                        }
-                      }}
-                    >
-                      {BOND.BUTTON_TEXT || 'não definido'}
-                    </button>
-                  ))}
-                </div>
+                    />
+                  )}
+                  <div style={{ width: '100%', height: '100%' }}>
+                    {c.CTA && (
+                      <div
+                        className={style['embed-div']}
+                        style={{ ...divStyle(cta) }}
+                      >
+                        <p style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</p>
+                        <button
+                          className={style['embed-btn']}
+                          style={{ ...btnStyle(cta) }}
+                          onClick={() => window.open(c.CTA_URL || '', '_blank')}
+                        >
+                          {cta.buttonText || 'Saiba mais'}
+                        </button>
+                      </div>
+                    )}
+                    {bonds.map(({ BOND, ID }) => (
+                      <button
+                        key={ID}
+                        className={style['embed-btnedge']}
+                        style={{
+                          ...btnEdgeStyle(
+                            JSON.parse(BOND.BUTTON_STYLE || '{}')
+                          ),
+                        }}
+                        onClick={() => {
+                          if (BOND.VIDEO_ID) {
+                            setCurrent(BOND.VIDEO_ID);
+                            setTimeVideo(0);
+                            videoRefs.current[BOND.VIDEO_ID].muted = false;
+                            videoRefs.current[BOND.VIDEO_ID]
+                              .play()
+                              .catch(console.error);
+                          }
+                        }}
+                      >
+                        {BOND.BUTTON_TEXT || 'não definido'}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           );
