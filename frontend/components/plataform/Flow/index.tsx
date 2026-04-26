@@ -324,9 +324,12 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
       `Campanha "${nameCampaign}" ${id ? 'atualizada' : 'salva'} com sucesso! ${nodes.length} vídeo(s) adicionado(s).`
     );
 
-    setNodes([]);
-    setEdges([]);
-    setNameCampaign('Nome da campanha');
+    if (!id) {
+      setNodes([]);
+      setEdges([]);
+      setNameCampaign('Nome da campanha');
+    }
+
     setIsEditing(false);
     if (modalOpen) {
       setModalOpen(false);
@@ -416,6 +419,7 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
             setFeaturesModalOpen(false);
             setSavedCampaign(null);
           }}
+          id={id}
         />
       )}
 
