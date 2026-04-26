@@ -1,11 +1,12 @@
 'use client';
 
+import { subTitleStyle, titleStyle } from '@/@types/embed';
 import ToggleActive from '@/components/globals/ToggleActive';
 import BtnG from '@/components/plataform/BtnG';
 import { useEditCampaign } from '@/context/EditCampaignContext';
 import { useError } from '@/context/ErrorContext';
 import { postCampaignGancho } from '@/service/gancho';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './HeadLine.module.scss';
 
 interface IPayloadHeadLine {
@@ -32,6 +33,31 @@ const HeadLine = () => {
     styleSHL: 'normal',
     colorSHL: '#000000',
   });
+
+  useEffect(() => {
+    if (editingCampaign?.FEATURE?.GANCHO?.ATIVE) {
+      const ganchoFeature = editingCampaign.FEATURE.GANCHO;
+      setHeadLineActive(ganchoFeature.ATIVE);
+      const titleStyle: titleStyle = JSON.parse(
+        ganchoFeature.TITLE_STYLE || '{}'
+      );
+      const subTitleStyle: subTitleStyle = JSON.parse(
+        ganchoFeature.SUBTITLE_STYLE || '{}'
+      );
+      setHeadLinerPayload({
+        headLine: ganchoFeature.TITLE || '',
+        styleHL: titleStyle.estiloHL || 'normal',
+        colorHL: titleStyle.corHL || '#000000',
+        subHeadLine: ganchoFeature.SUBTITLE || '',
+        alignSHL: subTitleStyle.alinhamentoSHL || 'center',
+        styleSHL: subTitleStyle.estiloSHL || 'normal',
+        colorSHL: subTitleStyle.corSHL || '#000000',
+      });
+    } else {
+      setHeadLineActive(false);
+      clean();
+    }
+  }, [editingCampaign]);
 
   const clean = () => {
     setHeadLinerPayload({
@@ -258,7 +284,7 @@ const HeadLine = () => {
         <div className={`${styles.actions_btn} ${styles.actions_btn_save}`}>
           <BtnG
             text="Salvar"
-            goClick={() => console.log('Salvar clicked')}
+            goClick={() => handleSave()}
             disabled={isLoading}
           />
         </div>
