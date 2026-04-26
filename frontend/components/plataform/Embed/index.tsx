@@ -1,11 +1,18 @@
 import { ICampaign } from '@/@types/campaign';
 import { ctaStyle } from '@/@types/embed';
-import { btnEdgeStyle, btnStyle, divStyle, pStyle, subTitleStyle, titleStyle } from '@/utils/EmbedUteis';
+import CustomVolume from '@/components/globals/CustomVolume';
+import {
+  btnEdgeStyle,
+  btnStyle,
+  divStyle,
+  pStyle,
+  subTitleStyle,
+  titleStyle,
+} from '@/utils/EmbedUteis';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
 import style from './Embed.module.scss';
-import { set } from 'zod';
 
 interface IEmbedProps {
   campaing: ICampaign;
@@ -79,8 +86,6 @@ const Embed = ({ campaing }: IEmbedProps) => {
     setStarted(false);
   };
 
-
-
   const handleTimeUpdate = () => {
     if (!current) return;
 
@@ -88,7 +93,11 @@ const Embed = ({ campaing }: IEmbedProps) => {
 
     if (!video) return;
 
-    if (campaing.FEATURE?.AUTO_PLAY && campaing.FEATURE.AUTO_PLAY.ATIVE && started) {
+    if (
+      campaing.FEATURE?.AUTO_PLAY &&
+      campaing.FEATURE.AUTO_PLAY.ATIVE &&
+      started
+    ) {
       const autoPlaySecond = campaing.FEATURE.AUTO_PLAY.SECOND;
 
       if (video.currentTime >= autoPlaySecond) {
@@ -117,21 +126,41 @@ const Embed = ({ campaing }: IEmbedProps) => {
   };
 
   return (
-    <section style={{
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '16px',
-    }}>
-      {campaing.FEATURE && campaing.FEATURE.GANCHO && campaing.FEATURE.GANCHO.ATIVE && (
-        <div className={style.headlineBox}>
-          <h2 className={style.ganchoTitle} style={{...titleStyle(JSON.parse(campaing.FEATURE.GANCHO.TITLE_STYLE))}}>{campaing.FEATURE.GANCHO.TITLE}</h2>
-          <p className={style.ganchoSubTitle} style={{ ...subTitleStyle(JSON.parse(campaing.FEATURE.GANCHO.SUBTITLE_STYLE))}}>{campaing.FEATURE.GANCHO.SUBTITLE}</p>
-        </div>
-      )}
+    <section
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '16px',
+      }}
+    >
+      {campaing.FEATURE &&
+        campaing.FEATURE.GANCHO &&
+        campaing.FEATURE.GANCHO.ATIVE && (
+          <div className={style.headlineBox}>
+            <h2
+              className={style.ganchoTitle}
+              style={{
+                ...titleStyle(JSON.parse(campaing.FEATURE.GANCHO.TITLE_STYLE)),
+              }}
+            >
+              {campaing.FEATURE.GANCHO.TITLE}
+            </h2>
+            <p
+              className={style.ganchoSubTitle}
+              style={{
+                ...subTitleStyle(
+                  JSON.parse(campaing.FEATURE.GANCHO.SUBTITLE_STYLE)
+                ),
+              }}
+            >
+              {campaing.FEATURE.GANCHO.SUBTITLE}
+            </p>
+          </div>
+        )}
       <div
         style={{
           position: 'relative',
@@ -158,6 +187,12 @@ const Embed = ({ campaing }: IEmbedProps) => {
 
           return (
             <div key={c.ID}>
+              {/* Botão de volume customizado */}
+              {isPlaying && current === c.VIDEO.ID && (
+                <CustomVolume
+                  videoRef={current ? videoRefs.current[current] : null}
+                />
+              )}
               <video
                 id={c.VIDEO.ID}
                 ref={(el) => {
@@ -194,20 +229,21 @@ const Embed = ({ campaing }: IEmbedProps) => {
               </video>
               {isPlaying && current === c.VIDEO.ID && !started && (
                 <>
-                {
-                  campaing.FEATURE && campaing.FEATURE.TIMELINE?.ATIVE && (
-                    <div className={style.timeLine} style={{
-                      width: `${timeVideo / c.VIDEO.DURATION * 100}%`,
-                      height: `${campaing.FEATURE.TIMELINE.HEIGHT}px`,
-                      backgroundColor: `${campaing.FEATURE.TIMELINE.COR}`,
-                    }} />
-                  )
-                }
+                  {campaing.FEATURE && campaing.FEATURE.TIMELINE?.ATIVE && (
+                    <div
+                      className={style.timeLine}
+                      style={{
+                        width: `${(timeVideo / c.VIDEO.DURATION) * 100}%`,
+                        height: `${campaing.FEATURE.TIMELINE.HEIGHT}px`,
+                        backgroundColor: `${campaing.FEATURE.TIMELINE.COR}`,
+                      }}
+                    />
+                  )}
                   <div style={{ width: '100%', height: '100%' }}>
                     {c.CTA && (
                       <div
                         className={style['embed-div']}
-                        style={{ ...divStyle(cta),  }}
+                        style={{ ...divStyle(cta) }}
                       >
                         <p style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</p>
                         <button
@@ -224,7 +260,9 @@ const Embed = ({ campaing }: IEmbedProps) => {
                         key={ID}
                         className={style['embed-btnedge']}
                         style={{
-                          ...btnEdgeStyle(JSON.parse(BOND.BUTTON_STYLE || '{}')),
+                          ...btnEdgeStyle(
+                            JSON.parse(BOND.BUTTON_STYLE || '{}')
+                          ),
                         }}
                         onClick={() => {
                           if (BOND.VIDEO_ID) {

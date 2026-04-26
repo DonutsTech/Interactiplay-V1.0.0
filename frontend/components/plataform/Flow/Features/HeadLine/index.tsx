@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import styles from './HeadLine.module.scss';
 import ToggleActive from '@/components/globals/ToggleActive';
-import { useError } from '@/context/ErrorContext';
 import BtnG from '@/components/plataform/BtnG';
 import { useEditCampaign } from '@/context/EditCampaignContext';
+import { useError } from '@/context/ErrorContext';
 import { postCampaignGancho } from '@/service/gancho';
+import { useState } from 'react';
+import styles from './HeadLine.module.scss';
 
 interface IPayloadHeadLine {
   headLine: string;
@@ -42,8 +42,8 @@ const HeadLine = () => {
       alignSHL: 'center',
       styleSHL: 'normal',
       colorSHL: '#000000',
-    })
-  }
+    });
+  };
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -68,12 +68,9 @@ const HeadLine = () => {
           estiloSHL: headLinerPayload.styleSHL,
           corSHL: headLinerPayload.colorSHL,
         }),
-      }
+      };
 
-      const result = await postCampaignGancho(
-        editingCampaign.ID,
-        body
-      );
+      const result = await postCampaignGancho(editingCampaign.ID, body);
 
       if ('STATUS' in result && result.STATUS !== 200) {
         showError('Erro ao salvar Head Line. Tente novamente.');
@@ -85,14 +82,13 @@ const HeadLine = () => {
       if (!headLineActive) {
         clean();
       }
-
     } catch (err: any) {
       console.error('Error in handleSave:', err);
     } finally {
       fecthCampaignForEdit(editingCampaign?.ID || '');
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className={styles.tool}>
@@ -122,7 +118,7 @@ const HeadLine = () => {
                     })
                   }
                 />
-                <div className={styles.headline_box_styles}></div>
+                {/* <div className={styles.headline_box_styles}></div> */}
                 <div className={styles.headline_box_styles_persona}>
                   <div className={styles.headline_box_styles_persona_font}>
                     <p>Estilo</p>
@@ -262,7 +258,7 @@ const HeadLine = () => {
         <div className={`${styles.actions_btn} ${styles.actions_btn_save}`}>
           <BtnG
             text="Salvar"
-            goClick={() => handleSave()}
+            goClick={() => console.log('Salvar clicked')}
             disabled={isLoading}
           />
         </div>

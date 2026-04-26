@@ -273,12 +273,12 @@ const CtaGenerator = ({
                 <input
                   type="range"
                   min={0}
-                  max={duration}
+                  max={duration - 1}
                   id="delay"
                   value={start}
                   onChange={(e) => setStart(Number(e.target.value))}
                   style={{
-                    background: getSlider(start, 0, duration),
+                    background: getSlider(start, 0, duration - 1),
                   }}
                 />
               </div>

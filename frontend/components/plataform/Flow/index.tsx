@@ -56,7 +56,7 @@ const onDragOver = (event: DragEvent) => {
 };
 
 const Flow = () => {
-  const { modalOpenF, setModalOpenF, editingCampaign } = useEditCampaign();
+  const { modalOpenF, setModalOpenF, editingCampaign, setEditingCampaign } = useEditCampaign();
   const [nameCampaign, setNameCampaign] = useState('Nome da campanha');
   const [isEditing, setIsEditing] = useState(false);
   const [featuresModalOpen, setFeaturesModalOpen] = useState(false);
@@ -248,12 +248,14 @@ const Flow = () => {
   }, [nodes.length, nameCampaign]);
 
   const handleSave = useCallback(async () => {
+    let currentName = nameCampaign;
     if (
-      !nameCampaign ||
-      nameCampaign.trim().length < 3 ||
-      nameCampaign === 'Nome da campanha'
+      !currentName ||
+      currentName.trim().length < 3 ||
+      currentName === 'Nome da campanha'
     ) {
-      setNameCampaign(`${new Date().toLocaleDateString()}`);
+      currentName = `${new Date().toLocaleDateString()}`;
+      setNameCampaign(currentName);
       showInfo('Nome da campanha definido como data atual.');
     }
 
@@ -283,10 +285,13 @@ const Flow = () => {
       return;
     }
 
-    // Armazena a campanha criada e abre o modal Features
+
+    setEditingCampaign(result as ICampaign);
     setModalOpenF(true);
     setSavedCampaign(result as ICampaign);
     setFeaturesModalOpen(true);
+
+    console.log('Campanha salva com sucesso:', result);
 
     showSuccess(
       `Campanha "${nameCampaign}" salva com sucesso! ${nodes.length} vídeo(s) adicionado(s).`
@@ -358,6 +363,7 @@ const Flow = () => {
         <Features
           campaing={editingCampaign}
           onClose={() => {
+            setModalOpenF(false);
             setFeaturesModalOpen(false);
             setSavedCampaign(null);
           }}

@@ -1,0 +1,144 @@
+.tool {
+  width: 100%;
+  height: 100%;
+
+  &_content {
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    // border: yellow 1px solid;
+
+    .toggle {
+      width: 100%;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+
+      &_solo {
+        padding-top: 240px;
+      }
+    }
+
+    .container {
+      width: 100%;
+      flex: 1;
+      height: auto;
+      min-height: 100%;
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 16px;
+      padding: 48px 0;
+      animation: fadeOn 0.3s ease-in-out;
+
+      .logo {
+        width: 100%;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          width: auto;
+          height: 24px;
+        }
+      }
+
+      .inputs {
+        width: 95%;
+        margin: 0 auto;
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 24px;
+        padding-top: 48px;
+
+        .nameBox,
+        .idBox {
+          width: 100%;
+          display: flex;
+          flex-flow: column nowrap;
+          align-items: flex-start;
+          justify-content: flex-start;
+          gap: 8px;
+
+          label {
+            font-size: 14px;
+            color: $color-white;
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 4px;
+          }
+
+          input {
+            width: 100%;
+            height: 36px;
+            border-radius: 8px;
+            outline: none;
+            border: 3px solid $color-ciano-light-2;
+            box-shadow: -3px 3px 0px $color-ciano-light-2;
+            cursor: pointer;
+            padding: 0 8px;
+
+            &:focus {
+              border-color: $color-blue-base;
+              box-shadow: -3px 3px 10px $color-blue-base;
+            }
+          }
+        }
+      }
+
+
+
+    }
+
+    .actions {
+      width: 100%;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      padding-right: 16px;
+
+      &_btn {
+        width: 120px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        button {
+          width: 100%;
+          height: 100%;
+          transition: all 300ms ease-in-out;
+
+          &:hover {
+            transform: scale(0.98);
+          }
+        }
+
+        &_save {
+          button {
+            background-color: $color-green-base;
+
+            &:hover {
+              background-color: $color-green-light-1;
+            }
+          }
+        }
+
+      }
+    }
+  }
+}
