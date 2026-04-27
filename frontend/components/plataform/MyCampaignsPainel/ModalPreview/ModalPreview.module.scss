@@ -188,26 +188,33 @@
           width: 24px;
           height: 24px;
           border-radius: 50px;
-          font-size: 16px;
+          font-size: 24px;
           font-weight: 800;
           transition: all 0.3s ease-in-out;
+          background-color: transparent !important;
 
           &:hover {
+            filter: opacity(0.8);
             transform: scale(0.98);
           }
         }
 
         .editButton {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: none;
+          cursor: pointer;
           width: 24px;
           height: 24px;
-          background-color: transparent;
-          border: none;
-          outline: none;
+          border-radius: 50px;
           font-size: 24px;
-          cursor: pointer;
+          font-weight: 800;
           transition: all 0.3s ease-in-out;
+          background-color: transparent !important;
 
           &:hover {
+            filter: opacity(0.8);
             transform: scale(0.98);
           }
         }

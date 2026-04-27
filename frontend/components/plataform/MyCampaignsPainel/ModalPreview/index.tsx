@@ -5,6 +5,8 @@ import styles from './ModalPreview.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSquarePen, faSun } from '@fortawesome/free-solid-svg-icons';
 import { ICampaign } from '@/@types/campaign';
+import { IoCloseCircle } from "react-icons/io5";
+import { RiEditCircleFill } from "react-icons/ri";
 import Embed from '../../Embed';
 
 interface IProps {
@@ -82,24 +84,22 @@ const ModalPreview = ({ onClose, onEdit, campaign }: IProps) => {
               className={styles.editButton}
               title="Editar campanha"
               onClick={onEdit}
-            >
-              <FontAwesomeIcon
-                icon={faSquarePen}
                 style={{
                   color: isToggled ? '#000125' : '#f2f2f2',
                 }}
-              />
+            >
+              <RiEditCircleFill />
+              
             </button>
             <button
               className={styles.closeButton}
               onClick={onClose}
               title="Fechar visualização"
               style={{
-                color: isToggled ? '#f2f2f2' : '#000125',
-                backgroundColor: isToggled ? '#000125' : '#f2f2f2',
+                color: isToggled ? '#000125' : '#f2f2f2',
               }}
             >
-              &times;
+              <IoCloseCircle />
             </button>
           </div>
         </div>
