@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 import CardCampaign from './CardCampaign';
 import styles from './MyCampaignsPainel.module.scss';
 import ModalPreview from './ModalPreview';
+import Analytics from '../Analytics';
 
 const MyCampaignsPainel = () => {
   const { handleRequest, showConfirmation } = useError();
@@ -20,6 +21,7 @@ const MyCampaignsPainel = () => {
   const router = useRouter();
   const [campanhas, setCampanhas] = useState<ICampaign[]>([]);
   const [modalViewOpen, setModalViewOpen] = useState(false);
+  const [modalAnalyticsOpen, setModalAnalyticsOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<ICampaign | null>(
     null
   );
@@ -80,8 +82,8 @@ const MyCampaignsPainel = () => {
   }, []);
 
   const handleAnalytics = useCallback((campaign: ICampaign) => {
-    // TODO: Implementar analytics da campanha
-    console.log('Analytics da campanha:', campaign);
+    setSelectedCampaign(campaign);
+    setModalAnalyticsOpen(true);
   }, []);
 
   const handleEmbed = useCallback((campaign: ICampaign) => {
@@ -99,6 +101,15 @@ const MyCampaignsPainel = () => {
             setSelectedCampaign(null);
           }}
           onEdit={() => handleEdit(selectedCampaign)}
+        />
+      )}
+      {modalAnalyticsOpen && selectedCampaign && (
+        <Analytics 
+          campaign={selectedCampaign}
+          onClose={() => {
+            setModalAnalyticsOpen(false);
+            setSelectedCampaign(null);
+          }}
         />
       )}
 
