@@ -328,7 +328,7 @@ class CampaignService {
     }
   }
 
-  async campaignAnalyticsForCampaign(id: string) {
+  async campaignAnalyticsForUser(id: string) {
     try {
       const campaign = await campaignModel.findBy({
         where: { ID: id },
