@@ -1,6 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
-import type { CampaignBasic } from '../../@types/campaignPrisma';
-import type { CreateCampaign, UpdateCampaign } from '../../@types/interface/campaign';
+import type { CampaignBasic, CampaignEmbed } from '../../@types/campaignPrisma';
+import type {
+  CampaignUpdateClient,
+  CreateCampaign,
+  UpdateCampaign,
+} from '../../@types/interface/campaign';
 import { CustomError } from '../../error';
 import type { Prisma } from '../../generated/prisma/browser';
 import { analyticsModel } from '../../models/analytics';
@@ -39,6 +43,72 @@ const CAMPAIGN_DEFAULT_INCLUDE: Prisma.CampaignInclude = {
       TIMELINE: true,
       PIXEL: true,
       GANCHO: true,
+    },
+  },
+};
+
+const CAMPAIGN_DEFAULT_EMBED: Prisma.CampaignInclude = {
+  CAMPAIGN_VIDEOS: {
+    include: {
+      BONDS: {
+        include: {
+          BOND: true,
+        },
+      },
+      VIDEO: true,
+    },
+  },
+  FEATURE: {
+    include: {
+      AUTO_PLAY: true,
+      THUMB: true,
+      EXTERNAL_LINK: true,
+      TIMELINE: true,
+      PIXEL: true,
+      GANCHO: true,
+    },
+  },
+  USER: {
+    select: {
+      HISTORY_PLAYS: {
+        select: {
+          QTD_PLAYS: true,
+          STATUS: true,
+        },
+      },
+      STRIPE_SUBSCRIPTION_STATUS: true,
+      PLAN: {
+        select: {
+          PLAYS: true,
+        },
+      },
+    },
+  },
+};
+
+const CAMPAIGN_DEFAULT_EMBED_ANALYTICS: Prisma.CampaignInclude = {
+  CAMPAIGN_VIDEOS: {
+    include: {
+      BONDS: {
+        include: {
+          BOND: true,
+        },
+      },
+      VIDEO: true,
+    },
+  },
+  FEATURE: {
+    include: {
+      EXTERNAL_LINK: true,
+    },
+  },
+  ANALYTICS: {
+    include: {
+      MODEL_PLAYS: {
+        include: {
+          MODEL_TIME: true,
+        },
+      },
     },
   },
 };
@@ -95,6 +165,36 @@ class CampaignService {
       });
 
       return campaigns;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getCapamignsByEmbedForId(
+    id: string,
+  ): Promise<{ CAMPAIGN: Prisma.CampaignGetPayload<{ include: CampaignEmbed }> }> {
+    try {
+      const campaign = await campaignModel.findBy<CampaignEmbed>({
+        where: { ID: id },
+        include: CAMPAIGN_DEFAULT_EMBED,
+      });
+
+      if (!campaign) {
+        throw new CustomError(
+          'Campanha não encontrada, por favor verifique o id',
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      if (campaign.USER?.HISTORY_PLAYS) {
+        const found = campaign.USER.HISTORY_PLAYS.find(
+          ({ STATUS }) => STATUS === 'ativo' || STATUS === 'teste',
+        );
+
+        campaign.USER.HISTORY_PLAYS = found ? [found] : [];
+      }
+
+      return { CAMPAIGN: campaign };
     } catch (error) {
       throw error;
     }
@@ -201,6 +301,48 @@ class CampaignService {
       await campaignModel.deleteBy({ ID: id });
 
       return { MESSAGE: 'Campanha deletada com sucesso' };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateCampaignClientForId(data: CampaignUpdateClient) {
+    try {
+      await this.existsById(data.ID);
+
+      await externalLinkService.updateExternalLinkForClient(data.FEATURE.EXTERNAL_LINK);
+
+      for (const video of data.CAMPAIGN_VIDEOS) {
+        const { BONDS, ...res } = video;
+
+        await campaignVideoService.updateCampaignVideoForClient(video);
+
+        if (BONDS && BONDS.length > 0) {
+          for (const bond of BONDS) {
+            await bondService.updateBondForClient(bond.ID, bond);
+          }
+        }
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async campaignAnalyticsForCampaign(id: string) {
+    try {
+      const campaign = await campaignModel.findBy({
+        where: { ID: id },
+        include: CAMPAIGN_DEFAULT_EMBED_ANALYTICS,
+      });
+
+      if (!campaign) {
+        throw new CustomError(
+          'Campanha não encontrada, por favor verifique o id',
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      return campaign;
     } catch (error) {
       throw error;
     }

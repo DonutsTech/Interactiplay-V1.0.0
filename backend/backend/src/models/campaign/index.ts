@@ -21,11 +21,13 @@ class Campaign {
     }
   }
 
-  async findBy<T extends Prisma.CampaignInclude = {}>(find: Prisma.CampaignFindFirstArgs) {
+  async findBy<T extends Prisma.CampaignInclude = {}>(
+    find: Prisma.CampaignFindFirstArgs,
+  ): Promise<Prisma.CampaignGetPayload<{ include: T }> | null> {
     try {
-      return (await prisma.campaign.findFirst(find)) as
-        | Prisma.CampaignGetPayload<{ include: T }>[]
-        | null;
+      return (await prisma.campaign.findFirst(find)) as Prisma.CampaignGetPayload<{
+        include: T;
+      }> | null;
     } catch (error) {
       handlePrismaError(error);
     }

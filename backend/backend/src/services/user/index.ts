@@ -151,6 +151,23 @@ class UserService {
       );
     }
   }
+
+  async findByUserForPlan(id: string) {
+    try {
+      const user = await userModel.findBy({
+        where: { ID: id },
+        include: { PLAN: true },
+      });
+
+      if (!user) {
+        throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
+      }
+
+      return user;
+    } catch (error) {
+      throw new CustomError('Erro ao buscar o usuário', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
 
 export const userService = new UserService();

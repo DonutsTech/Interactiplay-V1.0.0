@@ -19,9 +19,20 @@ export type CampaignEmbed = {
       GANCHO: true;
     };
   };
-  ANALYTICS: {
+  USER: {
     select: {
-      ID: true;
+      HISTORY_PLAYS: {
+        select: {
+          QTD_PLAYS: true;
+          STATUS: true;
+        };
+      };
+      STRIPE_SUBSCRIPTION_STATUS: true;
+      PLAN: {
+        select: {
+          PLAYS: true;
+        };
+      };
     };
   };
 };
@@ -45,6 +56,33 @@ export type CampaignBasic = {
       TIMELINE: true;
       PIXEL: true;
       GANCHO: true;
+    };
+  };
+};
+
+export type Campaign = {
+  CAMPAIGN_VIDEOS: {
+    include: {
+      BONDS: {
+        include: {
+          BOND: true;
+        };
+      };
+      VIDEO: true;
+    };
+  };
+  FEATURE: {
+    include: {
+      EXTERNAL_LINK: true;
+    };
+  };
+  ANALYTICS: {
+    include: {
+      MODEL_PLAYS: {
+        include: {
+          MODEL_TIME: true;
+        };
+      };
     };
   };
 };

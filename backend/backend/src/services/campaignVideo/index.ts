@@ -1,4 +1,7 @@
+import { StatusCodes } from 'http-status-codes';
+import type { CampaignVideoClient } from '../../@types/interface/campaign';
 import type { createCampaignVideo } from '../../@types/interface/campaignVideo';
+import { CustomError } from '../../error';
 import type { Campaign_Video } from '../../generated/prisma/client';
 import { campaignVideoModel } from '../../models/campaignVideo';
 
@@ -9,6 +12,15 @@ class CampaignVideoService {
     }
 
     return false;
+  }
+
+  async existsById(id: string) {
+    if (!(await campaignVideoModel.count({ ID: id }))) {
+      throw new CustomError(
+        'Vídeo da campanha não encontrado, por favor verifique o id',
+        StatusCodes.NOT_FOUND,
+      );
+    }
   }
 
   async createCampaignVideoForCampaign(data: createCampaignVideo): Promise<Campaign_Video> {
@@ -41,6 +53,24 @@ class CampaignVideoService {
           CAMPAIGN: { ID: campaignId },
         });
       }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateCampaignVideoForClient(data: CampaignVideoClient) {
+    try {
+      await this.existsById(data.ID);
+
+      const campaignVideo = await campaignVideoModel.updateBy({
+        where: { ID: data.ID },
+        data: {
+          CTA_CLICK_CAMPAING: { increment: data.CTA_CLICK_CAMPAING },
+          CTA_CLICK_TEST_AB: { increment: data.CTA_CLICK_TEST_AB },
+        },
+      });
+
+      return campaignVideo;
     } catch (error) {
       throw error;
     }

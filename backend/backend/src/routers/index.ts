@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { IRouter } from '../@types/interface/router';
 import AuthRouter from './auth';
 import AutoPlayRouter from './autoPlay';
-import { CampaignApiRouter } from './campaign';
+import { CampaignApiRouter, CampaignPublicRouter } from './campaign';
 import ExternalLinkRouter from './externalLink';
 import GanchoRouter from './gancho';
 import HistoryPlaysRouter from './historyPlays';
@@ -40,6 +40,6 @@ export const applyWebHookRouters = (router: Router): void => {
 };
 
 export const applyPublicRouters = (router: Router): void => {
-  const routers: IRouter[] = [];
+  const routers: IRouter[] = [CampaignPublicRouter];
   applyRouters(router, routers);
 };

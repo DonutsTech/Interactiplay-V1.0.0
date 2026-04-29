@@ -1,3 +1,4 @@
+import type { externalLinkClient } from '../../@types/interface/campaign';
 import type { createExternalLink } from '../../@types/interface/externalLink';
 import { externalLinkModel } from '../../models/externalLink';
 import { campaignService } from '../campaign';
@@ -62,6 +63,22 @@ class ExternalLinkService {
 
         return externalLink;
       }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateExternalLinkForClient(body: externalLinkClient) {
+    try {
+      const externalLink = await externalLinkModel.updateBy({
+        where: { ID: body.ID },
+        data: {
+          BUTTON_CLICK_CAMPAING: { increment: body.BUTTON_CLICK_CAMPAING },
+          BUTTON_CLICK_TEST_AB: { increment: body.BUTTON_CLICK_TEST_AB },
+        },
+      });
+
+      return externalLink;
     } catch (error) {
       throw error;
     }

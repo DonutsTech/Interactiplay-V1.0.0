@@ -1,4 +1,10 @@
+import { StatusCodes } from 'http-status-codes';
+import type { ClientPublic } from '../../@types/interface/socket';
+import { CustomError } from '../../error';
 import { modelPlayModel } from '../../models/modelPlay';
+import { transformModelPlayToClient } from '../../utils/format/modelPlay';
+import { analyticsService } from '../analytics';
+import { historyPlaysService } from '../historyPlays';
 
 class ModelPlayService {
   async deleteModelPlayForCampaign(campaignId: string) {
@@ -8,6 +14,150 @@ class ModelPlayService {
           ANALYTICS: { CAMPAIGN_ID: campaignId },
         });
       }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getModelPlayById(data: ClientPublic): Promise<ClientPublic> {
+    try {
+      if (!data.ID_MODEL_PLAY) {
+        throw new CustomError(
+          'ID_MODEL_PLAY é obrigatório para buscar o modelo de play',
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      const modelPlay = await modelPlayModel.findBy({
+        where: { ID: data.ID_MODEL_PLAY },
+      });
+
+      if (!modelPlay) {
+        throw new CustomError(
+          'Modelo de play não encontrado, por favor verifique o id',
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      console.log('Modelo de play encontrado:', modelPlay);
+
+      return transformModelPlayToClient(modelPlay, data.ID_USER || '');
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async createModelPlaySocketPlay(data: ClientPublic) {
+    try {
+      await analyticsService.existById(data.ID_ANALYTICS || '');
+
+      const modelPlay = await modelPlayModel.create({
+        data: {
+          BROWSER: data.BROWSER,
+          DEVICE: data.DEVICE,
+          OS: data.OS,
+          COUNTRY: data.COUNTRY,
+          CITY: data.CITY,
+          REGION: data.REGION,
+          PLAY_UNIQUE: 0,
+          PLAY: 0,
+          VIEW: 0,
+          ANALYTICS: { connect: { ID: data.ID_ANALYTICS || '' } },
+        },
+      });
+
+      console.log('Modelo de play criado:', modelPlay);
+
+      return transformModelPlayToClient(modelPlay, data.ID_USER || '');
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async incrementPlayModelPlay(data: ClientPublic) {
+    try {
+      if (!data.ID_MODEL_PLAY) {
+        throw new CustomError(
+          'ID_MODEL_PLAY é obrigatório para atualizar o modelo de play',
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      if (!data.ID_USER) {
+        throw new CustomError(
+          'ID_USER é obrigatório para atualizar o modelo de play',
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      if (!data.ID_ANALYTICS) {
+        throw new CustomError(
+          'ID_ANALYTICS é obrigatório para atualizar o modelo de play',
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      const reslt = await historyPlaysService.updateHistoryPlayForUser(data.ID_USER);
+
+      const result = await modelPlayModel.updateBy({
+        where: { ID: data.ID_MODEL_PLAY },
+        data: {
+          ...(data.PLAY === 1 ? { PLAY_UNIQUE: { increment: 1 } } : {}),
+          PLAY: { increment: 1 },
+        },
+      });
+
+      console.log('Modelo de play atualizado:', result);
+      console.log('Histórico de plays atualizado para o usuário:', reslt);
+
+      await analyticsService.incrementPlayForAnalytics(data.ID_ANALYTICS);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async incrementPlayModelPlayBlock(data: ClientPublic) {
+    try {
+      if (!data.ID_MODEL_PLAY) {
+        throw new CustomError(
+          'ID_MODEL_PLAY é obrigatório para atualizar o modelo de play',
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      await analyticsService.incrementPlayBlockForAnalytics(data.ID_ANALYTICS || '');
+
+      await modelPlayModel.updateBy({
+        where: { ID: data.ID_MODEL_PLAY },
+        data: { PLAY_BLOCK: { increment: 1 } },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async incrementViewModelPlay(data: ClientPublic) {
+    try {
+      if (!data.ID_MODEL_PLAY) {
+        throw new CustomError(
+          'ID_MODEL_PLAY é obrigatório para atualizar o modelo de play',
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      if (!data.ID_ANALYTICS) {
+        throw new CustomError(
+          'ID_ANALYTICS é obrigatório para atualizar o modelo de play',
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      await analyticsService.incrementViewAnalytics(data.ID_ANALYTICS);
+
+      await modelPlayModel.updateBy({
+        where: { ID: data.ID_MODEL_PLAY },
+        data: { VIEW: { increment: 1 } },
+      });
     } catch (error) {
       throw error;
     }

@@ -34,6 +34,9 @@ class CampaignController {
 
   async getCapamignsByEmbedForId(request: Request, response: Response, next: NextFunction) {
     try {
+      const { id } = request.params as { id: string };
+      const campaign = await campaignService.getCapamignsByEmbedForId(id);
+      return response.status(200).json(campaign);
     } catch (error) {
       next(error);
     }

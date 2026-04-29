@@ -1,22 +1,25 @@
-import { StatusCodes } from "http-status-codes";
-import { CustomError } from "../../error";
-import type { Prisma } from "../../generated/prisma/client";
-import { historyPlaysModel } from "../../models/historyPlays";
+import { StatusCodes } from 'http-status-codes';
+import { CustomError } from '../../error';
+import type { Prisma } from '../../generated/prisma/client';
+import { historyPlaysModel } from '../../models/historyPlays';
 // import { advanceTestClock } from "../../utils/stripe";
-import { userService } from "../user";
-
+import { planService } from '../plan';
+import { userService } from '../user';
 
 class HistoryPlaysService {
   async existsById(id: string) {
     if (!(await historyPlaysModel.count({ ID: id }))) {
-      throw new CustomError('Histórico não encontrado, por favor verifique o ID', StatusCodes.NOT_FOUND)
+      throw new CustomError(
+        'Histórico não encontrado, por favor verifique o ID',
+        StatusCodes.NOT_FOUND,
+      );
     }
   }
 
   async create(data: Prisma.History_PlaysCreateInput) {
     try {
       const historyPlay = await historyPlaysModel.create({
-        data
+        data,
       });
 
       return historyPlay;
@@ -82,6 +85,63 @@ class HistoryPlaysService {
   //     throw error;
   //   }
   // }
+
+  async historyPlayExistsByUserId(userId: string) {
+    try {
+      await userService.existsById(userId);
+
+      const plan = await planService.getPlanByUserId(userId);
+
+      const historyPlay = await historyPlaysModel.findBy({
+        where: {
+          USER_ID: userId,
+          STATUS: { in: ['ativo', 'teste'] },
+        },
+      });
+
+      if (!historyPlay) {
+        throw new CustomError(
+          'Histórico de plays não encontrado para este usuário, por favor verifique o ID',
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      return (plan?.PLAYS || 0) >= historyPlay.QTD_PLAYS + 1;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateHistoryPlayForUser(userId: string) {
+    try {
+      await userService.existsById(userId);
+
+      const historyPlay = await historyPlaysModel.findBy({
+        where: {
+          USER_ID: userId,
+          STATUS: { in: ['ativo', 'teste'] },
+        },
+      });
+
+      if (!historyPlay) {
+        throw new CustomError(
+          'Histórico de plays não encontrado para este usuário, por favor verifique o ID',
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      const updatedHistoryPlay = await historyPlaysModel.updateBy({
+        where: { ID: historyPlay.ID },
+        data: {
+          QTD_PLAYS: { increment: 1 },
+        },
+      });
+
+      return updatedHistoryPlay;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const historyPlaysService = new HistoryPlaysService();

@@ -85,6 +85,17 @@ class PlanService {
       throw error;
     }
   }
+
+  async getPlanByUserId(userId: string): Promise<Plan | null> {
+    try {
+      const plan = await planModel.findBy({
+        where: { users: { some: { ID: userId } } },
+      });
+      return plan;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const planService = new PlanService();
