@@ -128,17 +128,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
   };
 
   return (
-    <section
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '16px',
-      }}
-    >
+    <section className={style.section}> 
       {campaing.FEATURE &&
         campaing.FEATURE.GANCHO &&
         campaing.FEATURE.GANCHO.ATIVE && (
@@ -163,18 +153,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
             </p>
           </div>
         )}
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          maxWidth: '60%',
-          height: 'auto',
-          aspectRatio: '16/9',
-          backgroundColor: '#000125',
-          overflow: 'hidden',
-          borderRadius: '8px',
-        }}
-      >
+      <div className={style.videoContainer}>
         {!isPlaying && (
           <div
             className={style['embed-play-overlay']}
@@ -189,7 +168,6 @@ const Embed = ({ campaing }: IEmbedProps) => {
 
           return (
             <div key={c.ID}>
-              {/* Botão de volume customizado */}
               {isPlaying && current === c.VIDEO.ID && (
                 <CustomVolume
                   videoRef={current ? videoRefs.current[current] : null}
@@ -203,13 +181,9 @@ const Embed = ({ campaing }: IEmbedProps) => {
                 src={c.VIDEO.URL}
                 muted
                 preload="metadata"
+                className={style.video}
                 style={{
-                  position: 'absolute',
                   opacity: current === c.VIDEO.ID ? 1 : 0,
-                  transition: 'opacity 0.3s ease',
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
                 }}
                 onEnded={() => handleVideoEnd()}
                 onClick={() => handleVideoStart()}

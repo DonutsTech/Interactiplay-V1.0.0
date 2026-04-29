@@ -13,6 +13,7 @@ import styles from "./Analytics.module.scss";
 // } from "@fortawesome/free-solid-svg-icons";
 // Tipagem da campanha e serviço de analytics
 import { ICampaign } from '@/@types/campaign';
+import socket from "@/service/sockets/sockets";
 // (Busca assíncrona removida, pois os dados já vêm por props)
 // Bibliotecas de gráficos responsivos
 // import {
@@ -78,11 +79,31 @@ interface IAnalyticsProps {
  * - Totalmente adaptado ao layout V100
  * - Comentários detalhados para facilitar manutenção e expansão
  */
+
+
+socket.on('connect', () => console.log('[IO] => new connnwct'));
 const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
+const [data, setData] = useState(null);
+
+  useEffect(() => {
+    if (campaign.ID) {
+      const campaignId = campaign.ID;
+      socket.emit('campaignAnalytics',  campaignId );
+      socket.on('campaignAnalyticsData', (analyticsData) => {
+        setData(analyticsData);
+      });
+      return () => {
+        socket.off('campaignAnalyticsData');
+      };
+    }
+  },[]);
+
+  console.log('Analytics data:', data);
 
   // Dados de analytics da campanha recebidos diretamente via props
   // const analytics = campaign.ANALYTICS;
 
+  
 
   return (
     <div className={styles.analytics}>
