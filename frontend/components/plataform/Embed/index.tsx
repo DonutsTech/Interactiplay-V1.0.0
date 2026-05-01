@@ -215,13 +215,13 @@ const Embed = ({ campaing }: IEmbedProps) => {
                       }}
                     />
                   )}
-                  <div style={{ width: '100%', height: '100%' }}>
+                  <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
                     {c.CTA && (
                       <div
                         className={style['embed-div']}
-                        style={{ ...divStyle(cta) }}
+                        style={{ ...divStyle(cta), maxWidth: '200%' }}
                       >
-                        <p style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</p>
+                        <pre style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</pre>
                         <button
                           className={style['embed-btn']}
                           style={{ ...btnStyle(cta) }}

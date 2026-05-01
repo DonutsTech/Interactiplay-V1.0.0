@@ -157,7 +157,9 @@ const Features = ({ campaing, onClose, id }: IFeaturesProps) => {
               </div>
             </div>
             <div className={styles.view_body}>
-              <Embed campaing={campaing} />
+              <div className={styles.embed}>
+                <Embed campaing={campaing} />
+              </div>
             </div>
             <div className={styles.view_actions}>
               <div className={`${styles.btn} ${styles.btn_flow}`}>

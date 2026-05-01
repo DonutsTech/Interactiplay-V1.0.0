@@ -510,7 +510,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
                   opacity: type === 'edge' ? 0.9 : 1,
                 }}
               >
-                <p
+                <pre
                   style={{
                     color: textColor,
                     fontWeight: textStyle === 'bold' ? 'bold' : 'normal',
@@ -519,7 +519,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
                   }}
                 >
                   {ctaText || 'Texto do CTA'}
-                </p>
+                </pre>
                 <button
                   style={{
                     backgroundColor: buttonColor,

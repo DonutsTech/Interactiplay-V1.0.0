@@ -106,7 +106,7 @@ const CtaGenerator = ({
     });
 
     setNodes(updatedNodes);
-    
+
     // console.log(updatedNodes)
     onSave();
   };
@@ -158,6 +158,9 @@ const CtaGenerator = ({
                 maxLength={104}
                 value={ctaText}
                 onChange={(e) => setCtaText(e.target.value)}
+                style={{
+                  textAlign: (alignment || 'center') as any,
+                }}
               />
             </div>
 
