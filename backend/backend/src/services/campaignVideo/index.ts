@@ -1,5 +1,4 @@
 import { StatusCodes } from 'http-status-codes';
-import type { CampaignVideoClient } from '../../@types/interface/campaign';
 import type { createCampaignVideo } from '../../@types/interface/campaignVideo';
 import { CustomError } from '../../error';
 import type { Campaign_Video } from '../../generated/prisma/client';
@@ -58,19 +57,20 @@ class CampaignVideoService {
     }
   }
 
-  async updateCampaignVideoForClient(data: CampaignVideoClient) {
+  async updateCampaignVideoForCTAClick(id: string, testAB: boolean) {
     try {
-      await this.existsById(data.ID);
+      await this.existsById(id);
 
-      const campaignVideo = await campaignVideoModel.updateBy({
-        where: { ID: data.ID },
-        data: {
-          CTA_CLICK_CAMPAING: { increment: data.CTA_CLICK_CAMPAING },
-          CTA_CLICK_TEST_AB: { increment: data.CTA_CLICK_TEST_AB },
-        },
+      const updateData = testAB
+        ? { CTA_CLICK_TEST_AB: { increment: 1 } }
+        : { CTA_CLICK: { increment: 1 } };
+
+      const result = await campaignVideoModel.updateBy({
+        where: { ID: id },
+        data: updateData,
       });
 
-      return campaignVideo;
+      return result;
     } catch (error) {
       throw error;
     }

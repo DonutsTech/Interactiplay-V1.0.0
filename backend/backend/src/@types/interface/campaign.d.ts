@@ -33,30 +33,3 @@ export interface BondCampaign {
 }
 
 export type UpdateCampaign = CreateCampaign;
-
-export interface CampaignUpdateClient {
-  ID: string;
-  CAMPAIGN_VIDEOS: CampaignVideoClient[];
-  FEATURE: {
-    EXTERNAL_LINK: externalLinkClient;
-  };
-}
-
-export interface externalLinkClient {
-  ID: string;
-  BUTTON_CLICK_CAMPAING: number;
-  BUTTON_CLICK_TEST_AB: number;
-}
-
-export interface CampaignVideoClient {
-  ID: string;
-  CTA_CLICK_CAMPAING: number;
-  CTA_CLICK_TEST_AB: number;
-  BONDS: BondClient[];
-}
-
-export interface BondClient {
-  ID: string;
-  BUTTON_CLICK_CAMPAING: number;
-  BUTTON_CLICK_TEST_AB: number;
-}

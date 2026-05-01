@@ -121,9 +121,10 @@ model Analytics {
   TEST_AB_ID_A     String?
   TEST_AB_B        Test_AB?     @relation("AnalyticsB")
   TEST_AB_ID_B     String?
-  TOTAL_PLAYS      Int          @default(0)
-  TOTAL_VIEWS      Int          @default(0)
-  TOTAL_PLAY_BLOCK Int          @default(0)
+  TOTAL_PLAYS       Int          @default(0)
+  TOTAL_VIEWS       Int          @default(0)
+  TOTAL_PLAY_BLOCK  Int          @default(0)
+  TOTAL_PLAY_UNIQUE Int          @default(0)
   MODEL_PLAYS      Model_Play[]
   CREATED_AT       DateTime?    @default(now()) @db.Timestamp(0)
   UPDATED_AT       DateTime?    @default(now()) @updatedAt
@@ -220,6 +221,8 @@ model Bond {
   ID           String       @id @default(uuid())
   VIDEO        Video?       @relation(fields: [VIDEO_ID], references: [ID])
   VIDEO_ID     String?
+  CONTINUITY_CAMPAING Int          @default(0)
+  CONTINUITY_TEST_AB Int          @default(0)
   BUTTON       Boolean      @default(false)
   BUTTON_TEXT  String?
   BUTTON_CLICK_CAMPAING Int          @default(0)

@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import type { ClientPublic } from '../../@types/interface/socket';
 import { CustomError } from '../../error';
 import { modelPlayModel } from '../../models/modelPlay';
+import { prisma } from '../../prisma';
 import { transformModelPlayToClient } from '../../utils/format/modelPlay';
 import { analyticsService } from '../analytics';
 import { historyPlaysService } from '../historyPlays';
@@ -38,8 +39,6 @@ class ModelPlayService {
           StatusCodes.NOT_FOUND,
         );
       }
-
-      console.log('Modelo de play encontrado:', modelPlay);
 
       return transformModelPlayToClient(modelPlay, data.ID_USER || '');
     } catch (error) {
@@ -97,20 +96,28 @@ class ModelPlayService {
         );
       }
 
-      const reslt = await historyPlaysService.updateHistoryPlayForUser(data.ID_USER);
+      const modelPlay = await modelPlayModel.findBy({
+        where: { ID: data.ID_MODEL_PLAY },
+      });
 
-      const result = await modelPlayModel.updateBy({
+      if (!modelPlay) {
+        throw new CustomError(
+          'Modelo de play não encontrado, por favor verifique o id',
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      await historyPlaysService.updateHistoryPlayForUser(data.ID_USER);
+
+      await modelPlayModel.updateBy({
         where: { ID: data.ID_MODEL_PLAY },
         data: {
-          ...(data.PLAY === 1 ? { PLAY_UNIQUE: { increment: 1 } } : {}),
+          ...(modelPlay.PLAY === 0 ? { PLAY_UNIQUE: { increment: 1 } } : {}),
           PLAY: { increment: 1 },
         },
       });
 
-      console.log('Modelo de play atualizado:', result);
-      console.log('Histórico de plays atualizado para o usuário:', reslt);
-
-      await analyticsService.incrementPlayForAnalytics(data.ID_ANALYTICS);
+      await analyticsService.incrementPlayForAnalytics(data.ID_ANALYTICS, modelPlay.PLAY === 0);
     } catch (error) {
       throw error;
     }
@@ -158,6 +165,24 @@ class ModelPlayService {
         where: { ID: data.ID_MODEL_PLAY },
         data: { VIEW: { increment: 1 } },
       });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async agrupmentoModelPlayByAnalytics(analyticsId: string) {
+    try {
+      const result = await prisma.model_Play.groupBy({
+        where: {
+          ANALYTICS_ID: analyticsId,
+        },
+        by: ['DEVICE'],
+        _sum: {
+          PLAY: true,
+        },
+      });
+
+      return result;
     } catch (error) {
       throw error;
     }

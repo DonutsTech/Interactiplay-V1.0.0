@@ -1,7 +1,14 @@
-import type { BondClient } from '../../@types/interface/campaign';
+import { StatusCodes } from 'http-status-codes';
+import { CustomError } from '../../error';
 import { bondModel } from '../../models/bond';
 
 class BondService {
+  async existsById(id: string) {
+    if (!(await bondModel.count({ ID: id }))) {
+      throw new CustomError('Bond não encontrado, por favor verifique o id', StatusCodes.NOT_FOUND);
+    }
+  }
+
   async deleteBondForCampaign(campaignId: string) {
     try {
       if (
@@ -18,14 +25,34 @@ class BondService {
     }
   }
 
-  async updateBondForClient(bondId: string, data: BondClient) {
+  async updateBondForBondClick(id: string, testAB: boolean) {
     try {
+      await this.existsById(id);
+
+      const update = testAB
+        ? { BUTTON_CLICK_TEST_AB: { increment: 1 } }
+        : { BUTTON_CLICK_CAMPAING: { increment: 1 } };
+
       await bondModel.updateBy({
-        where: { ID: bondId },
-        data: {
-          BUTTON_CLICK_CAMPAING: { increment: data.BUTTON_CLICK_CAMPAING },
-          BUTTON_CLICK_TEST_AB: { increment: data.BUTTON_CLICK_TEST_AB },
-        },
+        where: { ID: id },
+        data: update,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateBondForContinutyClick(id: string, testAB: boolean) {
+    try {
+      await this.existsById(id);
+
+      const update = testAB
+        ? { CONTINUITY_TEST_AB: { increment: 1 } }
+        : { CONTINUITY_CAMPAING: { increment: 1 } };
+
+      await bondModel.updateBy({
+        where: { ID: id },
+        data: update,
       });
     } catch (error) {
       throw error;

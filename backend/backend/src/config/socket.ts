@@ -1,11 +1,12 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import type { CampaignUpdateClient } from '../@types/interface/campaign';
 import type { ClientPublic } from '../@types/interface/socket';
-import { campaignService } from '../services/campaign';
+import { analyticsService } from '../services/analytics';
+import { bondService } from '../services/bond';
+import { campaignVideoService } from '../services/campaignVideo';
+import { externalLinkService } from '../services/externalLink';
 import { modelPlayService } from '../services/modelPlay';
 import { modelTimeService } from '../services/modelTime';
-import { transformCampaignForClient } from '../utils/format/campaign';
 
 export class SocketConfig {
   private io: SocketIOServer;
@@ -37,16 +38,14 @@ export class SocketConfig {
           modelPlay = await modelPlayService.getModelPlayById(data);
         }
 
-        console.log('ModelPlay inicializado para o usuário:', modelPlay);
         socket.emit('initSuccess', modelPlay);
       });
 
       socket.on('play_block', async (data: ClientPublic) => {
         if (data.ID_MODEL_PLAY !== '' && data.ID_MODEL_PLAY !== undefined) {
           await modelPlayService.incrementPlayModelPlayBlock(data);
-          // Atualiza analytics
           if (data.ID_CAMPAIGN) {
-            const analytics = await campaignService.campaignAnalyticsForUser(data.ID_CAMPAIGN);
+            const analytics = await analyticsService.getAnalyticsForCampaign(data.ID_CAMPAIGN);
             socket.emit('campaignAnalyticsData', analytics);
           }
         }
@@ -55,9 +54,8 @@ export class SocketConfig {
       socket.on('play', async (data: ClientPublic) => {
         if (data.ID_MODEL_PLAY !== '' && data.ID_MODEL_PLAY !== undefined) {
           await modelPlayService.incrementPlayModelPlay(data);
-          // Atualiza analytics
           if (data.ID_CAMPAIGN) {
-            const analytics = await campaignService.campaignAnalyticsForUser(data.ID_CAMPAIGN);
+            const analytics = await analyticsService.getAnalyticsForCampaign(data.ID_CAMPAIGN);
             socket.emit('campaignAnalyticsData', analytics);
           }
         }
@@ -66,39 +64,82 @@ export class SocketConfig {
       socket.on('view', async (data: ClientPublic) => {
         if (data.ID_MODEL_PLAY !== '' && data.ID_MODEL_PLAY !== undefined) {
           await modelPlayService.incrementViewModelPlay(data);
-          // Atualiza analytics
           if (data.ID_CAMPAIGN) {
-            const analytics = await campaignService.campaignAnalyticsForUser(data.ID_CAMPAIGN);
+            const analytics = await analyticsService.getAnalyticsForCampaign(data.ID_CAMPAIGN);
             socket.emit('campaignAnalyticsData', analytics);
           }
+        }
+      });
+
+      socket.on('cta_click_video', async (id: string) => {
+        if (id) {
+          const result = await campaignVideoService.updateCampaignVideoForCTAClick(id, false);
+          if (result && result.CAMPAIGN_ID) {
+            const analytics = await analyticsService.getAnalyticsForCampaign(result.CAMPAIGN_ID);
+            socket.emit('campaignAnalyticsData', analytics);
+          }
+        }
+      });
+
+      socket.on('cta_click_test_ab', async (id: string) => {
+        if (id) {
+          const result = await campaignVideoService.updateCampaignVideoForCTAClick(id, true);
+          if (result && result.CAMPAIGN_ID) {
+            const analytics = await analyticsService.getAnalyticsForCampaign(result.CAMPAIGN_ID);
+            socket.emit('campaignAnalyticsData', analytics);
+          }
+        }
+      });
+
+      socket.on('bond_click_video', async (id: string) => {
+        if (id) {
+          await bondService.updateBondForBondClick(id, false);
+        }
+      });
+
+      socket.on('bond_click_test_ab', async (id: string) => {
+        if (id) {
+          await bondService.updateBondForBondClick(id, true);
+        }
+      });
+
+      socket.on('external_link_click', async (id: string) => {
+        if (id) {
+          await externalLinkService.updateExternalLinkForClick(id, false);
+        }
+      });
+
+      socket.on('external_link_click_test_ab', async (id: string) => {
+        if (id) {
+          await externalLinkService.updateExternalLinkForClick(id, true);
+        }
+      });
+
+      socket.on('continuity_click_video', async (id: string) => {
+        if (id) {
+          await bondService.updateBondForContinutyClick(id, false);
+        }
+      });
+
+      socket.on('continuity_click_test_ab', async (id: string) => {
+        if (id) {
+          await bondService.updateBondForContinutyClick(id, true);
         }
       });
 
       socket.on('timescreen', async (data: ClientPublic) => {
         if (data.ID_MODEL_PLAY !== '' && data.ID_MODEL_PLAY !== undefined) {
-          const result = await modelTimeService.incrementTimeVideo(data);
+          const result = await modelTimeService.incrementTimeVideo(data, data.TIMESCREEN);
           socket.emit('timescreenSuccess', result);
-          // Atualiza analytics
           if (data.ID_CAMPAIGN) {
-            const analytics = await campaignService.campaignAnalyticsForUser(data.ID_CAMPAIGN);
+            const analytics = await analyticsService.getAnalyticsForCampaign(data.ID_CAMPAIGN);
             socket.emit('campaignAnalyticsData', analytics);
           }
         }
       });
 
-      socket.on('campaignUpdate', async (updateData: CampaignUpdateClient) => {
-        await campaignService.updateCampaignClientForId(updateData);
-        const result = transformCampaignForClient(updateData);
-        socket.emit('campaignUpdate', result);
-        // Atualiza analytics
-        if ((updateData as any).ID_CAMPAIGN) {
-          const analytics = await campaignService.campaignAnalyticsForUser((updateData as any).ID_CAMPAIGN);
-          socket.emit('campaignAnalyticsData', analytics);
-        }
-      });
-
       socket.on('campaignAnalytics', async (campaignId: string) => {
-        const analytics = await campaignService.campaignAnalyticsForUser(campaignId);
+        const analytics = await analyticsService.getAnalyticsForCampaign(campaignId);
         socket.emit('campaignAnalyticsData', analytics);
       });
 
@@ -106,51 +147,5 @@ export class SocketConfig {
         console.log('Usuário desconectado:', socket.id);
       });
     });
-
-    const privateNamespace = this.io.of('/private');
-
-    privateNamespace.on('connection', socket => {
-      console.log('Usuário conectado na namespace privada:', socket.id);
-
-      socket.on('disconnect', () => {
-        console.log('Usuário desconectado da namespace privada:', socket.id);
-      });
-    });
-
-    /*
-    this.io.on('connection', socket => {
-      console.log('Usuário conectado:', socket.id);
-
-      socket.on('joinCampaign', (campaignId: string) => {
-        socket.join(`campaign_${campaignId}`);
-        console.log(`Usuário ${socket.id} entrou na campanha ${campaignId}`);
-      });
-
-      socket.on('leaveCampaign', (campaignId: string) => {
-        socket.leave(`campaign_${campaignId}`);
-        console.log(`Usuário ${socket.id} saiu da campanha ${campaignId}`);
-      });
-
-      socket.on('campaignAnalytics', (campaignId: string) => {
-        const analytics = campaignService.campaignAnalyticsForUser(campaignId);
-
-        socket.emit('campaignAnalyticsData', analytics);
-      });
-
-      socket.on('campaignUpdate', async (campaignId: string, updateData: CampaignUpdateClient) => {
-        const result = await campaignService.updateCampaignClientForId(updateData);
-
-        socket.emit('campaignClientSuccess', result);
-
-        const analytics = await campaignService.campaignAnalyticsForUser(campaignId);
-
-        socket.to(`campaign_${campaignId}`).emit('campaignAnalytics', analytics);
-      });
-
-      socket.on('disconnect', () => {
-        console.log('Usuário desconectado:', socket.id);
-      });
-    });
-    */
   }
 }

@@ -1,10 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import type { CampaignBasic, CampaignEmbed } from '../../@types/campaignPrisma';
-import type {
-  CampaignUpdateClient,
-  CreateCampaign,
-  UpdateCampaign,
-} from '../../@types/interface/campaign';
+import type { CreateCampaign, UpdateCampaign } from '../../@types/interface/campaign';
 import { CustomError } from '../../error';
 import type { Prisma } from '../../generated/prisma/browser';
 import { analyticsModel } from '../../models/analytics';
@@ -86,31 +82,36 @@ const CAMPAIGN_DEFAULT_EMBED: Prisma.CampaignInclude = {
   },
 };
 
-const CAMPAIGN_DEFAULT_EMBED_ANALYTICS: Prisma.CampaignInclude = {
+const CAMPAIGN_DEFAULT_EMBED_ANALYTICS: Prisma.CampaignSelect = {
   CAMPAIGN_VIDEOS: {
-    include: {
+    select: {
+      CTA_CLICK_CAMPAING: true,
+      CTA_CLICK_TEST_AB: true,
       BONDS: {
-        include: {
-          BOND: true,
+        select: {
+          BOND: {
+            select: {
+              CONTINUITY_CAMPAING: true,
+              CONTINUITY_TEST_AB: true,
+              BUTTON_CLICK_CAMPAING: true,
+              BUTTON_CLICK_TEST_AB: true,
+            },
+          },
         },
       },
-      VIDEO: true,
     },
   },
   FEATURE: {
-    include: {
-      EXTERNAL_LINK: true,
-    },
-  },
-  ANALYTICS: {
-    include: {
-      MODEL_PLAYS: {
-        include: {
-          MODEL_TIME: true,
+    select: {
+      EXTERNAL_LINK: {
+        select: {
+          BUTTON_CLICK_CAMPAING: true,
+          BUTTON_CLICK_TEST_AB: true,
         },
       },
     },
   },
+  ANALYTICS_ID: true,
 };
 
 class CampaignService {
@@ -306,33 +307,11 @@ class CampaignService {
     }
   }
 
-  async updateCampaignClientForId(data: CampaignUpdateClient) {
-    try {
-      await this.existsById(data.ID);
-
-      await externalLinkService.updateExternalLinkForClient(data.FEATURE.EXTERNAL_LINK);
-
-      for (const video of data.CAMPAIGN_VIDEOS) {
-        const { BONDS, ...res } = video;
-
-        await campaignVideoService.updateCampaignVideoForClient(video);
-
-        if (BONDS && BONDS.length > 0) {
-          for (const bond of BONDS) {
-            await bondService.updateBondForClient(bond.ID, bond);
-          }
-        }
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
   async campaignAnalyticsForUser(id: string) {
     try {
       const campaign = await campaignModel.findBy({
         where: { ID: id },
-        include: CAMPAIGN_DEFAULT_EMBED_ANALYTICS,
+        select: CAMPAIGN_DEFAULT_EMBED_ANALYTICS,
       });
 
       if (!campaign) {

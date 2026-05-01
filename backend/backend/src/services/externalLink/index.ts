@@ -1,10 +1,20 @@
-import type { externalLinkClient } from '../../@types/interface/campaign';
+import { StatusCodes } from 'http-status-codes';
 import type { createExternalLink } from '../../@types/interface/externalLink';
+import { CustomError } from '../../error';
 import { externalLinkModel } from '../../models/externalLink';
 import { campaignService } from '../campaign';
 import { featuresService } from '../features';
 
 class ExternalLinkService {
+  async existsById(id: string) {
+    if (!(await externalLinkModel.count({ ID: id }))) {
+      throw new CustomError(
+        'Link externo não encontrado, por favor verifique o id',
+        StatusCodes.NOT_FOUND,
+      );
+    }
+  }
+
   async deleteExternalLinkForCampaign(campaignId: string): Promise<void> {
     try {
       if (await externalLinkModel.count({ FEATURE: { CAMPAIGN: { ID: campaignId } } })) {
@@ -68,17 +78,20 @@ class ExternalLinkService {
     }
   }
 
-  async updateExternalLinkForClient(body: externalLinkClient) {
+  async updateExternalLinkForClick(id: string, testAB: boolean) {
     try {
-      const externalLink = await externalLinkModel.updateBy({
-        where: { ID: body.ID },
-        data: {
-          BUTTON_CLICK_CAMPAING: { increment: body.BUTTON_CLICK_CAMPAING },
-          BUTTON_CLICK_TEST_AB: { increment: body.BUTTON_CLICK_TEST_AB },
-        },
-      });
+      await this.existsById(id);
 
-      return externalLink;
+      const update = testAB
+        ? { BUTTON_CLICK_TEST_AB: { increment: 1 } }
+        : {
+            BUTTON_CLICK_CAMPAING: { increment: 1 },
+          };
+
+      await externalLinkModel.updateBy({
+        where: { ID: id },
+        data: update,
+      });
     } catch (error) {
       throw error;
     }
