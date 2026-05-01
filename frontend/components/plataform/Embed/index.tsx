@@ -143,7 +143,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
             >
               {campaing.FEATURE.GANCHO.TITLE}
             </h2>
-            <p
+            <pre
               className={style.ganchoSubTitle}
               style={{
                 ...subTitleStyle(
@@ -152,7 +152,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
               }}
             >
               {campaing.FEATURE.GANCHO.SUBTITLE}
-            </p>
+            </pre>
           </div>
         )}
       <div className={style.videoContainer}>
