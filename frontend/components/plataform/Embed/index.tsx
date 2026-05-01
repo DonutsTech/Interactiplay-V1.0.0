@@ -127,8 +127,10 @@ const Embed = ({ campaing }: IEmbedProps) => {
     }
   };
 
+  // {console.log(c.cta)}
+
   return (
-    <section className={style.section}> 
+    <section className={style.section}>
       {campaing.FEATURE &&
         campaing.FEATURE.GANCHO &&
         campaing.FEATURE.GANCHO.ATIVE && (
@@ -183,7 +185,14 @@ const Embed = ({ campaing }: IEmbedProps) => {
                 preload="metadata"
                 className={style.video}
                 style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  transition: 'opacity 0.5s ease-in-out',
                   opacity: current === c.VIDEO.ID ? 1 : 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
                 }}
                 onEnded={() => handleVideoEnd()}
                 onClick={() => handleVideoStart()}
@@ -215,11 +224,18 @@ const Embed = ({ campaing }: IEmbedProps) => {
                       }}
                     />
                   )}
-                  <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      overflow: 'hidden',
+                    }}
+                  >
                     {c.CTA && (
                       <div
                         className={style['embed-div']}
-                        style={{ ...divStyle(cta), maxWidth: '200%' }}
+                        style={{ ...divStyle(cta) }}
+                        onClick={() => console.log(btnStyle(cta)) }
                       >
                         <pre style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</pre>
                         <button
@@ -268,7 +284,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
         campaing.FEATURE.EXTERNAL_LINK &&
         campaing.FEATURE.EXTERNAL_LINK.ATIVE && (
           <div className={style.ctaBox}>
-            <p
+            <pre
               style={{
                 ...ctaPStyle(
                   JSON.parse(campaing.FEATURE.EXTERNAL_LINK.STYLE_TEXT || '')
@@ -276,7 +292,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
               }}
             >
               {campaing.FEATURE.EXTERNAL_LINK.TEXT}
-            </p>
+            </pre>
             <button
               className={style.btnCta}
               style={{

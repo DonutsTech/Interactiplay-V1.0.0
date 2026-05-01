@@ -8,6 +8,7 @@ import { formatDuration } from '@/utils/videoUtils';
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
+import { useEditCampaign } from '@/context/EditCampaignContext';
 import ButtonGenerator from './ButtonGenerator';
 import CtaGenerator from './CtaGenerator';
 import styles from './ModalFlow.module.scss';
@@ -22,11 +23,13 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef<boolean>(false);
   const initialNodesRef = useRef<any[]>([]);
+  const initialEdgesRef = useRef<any[]>([]);
 
   const initialCtaStateRef = useRef<any>(null);
   const initialBtnStateRef = useRef<any>(null);
   const wasPreviouslyConfiguredRef = useRef<boolean>(false);
-  const { dadosModal, setNodes, nodes, setEdges } = useFlow();
+  const { dadosModal, setNodes, nodes, setEdges, edges } = useFlow();
+  const { editingCampaign } = useEditCampaign();
   const { showInfo, showSuccess } = useError();
   const [timeVideo, setTimeVideo] = useState<number>(0);
 
@@ -55,8 +58,17 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
 
   const [otherBonds, setOtherBonds] = useState<Bond[]>([]);
 
+
+
+  // Salva snapshot inicial só na primeira abertura para cada dadosModal
   useEffect(() => {
     if (!dadosModal) return;
+
+    // Só salva se ainda não tem snapshot para este modal
+    if (initialNodesRef.current.length === 0 && initialEdgesRef.current.length === 0) {
+      initialNodesRef.current = JSON.parse(JSON.stringify(nodes));
+      initialEdgesRef.current = JSON.parse(JSON.stringify(edges));
+    }
 
     if (type === 'edge' && dadosModal.TARGET) {
       const bond = dadosModal.BONDS.find(
@@ -88,19 +100,13 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
           }
           return node;
         });
-        initialNodesRef.current = JSON.parse(
-          JSON.stringify(nodesWithoutNewConnection)
-        );
         wasPreviouslyConfiguredRef.current = false;
       } else {
-        initialNodesRef.current = JSON.parse(JSON.stringify(nodes));
         wasPreviouslyConfiguredRef.current = bond
           ? bond.BUTTON_MODAL === true
           : false;
       }
-    } else {
-      initialNodesRef.current = JSON.parse(JSON.stringify(nodes));
-    }
+    } 
 
     setCtaActive(dadosModal.CTA);
     setCtaText(dadosModal.CTA_TEXT);
@@ -318,20 +324,28 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
         JSON.stringify(initialBtnStateRef.current);
     }
 
+
     const nodesChanged =
       JSON.stringify(nodes) !== JSON.stringify(initialNodesRef.current);
 
     if (nodesChanged && initialNodesRef.current.length > 0) {
-      // Restaura os nodes iniciais e recalcula as ordens
-      const restoredNodes = initialNodesRef.current;
-      const reorderedNodes = orderForEdges(restoredNodes);
-      setNodes(reorderedNodes || restoredNodes);
+      const restoredNodes = JSON.parse(JSON.stringify(initialNodesRef.current));
+      if (editingCampaign) {
+        // Em edição de campanha, restaura exatamente como estava (deep clone)
+        setNodes(restoredNodes);
+        setEdges(JSON.parse(JSON.stringify(initialEdgesRef.current)));
+      } else {
+        // Fora de edição de campanha, mantém lógica anterior
+        const reorderedNodes = orderForEdges(restoredNodes);
+        setNodes(reorderedNodes || restoredNodes);
+      }
       hasChanges = true;
 
       if (
         type === 'edge' &&
         !wasPreviouslyConfiguredRef.current &&
-        dadosModal
+        dadosModal &&
+        !editingCampaign 
       ) {
         setEdges((edges) =>
           edges.filter(
@@ -525,7 +539,6 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
                     backgroundColor: buttonColor,
                     color: buttonTextColor,
                     borderRadius: `${borderRadius}px`,
-                    padding: '8px 16px',
                     border: 'none',
                     cursor: type === 'node' ? 'pointer' : 'default',
                   }}
@@ -547,7 +560,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
                   backgroundColor: bgColorBtn,
                   color: textColorBtn,
                   borderRadius: `${borderRadiusBtn}px`,
-                  padding: '8px 16px',
+                  // padding: '8px 16px',
                   border: 'none',
                   cursor: draggingRef.current ? 'grabbing' : 'grab',
                   whiteSpace: 'nowrap',

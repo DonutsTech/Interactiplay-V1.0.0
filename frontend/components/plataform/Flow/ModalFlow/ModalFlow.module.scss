@@ -61,12 +61,24 @@
       position: relative;
       background: #000;
       overflow: hidden;
+      container-type: inline-size;
 
       video {
         width: 100%;
         height: 100%;
         display: block;
       }
+
+        pre {
+          font-size: 2cqw;
+        }
+
+        button {
+          padding: 1cqw 1.5cqw;
+          font-size: 1.2cqw;
+        }
+
+
     }
 
     &_info {

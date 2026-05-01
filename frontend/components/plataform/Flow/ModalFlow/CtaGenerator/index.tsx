@@ -160,6 +160,8 @@ const CtaGenerator = ({
                 onChange={(e) => setCtaText(e.target.value)}
                 style={{
                   textAlign: (alignment || 'center') as any,
+                  fontWeight: textStyle === 'bold' ? 'bold' : 'normal',
+                  fontStyle: textStyle === 'italic' ? 'italic' : 'normal',
                 }}
               />
             </div>

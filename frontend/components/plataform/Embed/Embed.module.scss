@@ -8,27 +8,18 @@
   gap: 16px;
 
   .videoContainer {
-    position: relative;
-    width: 80%;
-    // max-width: 60%;
-    height: auto;
-    aspect-ratio: 16/9 !important;
-    overflow: hidden;
-    border-radius: 8px;
+  position: relative;
+  width: 100%;
+  max-width: 80%;
+  height: auto;
+  aspect-ratio: 16/9;
+  background-color: #000;
+  overflow: hidden;
+  border-radius: 8px;
+  container-type: inline-size;
 
-    .video {
-      // position: absolute;
-      transition: all 0.3s ease;
-      width: 100%;
-      height: 100%;
-      aspect-ratio: 16/9;
-      object-fit: contain;
-    }
   }
 }
-
-
-
 
 
 
@@ -43,13 +34,14 @@
   gap: 16px;
   justify-content: center;
   z-index: 17;
-  container-type: inline-size;
+  // container-type: inline-size;
+  // border: green solid 1px;
 }
 
 .embed-btn {
-  padding: 8px 16px;
+  padding: 1cqw 1.5cqw;
   font-weight: 600;
-  font-size: clamp(12px, 5cqw, 16px);
+  font-size: 1.5cqw;
   border: none;
   cursor: pointer;
   transition: all 300ms ease-in-out;
@@ -60,10 +52,9 @@
 }
 
 .embed-btnedge {
-  padding: 8px 16px;
+  padding: 1cqw 1.5cqw;
   font-weight: 600;
-  font-size: 0.6cqw;
-  font-size: clamp(12px, 0.6cqw, 16px);
+  font-size: 1.5cqw;
   border: none;
   cursor: pointer;
   position: absolute;
@@ -120,10 +111,12 @@
   // font-size: clamp(0.75rem, 0.6522rem + 0.4348vw, 1rem);
   font-size: 1.5vh;
   padding: 16px;
+  container-type: inline-size;
 
   .ganchoTitle {
     width: 100%;
-    font-size: 2em;
+    text-align: center;
+    font-size: 4cqw;
     font-family: $font-family-text;
   }
 
@@ -131,7 +124,7 @@
     width: 60%;
     height: auto;
     word-break: break-word;
-    font-size: 1.2em;
+    font-size: 2.5cqw;
     font-family: $font-family-text;
   }
 }
@@ -147,16 +140,18 @@
   font-size: 1.5vh;
   padding: 16px;
   gap: 8px;
+  container-type: inline-size;
 
-  p {
+  pre {
     width: 80%;
-    font-size: 1.2em;
+    font-size: 2.5cqw;
     font-family: $font-family-text;
   }
 }
 
 .btnCta {
-  padding: 8px 16px;
+  padding: 1cqw 1.5cqw;
+  font-size: 1.5cqw;
   font-weight: 600;
   border: none;
   cursor: pointer;
