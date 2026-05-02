@@ -295,6 +295,9 @@ const Embed = ({ campaing }: IEmbedProps) => {
             </pre>
             <button
               className={style.btnCta}
+              onClick={() => {
+                window.open(`${campaing.FEATURE?.EXTERNAL_LINK?.LINK_URL}`, '_blank')
+              }}
               style={{
                 ...ctaBtnStyle(
                   JSON.parse(campaing.FEATURE.EXTERNAL_LINK.BUTTON_STYLE || '')

@@ -174,6 +174,13 @@ const CTAGeral = ({ duration }: Iprops) => {
                       ctaText: e.target.value,
                     })
                   }
+                  style={{
+                    textAlign: CtaGeralPayload.alignCTA as 'left' | 'center' | 'right',
+                    fontWeight:
+                      CtaGeralPayload.styleCTA === 'bold' ? 'bold' : 'normal',
+                    fontStyle:
+                      CtaGeralPayload.styleCTA === 'italic' ? 'italic' : 'normal',
+                  }}
                 />
               </div>
               <div className={styles.ctaStyle}>
