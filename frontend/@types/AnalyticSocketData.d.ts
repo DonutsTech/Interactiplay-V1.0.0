@@ -1,0 +1,55 @@
+export interface IBondData {
+  CONTINUITY_CAMPAING: number;
+  CONTINUITY_TEST_AB: number;
+  BUTTON_CLICK_CAMPAING: number;
+  BUTTON_CLICK_TEST_AB: number;
+}
+
+export interface ICampaignVideoBondItem {
+  BOND: IBondData;
+}
+
+export interface ICampaignVideoData {
+  CTA_CLICK_CAMPAING: number;
+  CTA_CLICK_TEST_AB: number;
+  BONDS: ICampaignVideoBondItem[];
+}
+
+export interface IExternalLinkData {
+  BUTTON_CLICK_CAMPAING: number;
+  BUTTON_CLICK_TEST_AB: number;
+}
+
+export interface ICampaignFeatureData {
+  EXTERNAL_LINK: IExternalLinkData | null;
+}
+
+export interface ICampaignData {
+  CAMPAIGN_VIDEOS: ICampaignVideoData[];
+  FEATURE: ICampaignFeatureData | null;
+  ANALYTICS_ID: string;
+}
+
+export interface IAnalyticsData {
+  TOTAL_PLAY_BLOCK: number;
+  TOTAL_PLAYS: number;
+  TOTAL_VIEWS: number;
+  TOTAL_PLAY_UNIQUE: number;
+}
+
+export interface IModelPlayItem {
+  _sum: { PLAY: number };
+  DEVICE: string;
+}
+
+export interface IModelTimeData {
+  TIME: Record<string, number>; // chave = segundo do vídeo, valor = contagem de eventos
+  TOTAL_TIMESCREEN: number;
+}
+
+export interface IAnalyticsSocketData {
+  CAMPAIGN: ICampaignData;
+  ANALYTICS: IAnalyticsData;
+  MODEL_PLAYS: IModelPlayItem[];
+  MODEL_TIME: IModelTimeData;
+}
