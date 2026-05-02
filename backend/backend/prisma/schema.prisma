@@ -55,6 +55,7 @@ model User {
   HISTORY_PLAYS               History_Plays[]
   VIDEOS                      Video[]
   CAMPAIGNS                   Campaign[]
+  TESTS_AB                    Test_AB[]
 
   @@map("users")
 }
@@ -176,6 +177,8 @@ model Test_AB {
   ANALYTICS_ID_A String?   @unique
   ANALYTICS_B   Analytics? @relation("AnalyticsB", fields: [ANALYTICS_ID_B], references: [ID])
   ANALYTICS_ID_B String?   @unique
+  USER            User?            @relation(fields: [USER_ID], references: [ID])
+  USER_ID         String?
   CREATED_AT    DateTime?  @default(now()) @db.Timestamp(0)
   UPDATED_AT    DateTime?  @default(now()) @updatedAt
 

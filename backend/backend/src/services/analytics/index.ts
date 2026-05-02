@@ -29,7 +29,7 @@ class AnalyticsService {
       await analyticsModel.updateBy({
         where: { ID: id },
         data: {
-          ...(isFirstPlay ? { TOTAL_PLAYS: { increment: 1 } } : {}),
+          ...(isFirstPlay ? { TOTAL_PLAY_UNIQUE: { increment: 1 } } : {}),
           TOTAL_PLAYS: { increment: 1 },
         },
       });

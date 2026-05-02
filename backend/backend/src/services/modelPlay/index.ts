@@ -112,7 +112,7 @@ class ModelPlayService {
       await modelPlayModel.updateBy({
         where: { ID: data.ID_MODEL_PLAY },
         data: {
-          ...(modelPlay.PLAY === 0 ? { PLAY_UNIQUE: { increment: 1 } } : {}),
+          PLAY_UNIQUE: 1,
           PLAY: { increment: 1 },
         },
       });

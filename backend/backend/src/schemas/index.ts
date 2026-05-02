@@ -5,6 +5,7 @@ import { createCampaign } from './compaign';
 import { createExternalLink } from './externalLink';
 import { createGancho } from './gancho';
 import { createPixel } from './pixel';
+import createTestAB from './testAB/create';
 import { createTimeline } from './timeline';
 import { updateUser } from './user';
 import { videoUpdate } from './video';
@@ -23,6 +24,7 @@ const schemas: { [key: string]: ObjectSchema } = {
   'gancho/create': createGancho,
   'pixel/create': createPixel,
   'timeline/create': createTimeline,
+  'testAB/create': createTestAB,
 };
 
 export default schemas;
