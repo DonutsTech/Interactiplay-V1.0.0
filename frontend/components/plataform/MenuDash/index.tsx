@@ -21,6 +21,7 @@ import { getPaymentActive } from '@/service/plan/payment-active';
 import { getToken } from '@/service/token';
 import { useError } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
+import Helper from '../Helper';
 
 const MenuDash = () => {
   const { authUser, logout, isLoading } = useContext(AuthUserContext);
@@ -30,6 +31,7 @@ const MenuDash = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [dropDownOpen, setDropDownOpen] = useState<boolean>(false);
+  const [showHelper, setShowHelper] = useState<boolean>(false);
 
   useEffect(() => {
     setDropDownOpen(false);
@@ -137,6 +139,7 @@ const MenuDash = () => {
 
   return (
     <>
+      <Helper setOpen={setShowHelper}  open={showHelper}/>
       <header className={styles.menuDash}>
         <Link href="/dashboard" className={styles.menuDash_link}>
           <Image

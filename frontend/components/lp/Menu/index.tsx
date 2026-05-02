@@ -9,6 +9,7 @@ import logo from '@/assets/images/logo_white_dg.svg';
 import user from '@/assets/images/USER.svg';
 import menuIcon from '@/assets/icons/logo_menu_mobile.svg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IoLogoWhatsapp } from 'react-icons/io';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 
@@ -16,64 +17,62 @@ const Menu = () => {
   const { isMobile } = useIsMobile();
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
-  
 
-    useEffect(() => {
+  useEffect(() => {
     setMounted(true);
   }, []);
 
-
-  
   const navLinkList = [
     {
-      title: "Recursos",
-      href: "#features"
-    }, {
-      title: "Preços",
-      href: "#plan"
-    }, {
-      title: "Contato",
-      href: "#contact"
-    }
-  ]
+      title: 'Recursos',
+      href: '#features',
+    },
+    {
+      title: 'Preços',
+      href: '#plan',
+    },
+    {
+      title: 'Contato',
+      href: '#contact',
+    },
+  ];
 
   return (
     <>
       {isMobile ? (
         <>
-          <div
-            className={styles.menuMobile_btn}
-            onClick={() => setOpen(!open)}
-          >
+          <div className={styles.menuMobile_btn} onClick={() => setOpen(!open)}>
             <Image
               src={menuIcon}
               width={24}
               height={24}
-              alt='Menu Icon'
+              alt="Menu Icon"
               draggable={false}
-              loading='lazy'
+              loading="lazy"
             />
           </div>
           <div
             className={classNames({
               [styles.menuMobile_overlay]: true,
-              [styles.open]: open
+              [styles.open]: open,
             })}
             onClick={() => setOpen(false)}
           />
-          <div className={classNames({
-            [styles.menuMobile]: true,
-            [styles.open]: open
-          })}>
-            <FontAwesomeIcon 
-              icon={faXmark} 
+          <div
+            className={classNames({
+              [styles.menuMobile]: true,
+              [styles.open]: open,
+            })}
+          >
+            <FontAwesomeIcon
+              icon={faXmark}
               width={24}
               className={styles.menuMobile_closeIcon}
               onClick={() => setOpen(false)}
             />
 
             <div className={styles.menuMobile_content}>
-              <Link 
+              <Link
                 href={'/'}
                 className={styles.menuMobile_content_logo}
                 onClick={(e: MouseEvent<HTMLAnchorElement>) => {
@@ -86,42 +85,51 @@ const Menu = () => {
                   src={logo}
                   width={238}
                   height={40}
-                  alt='Logo da Interactiplay'
+                  alt="Logo da Interactiplay"
                   draggable={false}
-                  loading='lazy'
+                  loading="lazy"
                 />
               </Link>
 
               {navLinkList.map((link) => (
-                <Link 
-                  key={link.title} 
-                  href={link.href} 
+                <Link
+                  key={link.title}
+                  href={link.href}
                   className={styles.menuMobile_content_link}
                   onClick={() => {
-                    setOpen(false)
+                    setOpen(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                 >
                   {link.title}
                 </Link>
               ))}
+              <Link
+                href={`https://wa.me/553491449810? text=Olá!%20Gostaria%20de%20tirar%20minhas%20dúvidas%20sobre%20a%20Interactiplay.`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.menuMobile_content_link_whats}
+                title="Entrar em contato via WhatsApp"
+              >
+                <IoLogoWhatsapp />
+              </Link>
 
               <div className={styles.menuMobile_content_user}>
-                <Link 
+                <Link
                   href={'/acess/cadastro'}
                   className={styles.menuMobile_content_user_cadastro}
                   onClick={() => {
-                    setOpen(false)
+                    setOpen(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                 >
                   Cadastre-se
                 </Link>
-                <Link 
+                <Link
                   href={'/acess/login'}
                   className={styles.menuMobile_content_user_login}
                   onClick={() => {
-                    setOpen(false)
+                    setOpen(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                 >
@@ -130,9 +138,9 @@ const Menu = () => {
                     src={user}
                     width={20}
                     height={24}
-                    alt='Icon de usuario'
+                    alt="Icon de usuario"
                     draggable={false}
-                    loading='lazy'
+                    loading="lazy"
                   />
                 </Link>
               </div>
@@ -142,7 +150,7 @@ const Menu = () => {
       ) : (
         <div className={styles.menuDesk}>
           <Link
-            href={"/"}
+            href={'/'}
             onClick={(e: MouseEvent<HTMLAnchorElement>) => {
               e.preventDefault();
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -153,18 +161,31 @@ const Menu = () => {
               src={logo}
               width={238}
               height={40}
-              alt='Logo da Interactiplay'
+              alt="Logo da Interactiplay"
               draggable={false}
-              loading='lazy'
+              loading="lazy"
             />
           </Link>
 
           <nav className={styles.menuDesk_nav}>
             {navLinkList.map((link) => (
-              <Link key={link.title} href={link.href} className={styles.menuDesk_nav_link}>
+              <Link
+                key={link.title}
+                href={link.href}
+                className={styles.menuDesk_nav_link}
+              >
                 {link.title}
               </Link>
             ))}
+            <Link
+              href={`https://wa.me/553491449810? text=Olá!%20Gostaria%20de%20tirar%20minhas%20dúvidas%20sobre%20a%20Interactiplay.`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.menuDesk_nav_whats}
+              title="Entrar em contato via WhatsApp"
+            >
+              <IoLogoWhatsapp />
+            </Link>
           </nav>
 
           <div className={styles.menuDesk_acess}>
@@ -189,9 +210,9 @@ const Menu = () => {
                 src={user}
                 width={20}
                 height={24}
-                alt='Icon de usuario'
+                alt="Icon de usuario"
                 draggable={false}
-                loading='lazy'
+                loading="lazy"
               />
             </Link>
           </div>

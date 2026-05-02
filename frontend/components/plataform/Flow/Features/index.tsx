@@ -37,7 +37,7 @@ const Features = ({ campaing, onClose, id }: IFeaturesProps) => {
   const [isToggled, setIsToggled] = useState(true);
   const [stepIndex, setStepIndex] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
-  const { isLoading } = useError();
+  const { isLoading, handleRequest } = useError();
   const router = useRouter();
 
   const calc = () => {
@@ -99,7 +99,15 @@ const Features = ({ campaing, onClose, id }: IFeaturesProps) => {
     <section className={styles.wrapper}>
       <div className={styles.overlay} />
       <div className={styles.container}>
-        <button className={styles.close} onClick={onClose}>
+        <button
+          className={styles.close}
+          onClick={() => {
+            if (id) {
+              router.push(`/dashboard`);
+            }
+            onClose();
+          }}
+        >
           <FontAwesomeIcon icon={faCircleXmark} />
         </button>
         <div className={styles.content}>
@@ -149,7 +157,9 @@ const Features = ({ campaing, onClose, id }: IFeaturesProps) => {
               </div>
             </div>
             <div className={styles.view_body}>
-              <Embed campaing={campaing} />
+              <div className={styles.embed}>
+                <Embed campaing={campaing} />
+              </div>
             </div>
             <div className={styles.view_actions}>
               <div className={`${styles.btn} ${styles.btn_flow}`}>

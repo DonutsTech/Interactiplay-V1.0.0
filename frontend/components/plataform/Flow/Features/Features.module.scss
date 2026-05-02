@@ -63,14 +63,15 @@
     justify-content: flex-start;
 
     .view {
-      width: 75%;
+      // width: 75%;
+      flex: 1;
       height: 100%;
       display: flex;
       flex-flow: column nowrap;
       align-items: flex-start;
       justify-content: space-between;
       overflow-x: hidden;
-      overflow-y: auto;
+
 
       &_header {
         width: 100%;
@@ -219,9 +220,16 @@
 
       &_body {
         width: 100%;
-        height: 75dvh;
-        max-height: 75dvh;
+        height: auto;
+        max-height: 70dvh;
         overflow-y: auto;
+        flex: 1;
+
+        .embed {
+          width: 80%;
+          margin: 0 auto;
+          height: auto;
+        }
         // border: red 1px solid;
       }
 

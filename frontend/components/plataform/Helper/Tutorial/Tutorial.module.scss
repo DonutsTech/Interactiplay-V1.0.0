@@ -1,0 +1,15 @@
+
+.tutorial {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .tutorialVideo {
+    width: 60%;
+    height: auto;
+    aspect-ratio: 16/9;
+  }
+}

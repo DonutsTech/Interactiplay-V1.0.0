@@ -202,6 +202,7 @@ const HeadLine = () => {
                       subHeadLine: e.target.value,
                     })
                   }
+                  style={{ textAlign: headLinerPayload.alignSHL as any, fontWeight: headLinerPayload.styleSHL === 'bold' ? 'bold' : 'normal', fontStyle: headLinerPayload.styleSHL === 'italic' ? 'italic' : 'normal' }}
                 />
                 <div className={styles.subHeadline_box_styles}>
                   <p>Alinhamento</p>

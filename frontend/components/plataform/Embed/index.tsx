@@ -127,18 +127,10 @@ const Embed = ({ campaing }: IEmbedProps) => {
     }
   };
 
+  // {console.log(c.cta)}
+
   return (
-    <section
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '16px',
-      }}
-    >
+    <section className={style.section}>
       {campaing.FEATURE &&
         campaing.FEATURE.GANCHO &&
         campaing.FEATURE.GANCHO.ATIVE && (
@@ -151,7 +143,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
             >
               {campaing.FEATURE.GANCHO.TITLE}
             </h2>
-            <p
+            <pre
               className={style.ganchoSubTitle}
               style={{
                 ...subTitleStyle(
@@ -160,21 +152,10 @@ const Embed = ({ campaing }: IEmbedProps) => {
               }}
             >
               {campaing.FEATURE.GANCHO.SUBTITLE}
-            </p>
+            </pre>
           </div>
         )}
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          maxWidth: '60%',
-          height: 'auto',
-          aspectRatio: '16/9',
-          backgroundColor: '#000125',
-          overflow: 'hidden',
-          borderRadius: '8px',
-        }}
-      >
+      <div className={style.videoContainer}>
         {!isPlaying && (
           <div
             className={style['embed-play-overlay']}
@@ -189,7 +170,6 @@ const Embed = ({ campaing }: IEmbedProps) => {
 
           return (
             <div key={c.ID}>
-              {/* Botão de volume customizado */}
               {isPlaying && current === c.VIDEO.ID && (
                 <CustomVolume
                   videoRef={current ? videoRefs.current[current] : null}
@@ -203,13 +183,16 @@ const Embed = ({ campaing }: IEmbedProps) => {
                 src={c.VIDEO.URL}
                 muted
                 preload="metadata"
+                className={style.video}
                 style={{
                   position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  transition: 'opacity 0.5s ease-in-out',
                   opacity: current === c.VIDEO.ID ? 1 : 0,
-                  transition: 'opacity 0.3s ease',
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                 }}
                 onEnded={() => handleVideoEnd()}
                 onClick={() => handleVideoStart()}
@@ -241,13 +224,20 @@ const Embed = ({ campaing }: IEmbedProps) => {
                       }}
                     />
                   )}
-                  <div style={{ width: '100%', height: '100%' }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      overflow: 'hidden',
+                    }}
+                  >
                     {c.CTA && (
                       <div
                         className={style['embed-div']}
                         style={{ ...divStyle(cta) }}
+                        onClick={() => console.log(btnStyle(cta)) }
                       >
-                        <p style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</p>
+                        <pre style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</pre>
                         <button
                           className={style['embed-btn']}
                           style={{ ...btnStyle(cta) }}
@@ -295,7 +285,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
         campaing.FEATURE.EXTERNAL_LINK &&
         campaing.FEATURE.EXTERNAL_LINK.ATIVE && (
           <div className={style.ctaBox}>
-            <p
+            <pre
               style={{
                 ...ctaPStyle(
                   JSON.parse(campaing.FEATURE.EXTERNAL_LINK.STYLE_TEXT || '')
@@ -303,9 +293,12 @@ const Embed = ({ campaing }: IEmbedProps) => {
               }}
             >
               {campaing.FEATURE.EXTERNAL_LINK.TEXT}
-            </p>
+            </pre>
             <button
               className={style.btnCta}
+              onClick={() => {
+                window.open(`${campaing.FEATURE?.EXTERNAL_LINK?.LINK_URL}`, '_blank')
+              }}
               style={{
                 ...ctaBtnStyle(
                   JSON.parse(campaing.FEATURE.EXTERNAL_LINK.BUTTON_STYLE || '')

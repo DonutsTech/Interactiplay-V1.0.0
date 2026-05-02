@@ -48,6 +48,10 @@ html {
     }
   }
 
+  pre {
+    font-family: $font-family-text !important;
+  }
+
   * {
     scrollbar-width: 4px;
     scrollbar-color: $color-blue-light-3;
