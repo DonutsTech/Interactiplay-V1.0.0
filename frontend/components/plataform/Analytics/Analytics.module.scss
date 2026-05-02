@@ -48,5 +48,19 @@
         transform: scale(0.98);
       }
     }
+
+    .header {
+      width: 100%;
+      height: auto;
+      padding: 16px 24px;
+      container-type: inline-size;
+
+      .headerTitle {
+        font-size: 1.5cqw;
+        font-weight: 600;
+        color: $color-white;
+      }
+    }
+
   }
 }

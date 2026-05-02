@@ -1,10 +1,9 @@
-
 'use client';
 
 // Importações essenciais do React
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 // Importação dos estilos do novo layout V100
-import styles from "./Analytics.module.scss";
+import styles from './Analytics.module.scss';
 // Ícones modernos para cards e ações
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import {
@@ -13,14 +12,16 @@ import styles from "./Analytics.module.scss";
 // } from "@fortawesome/free-solid-svg-icons";
 // Tipagem da campanha e serviço de analytics
 import { ICampaign } from '@/@types/campaign';
-import socket from "@/service/sockets/sockets";
+import socket from '@/service/sockets/sockets';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
+import { IoCloseCircle } from 'react-icons/io5';
 // (Busca assíncrona removida, pois os dados já vêm por props)
 // Bibliotecas de gráficos responsivos
 // import {
 //   AreaChart, Area, PieChart, Pie, Cell,
 //   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 // } from "recharts";
-
 
 // Tipos para dados de analytics (expansível para novos elementos)
 // interface IModelPlay {
@@ -80,30 +81,26 @@ interface IAnalyticsProps {
  * - Comentários detalhados para facilitar manutenção e expansão
  */
 
-
 socket.on('connect', () => console.log('[IO] => new connnwct'));
 const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
-const [data, setData] = useState(null);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     if (campaign.ID) {
       const campaignId = campaign.ID;
-      socket.emit('campaignAnalytics',  campaignId );
+      socket.emit('campaignAnalytics', campaignId);
       socket.on('campaignAnalyticsData', (analyticsData) => {
         setData(analyticsData);
+        console.log('Analytics data:', analyticsData);
       });
       return () => {
         socket.off('campaignAnalyticsData');
       };
     }
-  },[]);
-
-  console.log('Analytics data:', data);
+  }, []);
 
   // Dados de analytics da campanha recebidos diretamente via props
   // const analytics = campaign.ANALYTICS;
-
-  
 
   return (
     <div className={styles.analytics}>
@@ -116,15 +113,12 @@ const [data, setData] = useState(null);
           onClick={onClose}
           title="Fechar analytics"
         >
-          {/* <FontAwesomeIcon icon={faRotateRight} /> */}
+          <IoCloseCircle />
         </button>
 
         {/* Header do Analytics, preparado para expansão */}
         <div className={styles.header}>
-          <div className={styles.header_info}>
-            <h2>Analytics da Campanha</h2>
-            <span>ID: {campaign.ID}</span>
-          </div>
+          <p className={styles.headerTitle}> Analytic: {campaign.NAME}</p>
         </div>
 
         {/* Cards de resumo - facilmente expansível */}
@@ -145,7 +139,7 @@ const [data, setData] = useState(null);
             <strong>{analytics?.TOTAL_PLAY_BLOCK ?? 0}</strong>
           </div>
           {/* Exemplo de slot para novo elemento futuro */}
-          {/* <div className={styles.card}> ...novo card... </div> */}
+        {/* <div className={styles.card}> ...novo card... </div> */}
         {/* </div> */}
 
         {/* Gráfico de área - exemplo de visualização de plays ao longo do tempo */}

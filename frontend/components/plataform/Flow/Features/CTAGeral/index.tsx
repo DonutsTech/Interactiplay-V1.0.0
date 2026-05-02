@@ -117,7 +117,7 @@ const CTAGeral = ({ duration }: Iprops) => {
         BUTTON_STYLE: JSON.stringify({
           corBG: CtaGeralPayload.corBtn,
           corTX: CtaGeralPayload.corTextBtn,
-          borderRadius: `${CtaGeralPayload.cantosBtn}px`,
+          borderRadius: `${CtaGeralPayload.cantosBtn}`,
         }),
         LINK_URL: isURL(CtaGeralPayload.linkBtn)
           ? CtaGeralPayload.linkBtn
@@ -162,7 +162,7 @@ const CTAGeral = ({ duration }: Iprops) => {
           <div className={styles.container}>
             <div className={styles.inputs}>
               <div className={styles.textBox}>
-                <p className={styles.textBox_title}>Head Line</p>
+                <p className={styles.textBox_title}>Texto do CTA</p>
                 <textarea
                   className={styles.textBox_text}
                   placeholder="Digite a HeadLine aqui...(máx 100 caracteres)"
