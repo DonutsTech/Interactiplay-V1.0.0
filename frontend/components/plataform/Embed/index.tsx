@@ -265,6 +265,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
                           ...btnEdgeStyle(
                             JSON.parse(BOND.BUTTON_STYLE || '{}')
                           ),
+                          display: BOND.BUTTON_START ? 'block' : 'none',
                         }}
                         onClick={() => {
                           if (BOND.VIDEO_ID) {
@@ -309,6 +310,14 @@ const Embed = ({ campaing }: IEmbedProps) => {
                 ...ctaBtnStyle(
                   JSON.parse(campaing.FEATURE.EXTERNAL_LINK.BUTTON_STYLE || '')
                 ),
+              }}
+              onClick={() => {
+                if (campaing.FEATURE?.EXTERNAL_LINK) {
+                  window.open(
+                    campaing.FEATURE.EXTERNAL_LINK.LINK_URL || '',
+                    '_blank'
+                  );
+                }
               }}
             >
               {campaing.FEATURE.EXTERNAL_LINK.BUTTON_TEXT}
