@@ -234,7 +234,10 @@ const Embed = ({ campaing }: IEmbedProps) => {
                     {c.CTA && (
                       <div
                         className={style['embed-div']}
-                        style={{ ...divStyle(cta) }}
+                        style={{ 
+                          ...divStyle(cta),
+                          display: timeVideo >= c.CTA_START ? 'block' : 'none', 
+                        }}
                         onClick={() => console.log(btnStyle(cta)) }
                       >
                         <pre style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</pre>
@@ -255,7 +258,7 @@ const Embed = ({ campaing }: IEmbedProps) => {
                           ...btnEdgeStyle(
                             JSON.parse(BOND.BUTTON_STYLE || '{}')
                           ),
-                          display: BOND.BUTTON_START ? 'block' : 'none',
+                          display: timeVideo >= BOND.BUTTON_START ? 'block' : 'none',
                         }}
                         onClick={() => {
                           if (BOND.VIDEO_ID) {
@@ -296,9 +299,6 @@ const Embed = ({ campaing }: IEmbedProps) => {
             </pre>
             <button
               className={style.btnCta}
-              onClick={() => {
-                window.open(`${campaing.FEATURE?.EXTERNAL_LINK?.LINK_URL}`, '_blank')
-              }}
               style={{
                 ...ctaBtnStyle(
                   JSON.parse(campaing.FEATURE.EXTERNAL_LINK.BUTTON_STYLE || '')
