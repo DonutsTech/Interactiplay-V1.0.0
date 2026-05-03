@@ -45,6 +45,7 @@ export interface IModelPlayItem {
 export interface IModelTimeData {
   TIME: Record<string, number>; // chave = segundo do vídeo, valor = contagem de eventos
   TOTAL_TIMESCREEN: number;
+  AGRUP_DATE?: Record<string, number>;
 }
 
 export interface IAnalyticsSocketData {

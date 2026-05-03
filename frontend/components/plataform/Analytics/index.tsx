@@ -6,42 +6,67 @@ import { IAnalyticsSocketData } from '@/@types/AnalyticSocketData';
 import { ICampaign } from '@/@types/campaign';
 import socket from '@/service/sockets/sockets';
 import { IoCloseCircle } from 'react-icons/io5';
+import { FaPercent, FaPlay, FaUserClock } from 'react-icons/fa6';
+import { MdOutlineViewSidebar } from 'react-icons/md';
+import { TbClockPlay, TbHandClick, TbMathMax } from 'react-icons/tb';
+import { PiTreeStructureLight } from 'react-icons/pi';
+import { formatDuration } from '@/utils/videoUtils';
+import {
+  RadialBarChart,
+  RadialBar,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  AreaChart,
+  Area,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  ReferenceLine,
+  PieChart,
+  Pie,
+  ComposedChart,
+  Bar,
+  Line,
+  Legend,
+  Brush,
+} from 'recharts';
+import SectionPlay from './SectionPlay';
+import SectionViews from './SectionViews';
+import SectionTime from './SectionTime';
+import { SectionFlow } from './SectionFlow';
 
 interface IAnalyticsProps {
   campaign: ICampaign;
   onClose: () => void;
 }
 
-// Paleta de cores para gráficos (pode ser expandida)
-// const COLORS = ['#9900FF', '#5B71B9', '#00FFF1', '#FFCE08', '#0CB189'];
-
-// Estilo customizado para tooltip dos gráficos
-// const TOOLTIP_STYLE = {
-//   contentStyle: { backgroundColor: '#0F073E', border: '1px solid rgba(153,0,255,0.3)', borderRadius: '10px', fontSize: '12px' },
-//   labelStyle: { color: '#F2F2F2', fontWeight: 600 },
-//   itemStyle: { color: '#9C9C9C' },
-// };
-
 socket.on('connect', () => console.log('[IO] => new connnwct'));
+
 const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
   const [data, setData] = useState<IAnalyticsSocketData | null>(null);
+  const [section, setSection] = useState<
+    'plays' | 'views' | 'clicks' | 'time' | 'flow'
+  >('plays');
 
   useEffect(() => {
-  if (!campaign.ID) return;
+    if (!campaign.ID) return;
 
-  socket.emit('campaignAnalytics', campaign.ID);
+    socket.emit('campaignAnalytics', campaign.ID);
 
-  const handleAnalyticsData = (analyticsData: IAnalyticsSocketData) => {
-    setData(analyticsData);
-    console.log('Analytics data:', analyticsData);
-  };
+    const handleAnalyticsData = (analyticsData: IAnalyticsSocketData) => {
+      setData(analyticsData);
+      console.log('Analytics data:', analyticsData);
+    };
 
-  socket.on('campaignAnalyticsData', handleAnalyticsData);
+    socket.on('campaignAnalyticsData', handleAnalyticsData);
 
-  return () => {
-    socket.off('campaignAnalyticsData', handleAnalyticsData);
-  };
-}, [campaign.ID]);
+    return () => {
+      socket.off('campaignAnalyticsData', handleAnalyticsData);
+    };
+  }, [campaign.ID, socket]);
+
+  if (!data) return null;
 
   return (
     <div className={styles.analytics}>
@@ -56,7 +81,93 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
         </button>
 
         <div className={styles.header}>
-          <p className={styles.headerTitle}> Analytic: {campaign.NAME}</p>
+          <p className={styles.headerTitle}>{campaign.NAME}</p>
+          <div className={styles.info}>
+            <div
+              className={`${styles.info_item} ${styles.info_item_plays} ${section === 'plays' ? styles.active : ''}`}
+              onClick={() => setSection('plays')}
+            >
+              <FaPlay className={styles.icon} />
+              <div className={styles.info_item_dados}>
+                <p>{data.ANALYTICS.TOTAL_PLAYS} Plays</p>
+                <p>{data.ANALYTICS.TOTAL_PLAY_UNIQUE} Unique Plays</p>
+              </div>
+            </div>
+            <div
+              className={`${styles.info_item} ${styles.info_item_views} ${section === 'views' ? styles.active : ''}`}
+              onClick={() => setSection('views')}
+            >
+              <MdOutlineViewSidebar className={styles.icon} />
+              <div className={styles.info_item_dados}>
+                <p>{data.ANALYTICS.TOTAL_VIEWS} Views</p>
+                <p>
+                  {data.ANALYTICS.TOTAL_VIEWS === 0
+                    ? '-'
+                    : (
+                        (data.ANALYTICS.TOTAL_PLAYS /
+                          data.ANALYTICS.TOTAL_VIEWS) *
+                        100
+                      ).toFixed(2)}
+                  %
+                </p>
+              </div>
+            </div>
+            <div
+              className={`${styles.info_item} ${styles.info_item_click} ${section === 'clicks' ? styles.active : ''}`}
+              onClick={() => setSection('clicks')}
+            >
+              <TbHandClick className={styles.icon} />
+              <div className={styles.info_item_dados}>
+                <p>
+                  {data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING}{' '}
+                  Click no CTA Geral
+                </p>
+                <p>
+                  {(
+                    (data.CAMPAIGN.FEATURE &&
+                    data.CAMPAIGN.FEATURE?.EXTERNAL_LINK
+                      ? data.CAMPAIGN.FEATURE?.EXTERNAL_LINK
+                          ?.BUTTON_CLICK_CAMPAING / data.ANALYTICS.TOTAL_PLAYS
+                      : 0) * 100
+                  ).toFixed(2)}
+                  %
+                </p>
+              </div>
+            </div>
+            <div
+              className={`${styles.info_item} ${styles.info_item_time} ${section === 'time' ? styles.active : ''}`}
+              onClick={() => setSection('time')}
+            >
+              <FaUserClock className={styles.icon} />
+              <div className={styles.info_item_dados}>
+                <p>Tempo médio</p>
+                <p>
+                  {data.ANALYTICS.TOTAL_PLAYS === 0
+                    ? '-'
+                    : formatDuration(
+                        data.MODEL_TIME.TOTAL_TIMESCREEN /
+                          data.ANALYTICS.TOTAL_PLAYS
+                      )}
+                </p>
+              </div>
+            </div>
+            <div
+              className={`${styles.info_item} ${styles.info_item_flow} ${section === 'flow' ? styles.active : ''}`}
+              onClick={() => setSection('flow')}
+            >
+              <PiTreeStructureLight className={styles.icon} />
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.body}>
+          {section === 'plays' && <SectionPlay {...data} />}
+          {section === 'views' && <SectionViews {...data} />}
+          {section === 'clicks' && sectionClicks(data!)}
+          {section === 'time' && <SectionTime {...data} />}
+          {section === 'flow' && (
+            <SectionFlow data={data} campaign={campaign} />
+          )}
         </div>
       </div>
     </div>
@@ -64,3 +175,11 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
 };
 
 export default Analytics;
+
+const sectionClicks = (data: IAnalyticsSocketData) => {
+  return <>Clicks</>;
+};
+
+// const sectionFlow = (data: IAnalyticsSocketData) => {
+//   return <>Flow</>;
+// };
