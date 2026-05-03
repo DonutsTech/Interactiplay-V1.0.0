@@ -35,7 +35,7 @@ export class SocketConfig {
         if (!data.ID_MODEL_PLAY) {
           modelPlay = await modelPlayService.createModelPlaySocketPlay(data);
         } else {
-          modelPlay = await modelPlayService.getModelPlayById(data);
+          modelPlay = await modelPlayService.getModelPlayByIdSocket(data);
         }
 
         socket.join(`campaign_${data.ID_CAMPAIGN}`);

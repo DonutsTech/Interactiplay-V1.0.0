@@ -20,7 +20,7 @@ class ModelPlayService {
     }
   }
 
-  async getModelPlayById(data: ClientPublic): Promise<ClientPublic> {
+  async getModelPlayByIdSocket(data: ClientPublic): Promise<ClientPublic> {
     try {
       if (!data.ID_MODEL_PLAY) {
         throw new CustomError(
@@ -38,6 +38,12 @@ class ModelPlayService {
           'Modelo de play não encontrado, por favor verifique o id',
           StatusCodes.NOT_FOUND,
         );
+      }
+
+      if (modelPlay.ANALYTICS_ID !== data.ID_ANALYTICS) {
+        const createModelPlay = await this.createModelPlaySocketPlay(data);
+
+        return createModelPlay;
       }
 
       return transformModelPlayToClient(modelPlay, data.ID_USER || '');
@@ -94,41 +100,28 @@ class ModelPlayService {
         );
       }
 
-      let id: string = data.ID_MODEL_PLAY;
-      let play: number | null = null;
-
       const modelPlay = await modelPlayModel.findBy({
         where: { ID: data.ID_MODEL_PLAY },
       });
 
-      play = modelPlay?.PLAY || 0;
-
-      if (!modelPlay || modelPlay.ANALYTICS_ID !== data.ID_ANALYTICS) {
-        const create = await this.createModelPlaySocketPlay(data);
-
-        if (!create.ID_MODEL_PLAY) {
-          throw new CustomError(
-            'Erro ao criar modelo de play para o play, por favor tente novamente',
-            StatusCodes.INTERNAL_SERVER_ERROR,
-          );
-        }
-
-        id = create.ID_MODEL_PLAY;
-
-        play = create.PLAY;
+      if (!modelPlay) {
+        throw new CustomError(
+          'Modelo de play não encontrado, por favor verifique o id',
+          StatusCodes.NOT_FOUND,
+        );
       }
 
       await historyPlaysService.updateHistoryPlayForUser(data.ID_USER);
 
       await modelPlayModel.updateBy({
-        where: { ID: id },
+        where: { ID: modelPlay.ID },
         data: {
           PLAY_UNIQUE: 1,
           PLAY: { increment: 1 },
         },
       });
 
-      await analyticsService.incrementPlayForAnalytics(data.ID_ANALYTICS, (play === 0));
+      await analyticsService.incrementPlayForAnalytics(data.ID_ANALYTICS, modelPlay.PLAY === 0);
     } catch (error) {
       throw error;
     }
