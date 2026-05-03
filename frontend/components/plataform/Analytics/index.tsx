@@ -6,35 +6,17 @@ import { IAnalyticsSocketData } from '@/@types/AnalyticSocketData';
 import { ICampaign } from '@/@types/campaign';
 import socket from '@/service/sockets/sockets';
 import { IoCloseCircle } from 'react-icons/io5';
-import { FaPercent, FaPlay, FaUserClock } from 'react-icons/fa6';
+import { FaPlay, FaUserClock } from 'react-icons/fa6';
 import { MdOutlineViewSidebar } from 'react-icons/md';
-import { TbClockPlay, TbHandClick, TbMathMax } from 'react-icons/tb';
+import { TbHandClick } from 'react-icons/tb';
 import { PiTreeStructureLight } from 'react-icons/pi';
 import { formatDuration } from '@/utils/videoUtils';
-import {
-  RadialBarChart,
-  RadialBar,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  AreaChart,
-  Area,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  ReferenceLine,
-  PieChart,
-  Pie,
-  ComposedChart,
-  Bar,
-  Line,
-  Legend,
-  Brush,
-} from 'recharts';
+
 import SectionPlay from './SectionPlay';
 import SectionViews from './SectionViews';
 import SectionTime from './SectionTime';
 import { SectionFlow } from './SectionFlow';
+import SectionClicks from './SectionClicks';
 
 interface IAnalyticsProps {
   campaign: ICampaign;
@@ -163,7 +145,7 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
         <div className={styles.body}>
           {section === 'plays' && <SectionPlay {...data} />}
           {section === 'views' && <SectionViews {...data} />}
-          {section === 'clicks' && sectionClicks(data!)}
+          {section === 'clicks' && <SectionClicks data={data} campaign={campaign} />}
           {section === 'time' && <SectionTime {...data} />}
           {section === 'flow' && (
             <SectionFlow data={data} campaign={campaign} />
@@ -175,11 +157,3 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
 };
 
 export default Analytics;
-
-const sectionClicks = (data: IAnalyticsSocketData) => {
-  return <>Clicks</>;
-};
-
-// const sectionFlow = (data: IAnalyticsSocketData) => {
-//   return <>Flow</>;
-// };

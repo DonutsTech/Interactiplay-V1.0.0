@@ -43,9 +43,13 @@ const SectionTime = (data: IAnalyticsSocketData) => {
     data.ANALYTICS.TOTAL_PLAYS
   );
 
-  // Segundo com maior número de saídas (pico de abandonos)
   const dropPoint = Object.entries(data.MODEL_TIME.TIME).reduce(
-    (best, [sec, count]) => (count > best.count ? { segundo: Number(sec), count } : best),
+    (best, [sec, count]) => {
+      const segundo = Number(sec);
+      if (count > best.count) return { segundo, count };
+      if (count === best.count && segundo > best.segundo) return { segundo, count };
+      return best;
+    },
     { segundo: 0, count: 0 }
   );
 
@@ -147,6 +151,7 @@ const SectionTime = (data: IAnalyticsSocketData) => {
                 fill: '#C72C41',
                 fontSize: 10,
                 position: 'top',
+                offset: -10,
               }}
             />
             <Area

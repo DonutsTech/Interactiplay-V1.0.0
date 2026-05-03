@@ -60,7 +60,7 @@ const SectionPlay = (data: IAnalyticsSocketData) => {
 
     const buildLabel = (timestamp: number): string => {
       if (isMultiMonth) {
-        // ex: "03/05 04:48" — dia/mês + hora
+
         return new Date(timestamp).toLocaleString('pt-BR', {
           day: '2-digit',
           month: '2-digit',
@@ -70,7 +70,7 @@ const SectionPlay = (data: IAnalyticsSocketData) => {
         });
       }
       if (isMultiDay) {
-        // ex: "03/05 04:48" — dia/mês + hora
+
         return new Date(timestamp).toLocaleString('pt-BR', {
           day: '2-digit',
           month: '2-digit',
@@ -79,7 +79,7 @@ const SectionPlay = (data: IAnalyticsSocketData) => {
           timeZone: browserTz,
         });
       }
-      // mesmo dia — só hora
+
       return new Date(timestamp).toLocaleString('pt-BR', {
         hour: '2-digit',
         minute: '2-digit',

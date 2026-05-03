@@ -273,6 +273,75 @@
   }
 }
 
+.sectionClicks {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 16px;
+
+  .clickCards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+
+    @media (max-width: 1180px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 760px) {
+      grid-template-columns: 1fr;
+    }
+
+    .clickCard {
+      background-color: rgba($color-blue-dark-3, 0.5);
+      border: 1px solid rgba($color-green-base, 0.18);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .clickCardLabel {
+        font-size: 0.7rem;
+        color: rgba($color-white, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+
+      .clickCardValue {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: $color-white;
+      }
+
+      .clickCardHint {
+        font-size: 0.8rem;
+        font-style: normal;
+        color: rgba($color-white, 0.45);
+      }
+    }
+  }
+
+  .clickChart {
+    flex: 1;
+    background-color: rgba($color-blue-dark-3, 0.4);
+    border: 1px solid rgba($color-green-base, 0.14);
+    border-radius: 12px;
+    padding: 16px;
+
+    .clickChartTitle {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba($color-white, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+  }
+}
+
 
 .sectionViews {
   width: 100%;
