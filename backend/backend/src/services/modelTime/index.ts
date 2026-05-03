@@ -68,16 +68,7 @@ class ModelTimeService {
         },
       });
 
-      const agrupDate = await prisma.model_Play.groupBy({
-        where: {
-          ANALYTICS_ID: analyticsId,
-        },
-        by: ['CREATED_AT'],
-        _count: {
-          _all: true,
-        }
-      });
-
+      const objectAgrupDate: { [key: string]: number } = {};
       const objectAgrup: { [key: string]: number } = {};
       let totalTimescreen: number = 0;
 
@@ -90,10 +81,26 @@ class ModelTimeService {
           } else {
             objectAgrup[objectKey] = 1;
           }
+
+          if (modelTime.CREATED_AT) {
+            const dateKey = new Date(modelTime.CREATED_AT).toLocaleDateString('pt-BR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+
+            if (objectAgrupDate[dateKey]) {
+              objectAgrupDate[dateKey] += 1;
+            } else {
+              objectAgrupDate[dateKey] = 1;
+            }
+          }
         }
       }
 
-      return { TIME: objectAgrup, TOTAL_TIMESCREEN: totalTimescreen, AGRUP_DATE: agrupDate };
+      return { TIME: objectAgrup, TOTAL_TIMESCREEN: totalTimescreen, AGRUP_DATE: objectAgrupDate };
     } catch (error) {
       throw error;
     }
