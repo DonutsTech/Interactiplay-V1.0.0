@@ -6,6 +6,20 @@ import { testABModel } from '../../models/testAB';
 import { campaignService } from '../campaign';
 import { userService } from '../user';
 import { analyticsService } from '../analytics';
+import type { Prisma } from '../../generated/prisma/browser';
+
+const CAMPAIN_TEST_AB_INCLUDE: Prisma.Test_ABInclude = {
+  CAMPAIGN_A: {
+    select: {
+      NAME: true,
+    }
+  },
+  CAMPAIGN_B: {
+    select: {
+      NAME: true,
+    }
+  }
+}
 
 class TestABService {
   async existsById(id: string) {
@@ -50,6 +64,7 @@ class TestABService {
         where: {
           USER: { ID: userId },
         },
+        include: CAMPAIN_TEST_AB_INCLUDE,
       });
 
       return results;
@@ -64,6 +79,7 @@ class TestABService {
         where: {
           ID: id,
         },
+        include: CAMPAIN_TEST_AB_INCLUDE,
       });
 
       if (!result) {

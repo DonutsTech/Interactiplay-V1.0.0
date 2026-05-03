@@ -72,12 +72,12 @@ class AnalyticsService {
     try {
       const campaign = await campaignService.campaignAnalyticsForUser(campaignId);
 
-      if (!campaign) {
+      if (!campaign.ANALYTICS_ID) {
         throw new Error('Campanha não encontrada, por favor verifique o id');
       }
 
       const analytics = await analyticsModel.findBy({
-        where: { CAMPAIGN: { ID: campaignId } },
+        where: { ID: campaign.ANALYTICS_ID },
         select: {
           TOTAL_PLAY_BLOCK: true,
           TOTAL_PLAYS: true,
@@ -90,9 +90,9 @@ class AnalyticsService {
         throw new Error('Analytics não encontrado para a campanha, por favor verifique o id');
       }
 
-      const modelPlays = await modelPlayService.agrupmentoModelPlayByAnalytics(analytics.ID);
+      const modelPlays = await modelPlayService.agrupmentoModelPlayByAnalytics(campaign.ANALYTICS_ID);
 
-      const modelTime = await modelTimeService.modelTimeAgrupByTime(analytics.ID);
+      const modelTime = await modelTimeService.modelTimeAgrupByTime(campaign.ANALYTICS_ID);
 
       return {
         CAMPAIGN: campaign,

@@ -33,18 +33,17 @@ class ModelPlayService {
         where: { ID: data.ID_MODEL_PLAY },
       });
 
-      if (!modelPlay) {
-        throw new CustomError(
-          'Modelo de play não encontrado, por favor verifique o id',
-          StatusCodes.NOT_FOUND,
-        );
-      }
+      console.log('Modelo de play encontrado para o cliente:', modelPlay);
+      console.log('Dados do cliente para buscar o modelo de play:', data);
 
-      if (modelPlay.ANALYTICS_ID !== data.ID_ANALYTICS) {
+      if (!modelPlay || modelPlay.ANALYTICS_ID !== data.ID_ANALYTICS) {
         const createModelPlay = await this.createModelPlaySocketPlay(data);
+        console.log('Modelo de play criado para o cliente:', createModelPlay);
 
         return createModelPlay;
       }
+
+      console.log('Modelo de play encontrado para o cliente:', modelPlay);
 
       return transformModelPlayToClient(modelPlay, data.ID_USER || '');
     } catch (error) {
@@ -176,6 +175,10 @@ class ModelPlayService {
 
   async agrupmentoModelPlayByAnalytics(analyticsId: string) {
     try {
+      const test = await modelPlayModel.findMany({
+        where: { ANALYTICS_ID: analyticsId },
+      });
+
       const result = await prisma.model_Play.groupBy({
         where: {
           ANALYTICS_ID: analyticsId,

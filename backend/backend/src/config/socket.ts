@@ -28,11 +28,10 @@ export class SocketConfig {
     const publicNamespace = this.io.of('/public');
 
     publicNamespace.on('connection', socket => {
-      console.log('Usuário conectado:', socket.id);
 
       socket.on('init', async (data: ClientPublic) => {
         let modelPlay;
-        if (!data.ID_MODEL_PLAY) {
+        if (data.ID_MODEL_PLAY === "" || data.ID_MODEL_PLAY === undefined) {
           modelPlay = await modelPlayService.createModelPlaySocketPlay(data);
         } else {
           modelPlay = await modelPlayService.getModelPlayByIdSocket(data);
