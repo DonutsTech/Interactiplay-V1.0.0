@@ -1,14 +1,22 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import styles from './Analytics.module.scss';
 import { IAnalyticsSocketData } from '@/@types/AnalyticSocketData';
 import { FaPercent } from 'react-icons/fa6';
 import { TbClockPlay, TbMathMax } from 'react-icons/tb';
 import {
-  ComposedChart, Bar, Line,
-  CartesianGrid, XAxis, YAxis,
-  ReferenceLine, Brush, Legend,
-  Tooltip, ResponsiveContainer,
+  ComposedChart, 
+  Bar, 
+  Line,
+  CartesianGrid, 
+  XAxis, 
+  YAxis,
+  ReferenceLine, 
+  Brush, 
+  Legend,
+  Tooltip, 
+  ResponsiveContainer,
 } from 'recharts';
 
 
@@ -113,6 +121,46 @@ const SectionPlay = (data: IAnalyticsSocketData) => {
   const peak = progressionData.reduce((a, b) => (b.plays > a.plays ? b : a));
   const totalPlays = data.ANALYTICS.TOTAL_PLAYS;
 
+  // Linhas verticais no primeiro ponto de cada novo dia (garante match com XAxis)
+  const dayBoundaries: { label: string; dayLabel: string }[] = [];
+  {
+    const seenDays = new Set<string>();
+    for (const entry of progressionData) {
+      // entry.datetime formato: "DD/MM/YYYY, HH:MM"
+      const datePart = entry.datetime.split(',')[0].trim(); // "DD/MM/YYYY"
+      if (!seenDays.has(datePart)) {
+        seenDays.add(datePart);
+        // Pula o primeiro dia — só marca a virada para um novo dia
+        if (seenDays.size > 1) {
+          const parts = datePart.split('/');
+          const shortDay = parts.length >= 2 ? `${parts[0]}/${parts[1]}` : datePart;
+          dayBoundaries.push({ label: entry.label, dayLabel: shortDay });
+        }
+      }
+    }
+  }
+
+  const [brushRange, setBrushRange] = useState({
+    start: 0,
+    end: progressionData.length - 1,
+  });
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      e.preventDefault();
+      const total = progressionData.length;
+      const { start, end } = brushRange;
+      const size = end - start;
+      const center = Math.round((start + end) / 2);
+      const delta = e.deltaY < 0 ? -1 : 1;
+      const newSize = Math.max(2, Math.min(total - 1, size + delta * Math.max(1, Math.round(size * 0.1))));
+      const half = Math.round(newSize / 2);
+      const newStart = Math.max(0, center - half);
+      const newEnd = Math.min(total - 1, newStart + newSize);
+      setBrushRange({ start: newStart, end: newEnd });
+    },
+    [brushRange, progressionData.length]
+  );
+
   return (
     <div className={styles.sectionPlay}>
       <div className={styles.progressionHeader}>
@@ -131,7 +179,14 @@ const SectionPlay = (data: IAnalyticsSocketData) => {
         </div>
       </div>
 
-      <div className={styles.progressionChart}>
+      <div
+        className={styles.progressionChart}
+        onWheel={handleWheel}
+        style={{ userSelect: 'none' }}
+      >
+        <p style={{ fontSize: 11, color: 'rgba(0,255,241,0.6)', textAlign: 'right', marginBottom: 4 }}>
+          {progressionData[brushRange.start]?.datetime} &mdash; {progressionData[brushRange.end]?.datetime}
+        </p>
         <ResponsiveContainer width="100%" height={320}>
           <ComposedChart
             data={progressionData}
@@ -149,6 +204,24 @@ const SectionPlay = (data: IAnalyticsSocketData) => {
               stroke="rgba(255,255,255,0.05)"
               vertical={false}
             />
+
+            {dayBoundaries.map(({ label, dayLabel }) => (
+              <ReferenceLine
+                key={label}
+                x={label}
+                yAxisId="left"
+                stroke="rgba(153,0,255,0.35)"
+                strokeDasharray="4 3"
+                strokeWidth={1.5}
+                label={{
+                  value: dayLabel,
+                  position: 'insideTopRight',
+                  fill: 'rgba(228,228,228,0.45)',
+                  fontSize: 10,
+                  fontWeight: 600,
+                }}
+              />
+            ))}
 
             <XAxis
               dataKey="label"
@@ -279,7 +352,13 @@ const SectionPlay = (data: IAnalyticsSocketData) => {
               stroke="rgba(153,0,255,0.3)"
               fill="rgba(15,7,62,0.8)"
               travellerWidth={8}
-              startIndex={0}
+              startIndex={brushRange.start}
+              endIndex={brushRange.end}
+              onChange={(range) => {
+                if (range?.startIndex != null && range?.endIndex != null) {
+                  setBrushRange({ start: range.startIndex, end: range.endIndex });
+                }
+              }}
             />
 
             <Legend
