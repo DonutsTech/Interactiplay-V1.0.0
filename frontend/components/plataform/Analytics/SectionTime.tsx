@@ -11,6 +11,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts';
 
 const SectionTime = (data: IAnalyticsSocketData) => {
@@ -42,15 +43,10 @@ const SectionTime = (data: IAnalyticsSocketData) => {
     data.ANALYTICS.TOTAL_PLAYS
   );
 
-  const dropPoint = retentionData.reduce((prev, curr) =>
-    curr.retencao - prev.retencao < 0 &&
-    Math.abs(curr.retencao - prev.retencao) >
-      Math.abs(
-        prev.retencao -
-          (retentionData[retentionData.indexOf(prev) - 1]?.retencao ?? 100)
-      )
-      ? curr
-      : prev
+  // Segundo com maior número de saídas (pico de abandonos)
+  const dropPoint = Object.entries(data.MODEL_TIME.TIME).reduce(
+    (best, [sec, count]) => (count > best.count ? { segundo: Number(sec), count } : best),
+    { segundo: 0, count: 0 }
   );
 
   const avgTime =
@@ -78,7 +74,7 @@ const SectionTime = (data: IAnalyticsSocketData) => {
         <div className={styles.retentionCard}>
           <span className={styles.retentionCardLabel}>Maior queda em</span>
           <strong className={styles.retentionCardValue}>
-            {dropPoint.segundo}s
+            {formatDuration(dropPoint.segundo)}
           </strong>
         </div>
       </div>
@@ -142,7 +138,7 @@ const SectionTime = (data: IAnalyticsSocketData) => {
                 );
               }}
             />
-            {/* <ReferenceLine
+            <ReferenceLine
               x={dropPoint.segundo}
               stroke="#C72C41"
               strokeDasharray="4 2"
@@ -152,7 +148,7 @@ const SectionTime = (data: IAnalyticsSocketData) => {
                 fontSize: 10,
                 position: 'top',
               }}
-            /> */}
+            />
             <Area
               type="monotone"
               dataKey="retencao"
