@@ -1,6 +1,7 @@
 'use client';
 
 import { Bond } from '@/@types/flow';
+import { useEditCampaign } from '@/context/EditCampaignContext';
 import { useError } from '@/context/ErrorContext';
 import { useFlow } from '@/context/FlowContext';
 import { orderForEdges } from '@/utils/flowUteis';
@@ -8,7 +9,6 @@ import { formatDuration } from '@/utils/videoUtils';
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
-import { useEditCampaign } from '@/context/EditCampaignContext';
 import ButtonGenerator from './ButtonGenerator';
 import CtaGenerator from './CtaGenerator';
 import styles from './ModalFlow.module.scss';
@@ -58,14 +58,15 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
 
   const [otherBonds, setOtherBonds] = useState<Bond[]>([]);
 
-
-
   // Salva snapshot inicial só na primeira abertura para cada dadosModal
   useEffect(() => {
     if (!dadosModal) return;
 
     // Só salva se ainda não tem snapshot para este modal
-    if (initialNodesRef.current.length === 0 && initialEdgesRef.current.length === 0) {
+    if (
+      initialNodesRef.current.length === 0 &&
+      initialEdgesRef.current.length === 0
+    ) {
       initialNodesRef.current = JSON.parse(JSON.stringify(nodes));
       initialEdgesRef.current = JSON.parse(JSON.stringify(edges));
     }
@@ -106,7 +107,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
           ? bond.BUTTON_MODAL === true
           : false;
       }
-    } 
+    }
 
     setCtaActive(dadosModal.CTA);
     setCtaText(dadosModal.CTA_TEXT);
@@ -324,7 +325,6 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
         JSON.stringify(initialBtnStateRef.current);
     }
 
-
     const nodesChanged =
       JSON.stringify(nodes) !== JSON.stringify(initialNodesRef.current);
 
@@ -345,7 +345,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
         type === 'edge' &&
         !wasPreviouslyConfiguredRef.current &&
         dadosModal &&
-        !editingCampaign 
+        !editingCampaign
       ) {
         setEdges((edges) =>
           edges.filter(
@@ -524,16 +524,18 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
                   opacity: type === 'edge' ? 0.9 : 1,
                 }}
               >
-                <pre
-                  style={{
-                    color: textColor,
-                    fontWeight: textStyle === 'bold' ? 'bold' : 'normal',
-                    fontStyle: textStyle === 'italic' ? 'italic' : 'normal',
-                    marginBottom: '8px',
-                  }}
-                >
-                  {ctaText || 'Texto do CTA'}
-                </pre>
+                {ctaText !== '' && (
+                  <pre
+                    style={{
+                      color: textColor,
+                      fontWeight: textStyle === 'bold' ? 'bold' : 'normal',
+                      fontStyle: textStyle === 'italic' ? 'italic' : 'normal',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    {ctaText}
+                  </pre>
+                )}
                 <button
                   style={{
                     backgroundColor: buttonColor,

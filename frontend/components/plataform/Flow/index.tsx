@@ -29,6 +29,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import classNames from 'classnames';
+import { useRouter } from 'next/navigation';
 import {
   DragEvent,
   useCallback,
@@ -45,7 +46,6 @@ import styles from './Flow.module.scss';
 import MenuAcervo from './MenuAcervo';
 import ModalFlow from './ModalFlow';
 import './style.css';
-import { useRouter } from 'next/navigation';
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -299,10 +299,7 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
       return;
     }
 
-    console.log('Dados do Flow antes de salvar:', { nameCampaign });
-
     const payload = convertFlowToCampaignPayload(nameCampaign, nodes);
-    console.log('Payload para salvar campanha:', payload);
 
     let result;
 
@@ -310,7 +307,6 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
       result = await updateCampaign(id, payload);
     } else {
       result = await createCampaign(payload);
-
     }
 
     if ('STATUS' in result && 'MESSAGE' in result) {
@@ -329,7 +325,6 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
 
     setEditingCampaign(result);
     router.push(`/dashboard/${result.ID}`);
-
   }, [
     nameCampaign,
     nodes,
@@ -414,7 +409,6 @@ const Flow = ({ id = undefined }: { id: string | undefined }) => {
             setModalOpenF(false);
             setFeaturesModalOpen(false);
             setSavedCampaign(null);
-            
           }}
           id={id}
         />
