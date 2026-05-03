@@ -63,7 +63,7 @@ class CampaignVideoService {
 
       const updateData = testAB
         ? { CTA_CLICK_TEST_AB: { increment: 1 } }
-        : { CTA_CLICK: { increment: 1 } };
+        : { CTA_CLICK_CAMPAING: { increment: 1 } };
 
       const result = await campaignVideoModel.updateBy({
         where: { ID: id },
