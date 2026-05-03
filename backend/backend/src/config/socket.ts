@@ -38,6 +38,8 @@ export class SocketConfig {
           modelPlay = await modelPlayService.getModelPlayById(data);
         }
 
+        socket.join(`campaign_${data.ID_CAMPAIGN}`);
+
         socket.emit('initSuccess', modelPlay);
       });
 
@@ -46,7 +48,7 @@ export class SocketConfig {
           await modelPlayService.incrementPlayModelPlayBlock(data);
           if (data.ID_CAMPAIGN) {
             const analytics = await analyticsService.getAnalyticsForCampaign(data.ID_CAMPAIGN);
-            socket.emit('campaignAnalyticsData', analytics);
+            socket.to(`campaign_${data.ID_CAMPAIGN}`).emit('campaignAnalyticsData', analytics);
           }
         }
       });
@@ -56,7 +58,7 @@ export class SocketConfig {
           await modelPlayService.incrementPlayModelPlay(data);
           if (data.ID_CAMPAIGN) {
             const analytics = await analyticsService.getAnalyticsForCampaign(data.ID_CAMPAIGN);
-            socket.emit('campaignAnalyticsData', analytics);
+            socket.to(`campaign_${data.ID_CAMPAIGN}`).emit('campaignAnalyticsData', analytics);
           }
         }
       });
@@ -66,7 +68,7 @@ export class SocketConfig {
           await modelPlayService.incrementViewModelPlay(data);
           if (data.ID_CAMPAIGN) {
             const analytics = await analyticsService.getAnalyticsForCampaign(data.ID_CAMPAIGN);
-            socket.emit('campaignAnalyticsData', analytics);
+            socket.to(`campaign_${data.ID_CAMPAIGN}`).emit('campaignAnalyticsData', analytics);
           }
         }
       });
@@ -76,7 +78,7 @@ export class SocketConfig {
           const result = await campaignVideoService.updateCampaignVideoForCTAClick(id, false);
           if (result && result.CAMPAIGN_ID) {
             const analytics = await analyticsService.getAnalyticsForCampaign(result.CAMPAIGN_ID);
-            socket.emit('campaignAnalyticsData', analytics);
+            socket.to(`campaign_${result.CAMPAIGN_ID}`).emit('campaignAnalyticsData', analytics);
           }
         }
       });
@@ -86,7 +88,7 @@ export class SocketConfig {
           const result = await campaignVideoService.updateCampaignVideoForCTAClick(id, true);
           if (result && result.CAMPAIGN_ID) {
             const analytics = await analyticsService.getAnalyticsForCampaign(result.CAMPAIGN_ID);
-            socket.emit('campaignAnalyticsData', analytics);
+            socket.to(`campaign_${result.CAMPAIGN_ID}`).emit('campaignAnalyticsData', analytics);
           }
         }
       });
@@ -133,12 +135,13 @@ export class SocketConfig {
           socket.emit('timescreenSuccess', result);
           if (data.ID_CAMPAIGN) {
             const analytics = await analyticsService.getAnalyticsForCampaign(data.ID_CAMPAIGN);
-            socket.emit('campaignAnalyticsData', analytics);
+            socket.to(`campaign_${result.ID_CAMPAIGN}`).emit('campaignAnalyticsData', analytics);
           }
         }
       });
 
       socket.on('campaignAnalytics', async (campaignId: string) => {
+        socket.join(`campaign_${campaignId}`);
         const analytics = await analyticsService.getAnalyticsForCampaign(campaignId);
         socket.emit('campaignAnalyticsData', analytics);
       });
