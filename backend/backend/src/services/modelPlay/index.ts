@@ -65,8 +65,6 @@ class ModelPlayService {
         },
       });
 
-      console.log('Modelo de play criado:', modelPlay);
-
       return transformModelPlayToClient(modelPlay, data.ID_USER || '');
     } catch (error) {
       throw error;
@@ -96,28 +94,41 @@ class ModelPlayService {
         );
       }
 
+      let id: string = data.ID_MODEL_PLAY;
+      let play: number | null = null;
+
       const modelPlay = await modelPlayModel.findBy({
         where: { ID: data.ID_MODEL_PLAY },
       });
 
-      if (!modelPlay) {
-        throw new CustomError(
-          'Modelo de play não encontrado, por favor verifique o id',
-          StatusCodes.NOT_FOUND,
-        );
+      play = modelPlay?.PLAY || 0;
+
+      if (!modelPlay || modelPlay.ANALYTICS_ID !== data.ID_ANALYTICS) {
+        const create = await this.createModelPlaySocketPlay(data);
+
+        if (!create.ID_MODEL_PLAY) {
+          throw new CustomError(
+            'Erro ao criar modelo de play para o play, por favor tente novamente',
+            StatusCodes.INTERNAL_SERVER_ERROR,
+          );
+        }
+
+        id = create.ID_MODEL_PLAY;
+
+        play = create.PLAY;
       }
 
       await historyPlaysService.updateHistoryPlayForUser(data.ID_USER);
 
       await modelPlayModel.updateBy({
-        where: { ID: data.ID_MODEL_PLAY },
+        where: { ID: id },
         data: {
           PLAY_UNIQUE: 1,
           PLAY: { increment: 1 },
         },
       });
 
-      await analyticsService.incrementPlayForAnalytics(data.ID_ANALYTICS, modelPlay.PLAY === 0);
+      await analyticsService.incrementPlayForAnalytics(data.ID_ANALYTICS, (play === 0));
     } catch (error) {
       throw error;
     }

@@ -75,6 +75,19 @@ class CampaignVideoService {
       throw error;
     }
   }
+
+  async updateCampaignVideoForCTA(id: string) {
+    try {
+      await this.existsById(id);
+
+      await campaignVideoModel.updateBy({
+        where: { ID: id },
+        data: { CTA_CLICK_TEST_AB: 0 },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const campaignVideoService = new CampaignVideoService();

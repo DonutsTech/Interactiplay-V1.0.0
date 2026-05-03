@@ -5,8 +5,15 @@ import { analyticsModel } from '../../models/analytics';
 import { testABModel } from '../../models/testAB';
 import { campaignService } from '../campaign';
 import { userService } from '../user';
+import { analyticsService } from '../analytics';
 
 class TestABService {
+  async existsById(id: string) {
+    if (!(await testABModel.count({ ID: id }))) {
+      throw new CustomError('TestAB não encontrado, por favor verifique o id', StatusCodes.NOT_FOUND);
+    }
+  }
+
   async campaignsExistsTestAB(campaignIdA: string, campaignIdB: string) {
     if (
       await testABModel.count({
@@ -78,8 +85,47 @@ class TestABService {
     }
   }
 
+  randomChoice<T>(campaignA: T, campaignB: T): T {
+    return Math.random() < 0.5 ? campaignA : campaignB;
+  }
+
   async getTestABByEmbedForId(id: string) {
     try {
+      const testAB = await testABModel.findBy({
+        where: { ID: id },
+      });
+
+      if (!testAB) {
+        throw new CustomError('TestAB não encontrado', StatusCodes.NOT_FOUND);
+      }
+
+      const chosenCampaign = this.randomChoice(testAB.CAMPAIGN_ID_A, testAB.CAMPAIGN_ID_B);
+
+      if (!chosenCampaign) {
+        throw new CustomError('Campanha do TestAB não encontrada', StatusCodes.NOT_FOUND);
+      }
+
+      let analyticsId: string | null = null;
+
+      if (chosenCampaign === testAB.CAMPAIGN_ID_A) {
+        analyticsId = testAB.ANALYTICS_ID_A;
+      } else if (chosenCampaign === testAB.CAMPAIGN_ID_B) {
+        analyticsId = testAB.ANALYTICS_ID_B;
+      }
+
+      if (!analyticsId) {
+        throw new CustomError('Analytics do TestAB não encontrado', StatusCodes.NOT_FOUND);
+      }
+
+      const campaign = await campaignService.getCapamignsByEmbedForId(chosenCampaign);
+
+      if (!campaign) {
+        throw new CustomError('Campanha do TestAB não encontrada', StatusCodes.NOT_FOUND);
+      }
+
+      campaign.CAMPAIGN.ANALYTICS_ID = analyticsId;
+
+      return campaign;
     } catch (error) {
       throw error;
     }
@@ -124,6 +170,42 @@ class TestABService {
       });
 
       return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteTestABForUser(id: string) {
+    try {
+      await this.existsById(id);
+
+      const result = await testABModel.findBy({
+        where: { ID: id }
+      });
+
+      if (!result) {
+        throw new CustomError('TestAB não encontrado', StatusCodes.NOT_FOUND);
+      }
+
+      if (result.ANALYTICS_ID_A) {
+        await analyticsService.deleteAnalyticsForCampaign(result.ANALYTICS_ID_A);
+      }
+
+      if (result.ANALYTICS_ID_B) {
+        await analyticsService.deleteAnalyticsForCampaign(result.ANALYTICS_ID_B);
+      }
+
+      if (result.CAMPAIGN_ID_A) {
+        await campaignService.updateCampaignClearTestAB(result.CAMPAIGN_ID_A);
+      }
+
+      if (result.CAMPAIGN_ID_B) {
+        await campaignService.updateCampaignClearTestAB(result.CAMPAIGN_ID_B);
+      }
+
+      await testABModel.deleteBy({ ID: id });
+
+      return { message: 'Teste A/B deletado com sucesso' };
     } catch (error) {
       throw error;
     }

@@ -1,4 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
+import { testABService } from '../../services/testAB';
+import type { CreateTestAB } from '../../@types/interface/testAB';
 
 class TestABController {
   async getTestABAllForUser(request: Request, response: Response, next: NextFunction) {
@@ -51,17 +53,6 @@ class TestABController {
     }
   }
 
-  async putTestABForUser(request: Request, response: Response, next: NextFunction) {
-    try {
-      const { id } = request.params as { id: string };
-      const body = request.body as UpdateTestAB;
-      const testAB = await testABService.putTestABForUser(id, body);
-      return response.status(200).json(testAB);
-    } catch (error) {
-      next(error);
-    }
-  }
-
   async deleteTestABForUser(request: Request, response: Response, next: NextFunction) {
     try {
       const { id } = request.params as { id: string };
@@ -72,3 +63,5 @@ class TestABController {
     }
   }
 }
+
+export const testABController = new TestABController();

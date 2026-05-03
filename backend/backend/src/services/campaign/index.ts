@@ -326,6 +326,28 @@ class CampaignService {
       throw error;
     }
   }
+
+  async updateCampaignClearTestAB(campaignId: string) {
+    try {
+      const campaign = await this.getCampaignById(campaignId);
+
+      for (const cta of campaign.CAMPAIGN_VIDEOS) {
+        await campaignVideoService.updateCampaignVideoForCTA(cta.ID);
+
+        for (const bond of cta.BONDS) {
+          if (bond.BOND_ID) {
+            await bondService.updateBondForClearTestAB(bond.BOND_ID);
+          }
+        }
+      }
+
+      if (campaign.FEATURE?.EXTERNAL_LINK?.ID) {
+        await externalLinkService.updateExternalLinkForClearTestAB(campaign.FEATURE.EXTERNAL_LINK.ID);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const campaignService = new CampaignService();

@@ -96,6 +96,21 @@ class ExternalLinkService {
       throw error;
     }
   }
+
+  async updateExternalLinkForClearTestAB(id: string) {
+    try {
+      await this.existsById(id);
+
+      await externalLinkModel.updateBy({
+        where: { ID: id },
+        data: {
+          BUTTON_CLICK_TEST_AB: 0,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const externalLinkService = new ExternalLinkService();
