@@ -68,6 +68,16 @@ class ModelTimeService {
         },
       });
 
+      const agrupDate = await prisma.model_Play.groupBy({
+        where: {
+          ANALYTICS_ID: analyticsId,
+        },
+        by: ['CREATED_AT'],
+        _count: {
+          _all: true,
+        }
+      });
+
       const objectAgrup: { [key: string]: number } = {};
       let totalTimescreen: number = 0;
 
@@ -83,7 +93,7 @@ class ModelTimeService {
         }
       }
 
-      return { TIME: objectAgrup, TOTAL_TIMESCREEN: totalTimescreen };
+      return { TIME: objectAgrup, TOTAL_TIMESCREEN: totalTimescreen, AGRUP_DATE: agrupDate };
     } catch (error) {
       throw error;
     }
