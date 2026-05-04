@@ -37,8 +37,6 @@ export class SocketConfig {
           modelPlay = await modelPlayService.getModelPlayByIdSocket(data);
         }
 
-        socket.join(`campaign_${data.ID_CAMPAIGN}`);
-
         socket.emit('initSuccess', modelPlay);
       });
 
@@ -143,6 +141,11 @@ export class SocketConfig {
         socket.join(`campaign_${campaignId}`);
         const analytics = await analyticsService.getAnalyticsForCampaign(campaignId);
         socket.emit('campaignAnalyticsData', analytics);
+      });
+
+      socket.on('testABAnalytics', async (testABId: string) => {
+        const analytics = await analyticsService.getAnalyticsForTestAB(testABId);
+        socket.emit('testABAnalyticsData', analytics);
       });
 
       socket.on('disconnect', () => {

@@ -226,6 +226,22 @@ class TestABService {
       throw error;
     }
   }
+
+  async getTestABById(id: string) {
+    try {
+      const result = await testABModel.findBy({
+        where: { ID: id },
+      });
+
+      if (!result) {
+        throw new CustomError('TestAB não encontrado', StatusCodes.NOT_FOUND);
+      }
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const testABService = new TestABService();

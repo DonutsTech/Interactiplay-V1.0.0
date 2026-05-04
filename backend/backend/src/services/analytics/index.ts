@@ -2,6 +2,7 @@ import { analyticsModel } from '../../models/analytics';
 import { campaignService } from '../campaign';
 import { modelPlayService } from '../modelPlay';
 import { modelTimeService } from '../modelTime';
+import { testABService } from '../testAB';
 
 class AnalyticsService {
   async existById(id: string) {
@@ -100,6 +101,70 @@ class AnalyticsService {
         MODEL_PLAYS: modelPlays,
         MODEL_TIME: modelTime,
       };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getAnalyticsForTestAB(testABId: string) {
+    try {
+      const testAB = await testABService.getTestABById(testABId);
+
+      if (!testAB.ANALYTICS_ID_A || !testAB.ANALYTICS_ID_B || !testAB.CAMPAIGN_ID_A || !testAB.CAMPAIGN_ID_B) {
+        throw new Error('TestAB não encontrado, por favor verifique o id');
+      }
+
+      const campaignA = await campaignService.campaignAnalyticsForUser(testAB.CAMPAIGN_ID_A);
+
+      const campaignB = await campaignService.campaignAnalyticsForUser(testAB.CAMPAIGN_ID_B);
+
+
+      const analyticsA = await analyticsModel.findBy({
+        where: { ID: testAB.ANALYTICS_ID_A },
+        select: {
+          TOTAL_PLAY_BLOCK: true,
+          TOTAL_PLAYS: true,
+          TOTAL_VIEWS: true,
+          TOTAL_PLAY_UNIQUE: true,
+        },
+      });
+
+      const analyticsB = await analyticsModel.findBy({
+        where: { ID: testAB.ANALYTICS_ID_B },
+        select: {
+          TOTAL_PLAY_BLOCK: true,
+          TOTAL_PLAYS: true,
+          TOTAL_VIEWS: true,
+          TOTAL_PLAY_UNIQUE: true,
+        },
+      });
+
+      if (!analyticsA || !analyticsB) {
+        throw new Error('Analytics não encontrado para o TestAB, por favor verifique o id');
+      }
+
+      const modelPlaysA = await modelPlayService.agrupmentoModelPlayByAnalytics(testAB.ANALYTICS_ID_A);
+
+      const modelPlaysB = await modelPlayService.agrupmentoModelPlayByAnalytics(testAB.ANALYTICS_ID_B);
+
+      const modelTimeA = await modelTimeService.modelTimeAgrupByTime(testAB.ANALYTICS_ID_A);
+
+      const modelTimeB = await modelTimeService.modelTimeAgrupByTime(testAB.ANALYTICS_ID_B);
+
+      return {
+        ANALYTICS_A: {
+          CAMPAIGN: campaignA,
+          ANALYTICS: analyticsA,
+          MODEL_PLAYS: modelPlaysA,
+          MODEL_TIME: modelTimeA,
+        },
+        ANALYTICS_B: {
+          CAMPAIGN: campaignB,
+          ANALYTICS: analyticsB,
+          MODEL_PLAYS: modelPlaysB,
+          MODEL_TIME: modelTimeB,
+        },
+      }
     } catch (error) {
       throw error;
     }
