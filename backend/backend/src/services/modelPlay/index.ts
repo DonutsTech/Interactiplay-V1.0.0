@@ -112,6 +112,8 @@ class ModelPlayService {
 
       await historyPlaysService.updateHistoryPlayForUser(data.ID_USER);
 
+      await analyticsService.incrementPlayForAnalytics(data.ID_ANALYTICS, modelPlay.PLAY === 0);
+
       await modelPlayModel.updateBy({
         where: { ID: modelPlay.ID },
         data: {
@@ -119,8 +121,6 @@ class ModelPlayService {
           PLAY: { increment: 1 },
         },
       });
-
-      await analyticsService.incrementPlayForAnalytics(data.ID_ANALYTICS, modelPlay.PLAY === 0);
     } catch (error) {
       throw error;
     }
@@ -194,6 +194,26 @@ class ModelPlayService {
       throw error;
     }
   }
+
+  async modelPlayEmbed(data: ClientPublic) {
+    let modelPlay = undefined;
+
+    if (data.ID_MODEL_PLAY === "" || data.ID_MODEL_PLAY === undefined) {
+      modelPlay = await this.createModelPlaySocketPlay(data);
+    } else {
+      modelPlay = await this.getModelPlayByIdSocket(data);
+    }
+
+    if (!modelPlay) {
+      throw new CustomError(
+        'Modelo de play não encontrado para o cliente',
+        StatusCodes.NOT_FOUND,
+      );
+    }
+
+    return modelPlay;
+  }
+
 }
 
 export const modelPlayService = new ModelPlayService();

@@ -19,6 +19,7 @@ import { testABService } from '../testAB';
 import { thumbService } from '../thumb';
 import { timelineService } from '../timeline';
 import { userService } from '../user';
+import { formatDateBR } from '../../utils/format/data';
 
 const CAMPAIGN_DEFAULT_INCLUDE: Prisma.CampaignInclude = {
   CAMPAIGN_VIDEOS: {
@@ -227,7 +228,7 @@ class CampaignService {
 
       const create = await campaignModel.create({
         data: {
-          NAME: campaignData.NAME,
+          NAME: campaignData.NAME === "Nome da campanha" ? `Campanha ${formatDateBR()}` : campaignData.NAME,
           USER: {
             connect: {
               ID: userId,
