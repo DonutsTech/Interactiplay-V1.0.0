@@ -147,9 +147,7 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
           {section === 'views' && <SectionViews {...data} />}
           {section === 'clicks' && <SectionClicks data={data} campaign={campaign} />}
           {section === 'time' && <SectionTime {...data} />}
-          {section === 'flow' && (
-            <SectionFlow data={data} campaign={campaign} />
-          )}
+          {section === 'flow' && <SectionFlow data={data} campaign={campaign} />}
         </div>
       </div>
     </div>

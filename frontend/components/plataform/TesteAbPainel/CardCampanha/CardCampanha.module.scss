@@ -1,0 +1,142 @@
+.campaignCard {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+	background-color: $color-white;
+	border: 2px solid transparent;
+	border-radius: 10px;
+	padding: 16px;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	position: relative;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	text-align: left;
+	cursor: pointer;
+
+	&:hover {
+		border-color: $color-blue-light-2;
+		box-shadow: 0 6px 20px rgba($color-blue-light-2, 0.3);
+		transform: translateY(-2px);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+	}
+
+	&_icon {
+		width: 48px;
+		height: 48px;
+		background: linear-gradient(135deg, $color-blue-dark-2, $color-blue-light-1);
+		border-radius: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: $color-white;
+		font-size: 1.4rem;
+		flex-shrink: 0;
+	}
+
+	&_info {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		min-width: 0;
+
+		&_title {
+			font-size: 16px;
+			font-weight: 500;
+			color: $color-blue-dark-2;
+			margin: 0;
+			letter-spacing: 0.3px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			text-align: left;
+		}
+
+		&_details {
+			display: flex;
+			gap: 1.5rem;
+			flex-wrap: wrap;
+		}
+
+		&_detail {
+			font-size: 13px;
+			color: $color-gray-dark-2;
+			display: flex;
+			align-items: center;
+			gap: 5px;
+
+			strong {
+				color: $color-blue-dark-2;
+				font-weight: 600;
+				font-size: 13px;
+			}
+		}
+	}
+}
+
+.selected {
+	border-color: $color-blue-light-2;
+	box-shadow: 0 0 0 3px rgba($color-blue-light-2, 0.3),
+		0 6px 20px rgba($color-blue-light-2, 0.25);
+}
+
+.selectedA {
+	border-color: $color-ciano-light-3;
+	box-shadow: 0 0 0 3px rgba($color-ciano-light-3, 0.25),
+		0 6px 20px rgba($color-ciano-light-3, 0.2);
+}
+
+.selectedB {
+	border-color: $color-blue-light-1;
+	box-shadow: 0 0 0 3px rgba($color-blue-light-1, 0.25),
+		0 6px 20px rgba($color-blue-light-1, 0.2);
+}
+
+.blocked {
+	opacity: 0.5;
+	filter: grayscale(0.2);
+
+	&:hover {
+		border-color: transparent;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+		transform: none;
+	}
+}
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border-radius: 999px;
+	background-color: rgba($color-blue-dark-2, 0.12);
+	color: $color-blue-dark-2;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 6px 10px;
+	white-space: nowrap;
+}
+
+.slotBadge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	font-size: 13px;
+	font-weight: 700;
+	flex-shrink: 0;
+
+	&_a {
+		background-color: $color-ciano-light-3;
+		color: $color-darkBlue-dark-3;
+	}
+
+	&_b {
+		background-color: $color-blue-light-1;
+		color: $color-white;
+	}
+}

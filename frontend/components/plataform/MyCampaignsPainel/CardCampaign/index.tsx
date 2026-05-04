@@ -7,13 +7,11 @@ import {
   faEye,
   faTrashCan,
   faPencil,
-  faTimes,
-  faCheck,
+  faLock,
   faBullhorn,
   faChartLine,
   faCode,
 } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
 import { formatDateBR } from '@/utils/stringUtils';
 
 interface CardCampaignProps {
@@ -23,6 +21,7 @@ interface CardCampaignProps {
   onView?: (campaign: ICampaign) => void;
   onAnalytics?: (campaign: ICampaign) => void;
   onEmbed?: (campaign: ICampaign) => void;
+  vinculoTestAB?: boolean;
 }
 
 const CardCampaign = ({
@@ -32,9 +31,8 @@ const CardCampaign = ({
   onView,
   onAnalytics,
   onEmbed,
+  vinculoTestAB = false,
 }: CardCampaignProps) => {
-
-
   const videosCount = campaign.CAMPAIGN_VIDEOS?.length || 0;
 
   return (
@@ -66,6 +64,17 @@ const CardCampaign = ({
       </div>
 
       <div className={styles.campaignCard_actions}>
+        {vinculoTestAB && (
+          <div
+            className={styles.campaignCard_actions_vinculo}
+            title="Campanha vinculada a um teste A/B ativo"
+          >
+            <FontAwesomeIcon
+              icon={faLock}
+              className={styles.campaignCard_actions_vinculo_icon}
+            />
+          </div>
+        )}
         {onView && (
           <button
             className={styles.campaignCard_actions_btn}
@@ -106,7 +115,8 @@ const CardCampaign = ({
           <button
             className={`${styles.campaignCard_actions_btn} ${styles.campaignCard_actions_btn_delete}`}
             onClick={() => onDelete(campaign.ID)}
-            title="Excluir campanha"
+            title={vinculoTestAB ? 'Campanha vinculada a teste A/B ativo' : 'Excluir campanha'}
+            disabled={vinculoTestAB}
           >
             <FontAwesomeIcon icon={faTrashCan} />
           </button>
