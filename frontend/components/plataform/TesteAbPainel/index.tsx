@@ -8,6 +8,7 @@ import { deleteTestAB, getAllTestAB } from '@/service/testeAB';
 import BtnG from '../BtnG';
 import CreateTestAB from './CreateTestAB';
 import CardTestAB from './CardTestAB';
+import AnalyticsTesteAB from '../AnalyticsTesteAB';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { MdOutlineCopyAll } from 'react-icons/md';
@@ -16,6 +17,7 @@ const TesteAbPainel = () => {
   const [stage, setStage] = useState<'view' | 'create'>('view');
   const [allTestAB, setAllTestAB] = useState<ITestAB[]>([]);
   const [selectedEmbedTestAB, setSelectedEmbedTestAB] = useState<ITestAB | null>(null);
+  const [selectedAnalyticsTestAB, setSelectedAnalyticsTestAB] = useState<ITestAB | null>(null);
   const { handleRequest, isLoading, showConfirmation, showSuccess } = useError();
 
   const loadTestAB = useCallback(async () => {
@@ -60,8 +62,7 @@ const TesteAbPainel = () => {
   }, []);
 
   const handleAnalyticsTestAB = useCallback((testAB: ITestAB) => {
-
-    console.log('Analytics do teste A/B:', testAB.ID);
+    setSelectedAnalyticsTestAB(testAB);
   }, []);
 
   const handleRetorno = useCallback(() => {
@@ -71,6 +72,12 @@ const TesteAbPainel = () => {
 
   return (
     <section className={styles.testeAbPainel}>
+      {selectedAnalyticsTestAB && (
+        <AnalyticsTesteAB
+          testAB={selectedAnalyticsTestAB}
+          onClose={() => setSelectedAnalyticsTestAB(null)}
+        />
+      )}
       {selectedEmbedTestAB && (
         <div className={styles.embedModal}>
           <div

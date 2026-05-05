@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import styles from './Analytics.module.scss';
 import { IAnalyticsSocketData } from '@/@types/AnalyticSocketData';
 import { FaPercent } from 'react-icons/fa6';
@@ -45,7 +45,7 @@ const SectionPlay = (data: IAnalyticsSocketData) => {
     const parseDateTime = (str: string): number => {
       const [datePart, timePart] = str.split(', ');
       const [day, month, year] = datePart.split('/');
-      return new Date(`${year}-${month}-${day}T${timePart}:00Z`).getTime();
+      return new Date(`${year}-${month}-${day}T${timePart}:00`).getTime();
     };
 
     // detecta se os dados cobrem mais de 1 dia
@@ -117,28 +117,32 @@ const SectionPlay = (data: IAnalyticsSocketData) => {
     });
   };
 
-  const progressionData = buildDateProgression(agrupDate);
-  const peak = progressionData.reduce((a, b) => (b.plays > a.plays ? b : a));
+  const progressionData = useMemo(() => buildDateProgression(agrupDate), [agrupDate]);
+  const peak = useMemo(
+    () => progressionData.reduce((a, b) => (b.plays > a.plays ? b : a)),
+    [progressionData]
+  );
   const totalPlays = data.ANALYTICS.TOTAL_PLAYS;
 
   // Linhas verticais no primeiro ponto de cada novo dia (garante match com XAxis)
-  const dayBoundaries: { label: string; dayLabel: string }[] = [];
-  {
+  const dayBoundaries = useMemo(() => {
+    const boundaries: { label: string; dayLabel: string }[] = [];
     const seenDays = new Set<string>();
+
     for (const entry of progressionData) {
-      // entry.datetime formato: "DD/MM/YYYY, HH:MM"
-      const datePart = entry.datetime.split(',')[0].trim(); // "DD/MM/YYYY"
+      const datePart = entry.datetime.split(',')[0].trim();
       if (!seenDays.has(datePart)) {
         seenDays.add(datePart);
-        // Pula o primeiro dia — só marca a virada para um novo dia
         if (seenDays.size > 1) {
           const parts = datePart.split('/');
           const shortDay = parts.length >= 2 ? `${parts[0]}/${parts[1]}` : datePart;
-          dayBoundaries.push({ label: entry.label, dayLabel: shortDay });
+          boundaries.push({ label: entry.label, dayLabel: shortDay });
         }
       }
     }
-  }
+
+    return boundaries;
+  }, [progressionData]);
 
   const [brushRange, setBrushRange] = useState({
     start: 0,
@@ -146,6 +150,10 @@ const SectionPlay = (data: IAnalyticsSocketData) => {
   });
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
+      if (progressionData.length <= 2) {
+        return;
+      }
+
       e.preventDefault();
       const total = progressionData.length;
       const { start, end } = brushRange;

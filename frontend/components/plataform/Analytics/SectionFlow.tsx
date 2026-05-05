@@ -21,6 +21,7 @@ import {
   type NodeProps,
   type EdgeProps,
 } from '@xyflow/react';
+import { useMemo } from 'react';
 import '@xyflow/react/dist/style.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -199,16 +200,24 @@ function buildFlowAnalytics(
   const bondClickMap = new Map<string, { btnClicks: number; continuity: number; total: number; isButton: boolean }>();
 
   const minOrder = Math.min(...campaign.CAMPAIGN_VIDEOS.map((v) => v.ORDER ?? Infinity));
+  const videoIndexById = new Map(
+    campaign.CAMPAIGN_VIDEOS.map((video, index) => [video.VIDEO.ID, index])
+  );
+
+  // Cria mapa de dados do socket por ID do vídeo (busca por ID, não por índice)
+  const socketVideoMap = new Map(
+    data.CAMPAIGN.CAMPAIGN_VIDEOS.map((v) => [v.ID, v])
+  );
 
   // Inicializa arrivals: nó de entrada recebe totalPlays, demais 0
   for (const cv of campaign.CAMPAIGN_VIDEOS) {
     arrivalsMap.set(cv.VIDEO.ID, (cv.ORDER ?? Infinity) === minOrder ? totalPlays : 0);
   }
 
-  // Usa dados reais do socket (data.CAMPAIGN) para contagem de cliques por índice
+  // Usa dados reais do socket (data.CAMPAIGN) para contagem de cliques por ID
   for (let i = 0; i < campaign.CAMPAIGN_VIDEOS.length; i++) {
     const cv = campaign.CAMPAIGN_VIDEOS[i];
-    const cvData = data.CAMPAIGN.CAMPAIGN_VIDEOS[i];
+    const cvData = socketVideoMap.get(cv.ID);
     if (!cvData) continue;
 
     for (let j = 0; j < cv.BONDS.length; j++) {
@@ -217,7 +226,9 @@ function buildFlowAnalytics(
       const targetId = bondItem.BOND?.VIDEO_ID;
       if (!targetId || !bondData) continue;
 
-      const btnClicks = bondData.BOND.BUTTON_CLICK_CAMPAING ?? 0;
+      const btnClicks = (bondItem.BOND.BUTTON ?? false)
+        ? (bondData.BOND.BUTTON_CLICK_CAMPAING ?? 0)
+        : 0;
       const continuity = bondData.BOND.CONTINUITY_CAMPAING ?? 0;
       const total = btnClicks + continuity;
       arrivalsMap.set(targetId, (arrivalsMap.get(targetId) ?? 0) + total);
@@ -232,12 +243,14 @@ function buildFlowAnalytics(
 
   // Enrich nodes — CTA clicks também do socket
   const nodes: Node[] = baseNodes.map((node) => {
-    const i = campaign.CAMPAIGN_VIDEOS.findIndex((v) => v.VIDEO.ID === node.id);
-    const cv = campaign.CAMPAIGN_VIDEOS[i];
-    const cvData = data.CAMPAIGN.CAMPAIGN_VIDEOS[i];
+    const i = videoIndexById.get(node.id) ?? -1;
+    const cv = i >= 0 ? campaign.CAMPAIGN_VIDEOS[i] : undefined;
+    const cvData = cv ? socketVideoMap.get(cv.ID) : undefined;
     const arrivals = arrivalsMap.get(node.id) ?? 0;
     const arrivalPct = totalPlays > 0 ? ((arrivals / totalPlays) * 100).toFixed(1) : '0.0';
-    const ctaClicks = cvData?.CTA_CLICK_CAMPAING ?? 0;
+    // CTA APENAS do socket (data.CAMPAIGN_VIDEOS), sem fallback para campaign
+    const ctaEnabled = cvData?.CTA ?? false;
+    const ctaClicks = ctaEnabled ? (cvData?.CTA_CLICK_CAMPAING ?? 0) : 0;
     const ctaEfficiency = arrivals > 0 ? ((ctaClicks / arrivals) * 100).toFixed(1) : '0.0';
 
     return {
@@ -249,7 +262,7 @@ function buildFlowAnalytics(
         ...node.data,
         arrivals,
         arrivalPct,
-        cta: cv?.CTA ?? false,
+        cta: ctaEnabled,
         ctaClicks,
         ctaEfficiency,
       } as AnalyticsNodeData,
@@ -284,7 +297,10 @@ interface ISectionFlowProps {
 }
 
 const FlowInner = ({ data, campaign }: ISectionFlowProps) => {
-  const { nodes, edges } = buildFlowAnalytics(campaign, data);
+  const { nodes, edges } = useMemo(
+    () => buildFlowAnalytics(campaign, data),
+    [campaign, data]
+  );
 
   return (
     <div className={styles.sectionFlow}>

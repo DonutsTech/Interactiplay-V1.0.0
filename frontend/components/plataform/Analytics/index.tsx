@@ -23,8 +23,6 @@ interface IAnalyticsProps {
   onClose: () => void;
 }
 
-socket.on('connect', () => console.log('[IO] => new connnwct'));
-
 const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
   const [data, setData] = useState<IAnalyticsSocketData | null>(null);
   const [section, setSection] = useState<
@@ -38,7 +36,6 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
 
     const handleAnalyticsData = (analyticsData: IAnalyticsSocketData) => {
       setData(analyticsData);
-      console.log('Analytics data:', analyticsData);
     };
 
     socket.on('campaignAnalyticsData', handleAnalyticsData);
@@ -46,7 +43,7 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
     return () => {
       socket.off('campaignAnalyticsData', handleAnalyticsData);
     };
-  }, [campaign.ID, socket]);
+  }, [campaign.ID]);
 
   if (!data) return null;
 
@@ -101,17 +98,20 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
               <TbHandClick className={styles.icon} />
               <div className={styles.info_item_dados}>
                 <p>
-                  {data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING}{' '}
+                  {data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
+                    ? (data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ?? 0)
+                    : 0}{' '}
                   Click no CTA Geral
                 </p>
                 <p>
-                  {(
-                    (data.CAMPAIGN.FEATURE &&
-                    data.CAMPAIGN.FEATURE?.EXTERNAL_LINK
-                      ? data.CAMPAIGN.FEATURE?.EXTERNAL_LINK
-                          ?.BUTTON_CLICK_CAMPAING / data.ANALYTICS.TOTAL_PLAYS
-                      : 0) * 100
-                  ).toFixed(2)}
+                  {data.ANALYTICS.TOTAL_PLAYS > 0 &&
+                  data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
+                    ? (
+                        ((data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ?? 0) /
+                          data.ANALYTICS.TOTAL_PLAYS) *
+                        100
+                      ).toFixed(2)
+                    : '0.00'}
                   %
                 </p>
               </div>

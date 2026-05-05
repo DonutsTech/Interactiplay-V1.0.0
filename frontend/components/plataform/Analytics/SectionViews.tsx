@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import styles from './Analytics.module.scss';
 import { IAnalyticsSocketData } from '@/@types/AnalyticSocketData';
 import {
@@ -8,73 +9,73 @@ import {
   Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
 
-// interface ISectionViewsProps {
-//   data: IAnalyticsSocketData;
-// }
-
 const SectionViews = (data: IAnalyticsSocketData) => {
   const total = data.ANALYTICS.TOTAL_VIEWS;
   const totalPlays = data.ANALYTICS.TOTAL_PLAYS;
 
-  const radialData = [
-    {
-      name: 'Clicks CTA',
-      value:
-        totalPlays > 0
-          ? ((data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ??
-              0) /
-              totalPlays) *
-            100
-          : 0,
-      absolute:
-        data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ?? 0,
-      base: totalPlays,
-      fill: '#5FFF9E',
-      complemento: 'do total de plays',
-    },
-    {
-      name: 'Plays Únicos',
-      value:
-        totalPlays > 0
-          ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100
-          : 0,
-      absolute: data.ANALYTICS.TOTAL_PLAY_UNIQUE,
-      base: totalPlays,
-      fill: '#FFE85F',
-      complemento: 'do total de plays',
-    },
-    {
-      name: 'Plays',
-      value: total > 0 ? (data.ANALYTICS.TOTAL_PLAYS / total) * 100 : 0,
-      absolute: data.ANALYTICS.TOTAL_PLAYS,
-      base: total,
-      fill: '#00FFF1',
-      complemento: 'do total de views',
-    },
-    {
-      name: 'Views',
-      value: 100,
-      absolute: total,
-      base: total,
-      fill: 'rgba(242,242,242,0.4)',
-      complemento: 'do total de views',
-    },
-  ];
+  const ctaGeral =
+    data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
+      ? (data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ?? 0)
+      : 0;
 
-  let desktop = 0,
-    mobile = 0,
-    others = 0;
-  for (const item of data.MODEL_PLAYS) {
-    if (item.DEVICE === 'desktop') desktop += item._sum.PLAY;
-    else if (item.DEVICE === 'mobile') mobile += item._sum.PLAY;
-    else others += item._sum.PLAY;
-  }
+  const radialData = useMemo(
+    () => [
+      {
+        name: 'Clicks CTA',
+        value: totalPlays > 0 ? (ctaGeral / totalPlays) * 100 : 0,
+        absolute: ctaGeral,
+        base: totalPlays,
+        fill: '#5FFF9E',
+        complemento: 'do total de plays',
+      },
+      {
+        name: 'Plays Únicos',
+        value:
+          totalPlays > 0
+            ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100
+            : 0,
+        absolute: data.ANALYTICS.TOTAL_PLAY_UNIQUE,
+        base: totalPlays,
+        fill: '#FFE85F',
+        complemento: 'do total de plays',
+      },
+      {
+        name: 'Plays',
+        value: total > 0 ? (data.ANALYTICS.TOTAL_PLAYS / total) * 100 : 0,
+        absolute: data.ANALYTICS.TOTAL_PLAYS,
+        base: total,
+        fill: '#00FFF1',
+        complemento: 'do total de views',
+      },
+      {
+        name: 'Views',
+        value: 100,
+        absolute: total,
+        base: total,
+        fill: 'rgba(242,242,242,0.4)',
+        complemento: 'do total de views',
+      },
+    ],
+    [ctaGeral, data.ANALYTICS.TOTAL_PLAY_UNIQUE, data.ANALYTICS.TOTAL_PLAYS, total, totalPlays]
+  );
 
-  const deviceData = [
-    { name: 'Desktop', value: desktop, fill: '#00FFF1' },
-    { name: 'Mobile', value: mobile, fill: '#9900FF' },
-    { name: 'Outros', value: others, fill: '#FFCE08' },
-  ].filter((d) => d.value > 0);
+  const deviceData = useMemo(() => {
+    let desktop = 0;
+    let mobile = 0;
+    let others = 0;
+
+    for (const item of data.MODEL_PLAYS) {
+      if (item.DEVICE === 'desktop') desktop += item._sum.PLAY;
+      else if (item.DEVICE === 'mobile') mobile += item._sum.PLAY;
+      else others += item._sum.PLAY;
+    }
+
+    return [
+      { name: 'Desktop', value: desktop, fill: '#00FFF1' },
+      { name: 'Mobile', value: mobile, fill: '#9900FF' },
+      { name: 'Outros', value: others, fill: '#FFCE08' },
+    ].filter((d) => d.value > 0);
+  }, [data.MODEL_PLAYS]);
 
   return (
     <div className={styles.sectionViews}>

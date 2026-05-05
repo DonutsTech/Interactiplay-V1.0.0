@@ -1,4 +1,5 @@
 export interface IBondData {
+  BUTTON?: boolean;
   CONTINUITY_CAMPAING: number;
   CONTINUITY_TEST_AB: number;
   BUTTON_CLICK_CAMPAING: number;
@@ -10,12 +11,16 @@ export interface ICampaignVideoBondItem {
 }
 
 export interface ICampaignVideoData {
+  ID?: string;
+  VIDEO?: { NAME?: string };
+  CTA?: boolean;
   CTA_CLICK_CAMPAING: number;
   CTA_CLICK_TEST_AB: number;
   BONDS: ICampaignVideoBondItem[];
 }
 
 export interface IExternalLinkData {
+  ATIVE?: boolean;
   BUTTON_CLICK_CAMPAING: number;
   BUTTON_CLICK_TEST_AB: number;
 }
@@ -53,4 +58,9 @@ export interface IAnalyticsSocketData {
   ANALYTICS: IAnalyticsData;
   MODEL_PLAYS: IModelPlayItem[];
   MODEL_TIME: IModelTimeData;
+}
+
+export interface ITestABAnalyticsSocketData {
+  ANALYTICS_A: IAnalyticsSocketData;
+  ANALYTICS_B: IAnalyticsSocketData;
 }

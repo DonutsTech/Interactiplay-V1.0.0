@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import styles from './Analytics.module.scss';
 import { IAnalyticsSocketData } from '@/@types/AnalyticSocketData';
 import { ICampaign } from '@/@types/campaign';
@@ -23,19 +24,6 @@ interface ISectionClicksProps {
 }
 
 const SectionClicks = ({ data, campaign }: ISectionClicksProps) => {
-  const totalPlays = data.ANALYTICS.TOTAL_PLAYS;
-  const ctaGeral = data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ?? 0;
-
-  const ctaInternoTotal = data.CAMPAIGN.CAMPAIGN_VIDEOS.reduce(
-    (sum, video) => sum + (video.CTA_CLICK_CAMPAING ?? 0),
-    0
-  );
-
-  const totalCTA = ctaGeral + ctaInternoTotal;
-
-  const toPct = (value: number) =>
-    totalPlays > 0 ? Number(((value / totalPlays) * 100).toFixed(1)) : 0;
-
   const cleanVideoName = (rawName: string | undefined, fallback: string) => {
     const replaced = (rawName ?? '').replace(/[._]/g, ' ');
     return normalizeSpaces(replaced) || fallback;
@@ -47,50 +35,93 @@ const SectionClicks = ({ data, campaign }: ISectionClicksProps) => {
     return firstName.length > 12 ? `${firstName.slice(0, 12)}...` : firstName;
   };
 
-  const internalByVideo = data.CAMPAIGN.CAMPAIGN_VIDEOS.map((video, index) => ({
-    name: buildVideoLabel(campaign.CAMPAIGN_VIDEOS[index]?.VIDEO?.NAME, index),
-    fullName: cleanVideoName(campaign.CAMPAIGN_VIDEOS[index]?.VIDEO?.NAME, `Video ${index + 1}`),
-    clicks: video.CTA_CLICK_CAMPAING ?? 0,
-    pct: toPct(video.CTA_CLICK_CAMPAING ?? 0),
-    fill: '#FFCE08',
-  }));
+  const computed = useMemo(() => {
+    const totalPlays = data.ANALYTICS.TOTAL_PLAYS;
+    const externalLinkActive = data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true;
+    const ctaGeral = externalLinkActive
+      ? (data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ?? 0)
+      : 0;
 
-  const chartData = [
-    {
-      name: 'CTA Geral',
-      fullName: 'CTA Geral',
-      clicks: ctaGeral,
-      pct: toPct(ctaGeral),
-      fill: '#0CB189',
-    },
-    ...internalByVideo,
-  ];
+    const toPct = (value: number) =>
+      totalPlays > 0 ? Number(((value / totalPlays) * 100).toFixed(1)) : 0;
+
+    const internalByVideo = data.CAMPAIGN.CAMPAIGN_VIDEOS.reduce<
+      Array<{ name: string; fullName: string; clicks: number; pct: number; fill: string }>
+    >((acc, video, index) => {
+      if (video.CTA !== true) {
+        return acc;
+      }
+
+      const rawName = video.VIDEO?.NAME ?? campaign.CAMPAIGN_VIDEOS[index]?.VIDEO?.NAME;
+      const clicks = video.CTA_CLICK_CAMPAING ?? 0;
+
+      acc.push({
+        name: buildVideoLabel(rawName, index),
+        fullName: cleanVideoName(rawName, `Video ${index + 1}`),
+        clicks,
+        pct: toPct(clicks),
+        fill: '#FFCE08',
+      });
+
+      return acc;
+    }, []);
+
+    const ctaInternoTotal = internalByVideo.reduce((sum, item) => sum + item.clicks, 0);
+    const totalCTA = ctaGeral + ctaInternoTotal;
+
+    const chartData = [
+      ...(externalLinkActive
+        ? [
+            {
+              name: 'CTA Geral',
+              fullName: 'CTA Geral',
+              clicks: ctaGeral,
+              pct: toPct(ctaGeral),
+              fill: '#0CB189',
+            },
+          ]
+        : []),
+      ...internalByVideo,
+    ];
+
+    const maxDomain = Math.max(1, totalPlays, ...chartData.map((item) => item.clicks));
+
+    return {
+      totalPlays,
+      ctaGeral,
+      ctaInternoTotal,
+      totalCTA,
+      chartData,
+      maxDomain,
+      toPct,
+    };
+  }, [campaign.CAMPAIGN_VIDEOS, data]);
 
   return (
     <div className={styles.sectionClicks}>
       <div className={styles.clickCards}>
         <div className={styles.clickCard}>
           <span className={styles.clickCardLabel}>Total de Plays</span>
-          <strong className={styles.clickCardValue}>{totalPlays}</strong>
+            <strong className={styles.clickCardValue}>{computed.totalPlays}</strong>
           <em className={styles.clickCardHint}>Base de conversao</em>
         </div>
 
         <div className={styles.clickCard}>
           <span className={styles.clickCardLabel}>CTA Geral</span>
-          <strong className={styles.clickCardValue}>{ctaGeral}</strong>
-          <em className={styles.clickCardHint}>{toPct(ctaGeral)}% dos plays</em>
+            <strong className={styles.clickCardValue}>{computed.ctaGeral}</strong>
+            <em className={styles.clickCardHint}>{computed.toPct(computed.ctaGeral)}% dos plays</em>
         </div>
 
         <div className={styles.clickCard}>
           <span className={styles.clickCardLabel}>CTA Interno (videos)</span>
-          <strong className={styles.clickCardValue}>{ctaInternoTotal}</strong>
-          <em className={styles.clickCardHint}>{toPct(ctaInternoTotal)}% dos plays</em>
+            <strong className={styles.clickCardValue}>{computed.ctaInternoTotal}</strong>
+            <em className={styles.clickCardHint}>{computed.toPct(computed.ctaInternoTotal)}% dos plays</em>
         </div>
 
         <div className={styles.clickCard}>
           <span className={styles.clickCardLabel}>Total CTA</span>
-          <strong className={styles.clickCardValue}>{totalCTA}</strong>
-          <em className={styles.clickCardHint}>{toPct(totalCTA)}% dos plays</em>
+            <strong className={styles.clickCardValue}>{computed.totalCTA}</strong>
+            <em className={styles.clickCardHint}>{computed.toPct(computed.totalCTA)}% dos plays</em>
         </div>
       </div>
 
@@ -98,7 +129,7 @@ const SectionClicks = ({ data, campaign }: ISectionClicksProps) => {
         <p className={styles.clickChartTitle}>Relacao: cliques por tipo x base de plays</p>
         <ResponsiveContainer width="100%" height={300}>
           <ComposedChart
-            data={chartData}
+            data={computed.chartData}
             margin={{ top: 8, right: 24, left: 0, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
@@ -115,7 +146,7 @@ const SectionClicks = ({ data, campaign }: ISectionClicksProps) => {
               stroke="rgba(255,255,255,0.3)"
               fontSize={11}
               allowDecimals={false}
-              domain={[0, totalPlays]}
+              domain={[0, computed.maxDomain]}
               tick={{ fill: 'rgba(242,242,242,0.6)' }}
             />
 
@@ -154,7 +185,7 @@ const SectionClicks = ({ data, campaign }: ISectionClicksProps) => {
                       <strong>{barItem?.value}</strong> eventos
                     </p>
                     <p style={{ color: 'rgba(242,242,242,0.55)' }}>
-                      {lineItem?.value}% sobre {totalPlays} plays
+                      {lineItem?.value}% sobre {computed.totalPlays} plays
                     </p>
                   </div>
                 );
@@ -162,7 +193,7 @@ const SectionClicks = ({ data, campaign }: ISectionClicksProps) => {
             />
 
             <Bar yAxisId="left" dataKey="clicks" name="Cliques" barSize={40}>
-              {chartData.map((entry, i) => (
+              {computed.chartData.map((entry, i) => (
                 <Cell key={i} fill={entry.fill} />
               ))}
             </Bar>
