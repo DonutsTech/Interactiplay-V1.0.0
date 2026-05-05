@@ -5,6 +5,7 @@ import { CustomError } from '../../error';
 import type { Prisma } from '../../generated/prisma/browser';
 import { analyticsModel } from '../../models/analytics';
 import { campaignModel } from '../../models/campaign';
+import { formatDateBR } from '../../utils/format/data';
 import { autoPlayService } from '../autoPlay';
 import { bondService } from '../bond';
 import { bondVideoService } from '../bondVideo';
@@ -19,7 +20,6 @@ import { testABService } from '../testAB';
 import { thumbService } from '../thumb';
 import { timelineService } from '../timeline';
 import { userService } from '../user';
-import { formatDateBR } from '../../utils/format/data';
 
 const CAMPAIGN_DEFAULT_INCLUDE: Prisma.CampaignInclude = {
   CAMPAIGN_VIDEOS: {
@@ -86,12 +86,16 @@ const CAMPAIGN_DEFAULT_EMBED: Prisma.CampaignInclude = {
 const CAMPAIGN_DEFAULT_EMBED_ANALYTICS: Prisma.CampaignSelect = {
   CAMPAIGN_VIDEOS: {
     select: {
+      ID: true,
+      VIDEO: true,
       CTA_CLICK_CAMPAING: true,
       CTA_CLICK_TEST_AB: true,
       BONDS: {
         select: {
           BOND: {
             select: {
+              ID: true,
+              VIDEO: true,
               CONTINUITY_CAMPAING: true,
               CONTINUITY_TEST_AB: true,
               BUTTON_CLICK_CAMPAING: true,
@@ -106,6 +110,7 @@ const CAMPAIGN_DEFAULT_EMBED_ANALYTICS: Prisma.CampaignSelect = {
     select: {
       EXTERNAL_LINK: {
         select: {
+          ID: true,
           BUTTON_CLICK_CAMPAING: true,
           BUTTON_CLICK_TEST_AB: true,
         },
@@ -228,7 +233,10 @@ class CampaignService {
 
       const create = await campaignModel.create({
         data: {
-          NAME: campaignData.NAME === "Nome da campanha" ? `Campanha ${formatDateBR()}` : campaignData.NAME,
+          NAME:
+            campaignData.NAME === 'Nome da campanha'
+              ? `Campanha ${formatDateBR()}`
+              : campaignData.NAME,
           USER: {
             connect: {
               ID: userId,
@@ -343,7 +351,9 @@ class CampaignService {
       }
 
       if (campaign.FEATURE?.EXTERNAL_LINK?.ID) {
-        await externalLinkService.updateExternalLinkForClearTestAB(campaign.FEATURE.EXTERNAL_LINK.ID);
+        await externalLinkService.updateExternalLinkForClearTestAB(
+          campaign.FEATURE.EXTERNAL_LINK.ID,
+        );
       }
     } catch (error) {
       throw error;
