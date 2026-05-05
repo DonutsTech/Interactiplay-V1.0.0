@@ -88,6 +88,7 @@ const CAMPAIGN_DEFAULT_EMBED_ANALYTICS: Prisma.CampaignSelect = {
     select: {
       ID: true,
       VIDEO: true,
+      CTA: true,
       CTA_CLICK_CAMPAING: true,
       CTA_CLICK_TEST_AB: true,
       BONDS: {
@@ -96,6 +97,7 @@ const CAMPAIGN_DEFAULT_EMBED_ANALYTICS: Prisma.CampaignSelect = {
             select: {
               ID: true,
               VIDEO: true,
+              BUTTON: true,
               CONTINUITY_CAMPAING: true,
               CONTINUITY_TEST_AB: true,
               BUTTON_CLICK_CAMPAING: true,
@@ -111,6 +113,7 @@ const CAMPAIGN_DEFAULT_EMBED_ANALYTICS: Prisma.CampaignSelect = {
       EXTERNAL_LINK: {
         select: {
           ID: true,
+          ATIVE: true,
           BUTTON_CLICK_CAMPAING: true,
           BUTTON_CLICK_TEST_AB: true,
         },
