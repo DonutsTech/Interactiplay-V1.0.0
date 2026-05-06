@@ -46,6 +46,10 @@ services:
       - backend
     networks:
       - interact-network
+    volumes:
+      - ./nginx/nginx-selfsigned.crt:/etc/ssl/certs/nginx-selfsigned.crt:ro
+      - ./nginx/nginx-selfsigned.key:/etc/ssl/private/nginx-selfsigned.key:ro
+      - ./nginx/default.config:/etc/nginx/conf.d/default.conf:ro
 
   stripe-cli:
     image: stripe/stripe-cli:latest
