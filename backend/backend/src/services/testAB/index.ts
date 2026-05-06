@@ -178,8 +178,8 @@ class TestABService {
       result = await testABModel.updateBy({
         where: { ID: result.ID },
         data: {
-          EMBED_IFRAME: `<iframe src="http://ec2-13-219-76-98.compute-1.amazonaws.com/widget/index.html" name='{"campaign": "${result.ID}"}'></iframe>`,
-          EMBED_JS: `<div id="interactiplay" data-campaign="${result.ID}"></div> <script src="http://ec2-13-219-76-98.compute-1.amazonaws.com/widget/index.mjs"></script>`,
+          EMBED_IFRAME: `<iframe src="http://ec2-35-173-188-226.compute-1.amazonaws.com/widget/index.html" name='{"campaign": "${result.ID}"}'></iframe>`,
+          EMBED_JS: `<div id="interactiplay" data-campaign="${result.ID}"></div> <script src="http://ec2-35-173-188-226.compute-1.amazonaws.com/widget/index.mjs"></script>`,
           ANALYTICS_A: { connect: { ID: analyticsA.ID } },
           ANALYTICS_B: { connect: { ID: analyticsB.ID } },
         },
