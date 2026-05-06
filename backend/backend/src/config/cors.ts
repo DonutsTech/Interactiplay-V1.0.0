@@ -4,19 +4,14 @@ const corsOpenConfig = cors({
   origin: true,
   credentials: true,
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 });
 
 const corsRestrictedConfig = cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:4000',
-    'https://seudominio.com',
-    'https://app.seudominio.com'
-  ],
+  origin: ['https://front-dev.d1jimwec3k4m0w.amplifyapp.com/', '*'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
 });
 
 export { corsOpenConfig, corsRestrictedConfig };
