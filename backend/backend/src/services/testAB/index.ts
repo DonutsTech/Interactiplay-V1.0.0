@@ -1,30 +1,33 @@
 import { StatusCodes } from 'http-status-codes';
 import type { CreateTestAB } from '../../@types/interface/testAB';
 import { CustomError } from '../../error';
+import type { Prisma } from '../../generated/prisma/browser';
 import { analyticsModel } from '../../models/analytics';
 import { testABModel } from '../../models/testAB';
+import { analyticsService } from '../analytics';
 import { campaignService } from '../campaign';
 import { userService } from '../user';
-import { analyticsService } from '../analytics';
-import type { Prisma } from '../../generated/prisma/browser';
 
 const CAMPAIN_TEST_AB_INCLUDE: Prisma.Test_ABInclude = {
   CAMPAIGN_A: {
     select: {
       NAME: true,
-    }
+    },
   },
   CAMPAIGN_B: {
     select: {
       NAME: true,
-    }
-  }
-}
+    },
+  },
+};
 
 class TestABService {
   async existsById(id: string) {
     if (!(await testABModel.count({ ID: id }))) {
-      throw new CustomError('TestAB não encontrado, por favor verifique o id', StatusCodes.NOT_FOUND);
+      throw new CustomError(
+        'TestAB não encontrado, por favor verifique o id',
+        StatusCodes.NOT_FOUND,
+      );
     }
   }
 
@@ -178,8 +181,8 @@ class TestABService {
       result = await testABModel.updateBy({
         where: { ID: result.ID },
         data: {
-          EMBED_IFRAME: `<iframe src="http://ec2-35-173-188-226.compute-1.amazonaws.com/widget/index.html" name='{"campaign": "${result.ID}"}'></iframe>`,
-          EMBED_JS: `<div id="interactiplay" data-testab="${result.ID}"></div> <script src="http://ec2-35-173-188-226.compute-1.amazonaws.com/widget/index.mjs"></script>`,
+          EMBED_IFRAME: `<iframe src="https://ec2-35-173-188-226.compute-1.amazonaws.com/widget/index.html" name='{"campaign": "${result.ID}"}'></iframe>`,
+          EMBED_JS: `<div id="interactiplay" data-testab="${result.ID}"></div> <script src="https://ec2-35-173-188-226.compute-1.amazonaws.com/widget/index.mjs"></script>`,
           ANALYTICS_A: { connect: { ID: analyticsA.ID } },
           ANALYTICS_B: { connect: { ID: analyticsB.ID } },
         },
@@ -196,7 +199,7 @@ class TestABService {
       await this.existsById(id);
 
       const result = await testABModel.findBy({
-        where: { ID: id }
+        where: { ID: id },
       });
 
       if (!result) {

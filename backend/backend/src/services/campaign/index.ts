@@ -257,8 +257,8 @@ class CampaignService {
       await campaignModel.updateBy({
         where: { ID: create.ID },
         data: {
-          EMBED_IFRAME: `<iframe src="http://ec2-35-173-188-226.compute-1.amazonaws.com/widget/index.html" name='{"campaign": "${create.ID}"}'></iframe>`,
-          EMBED_JS: `<div id="interactiplay" data-campaign="${create.ID}"></div> <script src="http://ec2-35-173-188-226.compute-1.amazonaws.com/widget/index.mjs"></script>`,
+          EMBED_IFRAME: `<iframe src="https://ec2-35-173-188-226.compute-1.amazonaws.com/widget/index.html" name='{"campaign": "${create.ID}"}'></iframe>`,
+          EMBED_JS: `<div id="interactiplay" data-campaign="${create.ID}"></div> <script src="https://ec2-35-173-188-226.compute-1.amazonaws.com/widget/index.mjs"></script>`,
         },
       });
 
