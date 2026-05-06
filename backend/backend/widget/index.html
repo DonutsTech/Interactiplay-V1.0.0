@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InteractiPlay Widget</title>
+
+  </head>
+  <body>
+    <div id="interactiplay" data-campaign=""></div>
+  <script>
+    let config = {};
+
+    try {
+      config = JSON.parse(window.name);
+    } catch (e) {
+      console.error("Config inválida no name");
+    }
+
+    const app = document.getElementById("interactiplay");
+    app.dataset.campaign = config.campaign || "";
+    app.style = config.style || "";
+  </script>
+  <script type="module" crossorigin src="index.mjs"></script>
+</body>
+</html>
