@@ -1,6 +1,7 @@
 
 import DeniedPainel from "@/components/acess/DeniedPainel";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 
 export const metadata: Metadata = {
@@ -14,8 +15,8 @@ export default function Denied() {
 
 
   return (
-    <>
+    <Suspense fallback={null}>
       <DeniedPainel />
-    </>
+    </Suspense>
   );
 };

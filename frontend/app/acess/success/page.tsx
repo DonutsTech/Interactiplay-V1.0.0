@@ -1,6 +1,7 @@
 
 import SucessPainel from "@/components/acess/SucessPainel";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 
 
@@ -15,8 +16,8 @@ export default function Success() {
 
 
   return (
-    <>
+    <Suspense fallback={null}>
       <SucessPainel />
-    </>
+    </Suspense>
   );
 };

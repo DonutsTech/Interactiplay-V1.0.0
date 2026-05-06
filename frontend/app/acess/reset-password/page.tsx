@@ -2,6 +2,7 @@
 
 import FormResetPassword from "@/components/acess/FormResetPassword";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 
 export const metadata: Metadata = {
@@ -14,8 +15,8 @@ export default function ResetPassword() {
 
 
   return (
-    <>
-    <FormResetPassword />
-    </>
+    <Suspense fallback={null}>
+      <FormResetPassword />
+    </Suspense>
   );
 };

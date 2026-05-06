@@ -60,7 +60,11 @@ const onDragOver = (event: DragEvent) => {
   event.dataTransfer.dropEffect = 'move';
 };
 
-const Flow = ({ id = undefined }: { id: string | undefined }) => {
+type FlowProps = {
+id?: string;
+};
+
+const Flow = ({ id = undefined }: FlowProps) => {
   const {
     modalOpenF,
     setModalOpenF,

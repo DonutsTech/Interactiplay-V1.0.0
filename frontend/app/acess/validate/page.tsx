@@ -1,6 +1,7 @@
 import SelectPlans from "@/components/acess/SelectPlans";
 import ValidateEmail from "@/components/acess/ValidateEmail";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 
 export const metadata: Metadata = {
@@ -13,8 +14,8 @@ export default function Validate() {
 
 
   return (
-    <>
+    <Suspense fallback={null}>
       <ValidateEmail />
-    </>
+    </Suspense>
   );
 };

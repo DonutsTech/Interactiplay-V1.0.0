@@ -12,6 +12,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  type DotItemDotProps,
 } from 'recharts';
 import {
   IAnalyticsSocketData,
@@ -23,7 +24,10 @@ interface ISectionTimeTesteABProps {
   data: ITestABAnalyticsSocketData;
 }
 
-const buildRetentionCurve = (time: Record<string, number>, totalPlays: number) => {
+const buildRetentionCurve = (
+  time: Record<string, number>,
+  totalPlays: number
+) => {
   const exits = Object.entries(time)
     .map(([sec, count]) => ({ sec: Number(sec), count }))
     .sort((a, b) => a.sec - b.sec);
@@ -130,38 +134,63 @@ const SectionTimeTesteAB = ({ data }: ISectionTimeTesteABProps) => {
     <div className={styles.sectionTime}>
       <div className={styles.retentionCards}>
         <div className={styles.retentionCard}>
-          <span className={styles.retentionCardLabel}>Tempo médio por play</span>
-          <strong className={styles.retentionCardValue} style={{ color: '#30FFFB' }}>
+          <span className={styles.retentionCardLabel}>
+            Tempo médio por play
+          </span>
+          <strong
+            className={styles.retentionCardValue}
+            style={{ color: '#30FFFB' }}
+          >
             A: {formatDuration(avgTimeA)}
           </strong>
-          <strong className={styles.retentionCardValue} style={{ color: '#5B71B9' }}>
+          <strong
+            className={styles.retentionCardValue}
+            style={{ color: '#5B71B9' }}
+          >
             B: {formatDuration(avgTimeB)}
           </strong>
         </div>
         <div className={styles.retentionCard}>
           <span className={styles.retentionCardLabel}>Tempo total em tela</span>
-          <strong className={styles.retentionCardValue} style={{ color: '#30FFFB' }}>
+          <strong
+            className={styles.retentionCardValue}
+            style={{ color: '#30FFFB' }}
+          >
             A: {formatDuration(data.ANALYTICS_A.MODEL_TIME.TOTAL_TIMESCREEN)}
           </strong>
-          <strong className={styles.retentionCardValue} style={{ color: '#5B71B9' }}>
+          <strong
+            className={styles.retentionCardValue}
+            style={{ color: '#5B71B9' }}
+          >
             B: {formatDuration(data.ANALYTICS_B.MODEL_TIME.TOTAL_TIMESCREEN)}
           </strong>
         </div>
         <div className={styles.retentionCard}>
           <span className={styles.retentionCardLabel}>Maior queda em</span>
-          <strong className={styles.retentionCardValue} style={{ color: '#30FFFB' }}>
+          <strong
+            className={styles.retentionCardValue}
+            style={{ color: '#30FFFB' }}
+          >
             A: {formatDuration(dropPointA.segundo)}
           </strong>
-          <strong className={styles.retentionCardValue} style={{ color: '#5B71B9' }}>
+          <strong
+            className={styles.retentionCardValue}
+            style={{ color: '#5B71B9' }}
+          >
             B: {formatDuration(dropPointB.segundo)}
           </strong>
         </div>
       </div>
 
       <div className={styles.retentionChart}>
-        <p className={styles.retentionChartTitle}>Retenção de Audiência (A × B)</p>
+        <p className={styles.retentionChartTitle}>
+          Retenção de Audiência (A × B)
+        </p>
         <ResponsiveContainer width="100%" height={280}>
-          <AreaChart data={chartData} margin={{ top: 8, right: 24, left: 0, bottom: 0 }}>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 8, right: 24, left: 0, bottom: 0 }}
+          >
             <defs>
               <linearGradient id="retentionGradA" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#30FFFB" stopOpacity={0.35} />
@@ -172,7 +201,10 @@ const SectionTimeTesteAB = ({ data }: ISectionTimeTesteABProps) => {
                 <stop offset="95%" stopColor="#5B71B9" stopOpacity={0.06} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="rgba(255,255,255,0.06)"
+            />
             <XAxis
               dataKey="segundo"
               stroke="rgba(255,255,255,0.3)"
@@ -206,9 +238,15 @@ const SectionTimeTesteAB = ({ data }: ISectionTimeTesteABProps) => {
                       minWidth: '150px',
                     }}
                   >
-                    <p style={{ fontWeight: 600, marginBottom: 4 }}>{formatDuration(Number(label))}</p>
-                    <p style={{ color: '#30FFFB' }}>A: {itemA?.value ?? '-'}%</p>
-                    <p style={{ color: '#5B71B9' }}>B: {itemB?.value ?? '-'}%</p>
+                    <p style={{ fontWeight: 600, marginBottom: 4 }}>
+                      {formatDuration(Number(label))}
+                    </p>
+                    <p style={{ color: '#30FFFB' }}>
+                      A: {itemA?.value ?? '-'}%
+                    </p>
+                    <p style={{ color: '#5B71B9' }}>
+                      B: {itemB?.value ?? '-'}%
+                    </p>
                   </div>
                 );
               }}
@@ -245,18 +283,27 @@ const SectionTimeTesteAB = ({ data }: ISectionTimeTesteABProps) => {
               strokeWidth={2.5}
               fill="url(#retentionGradA)"
               connectNulls
-              activeDot={{ r: 7, fill: '#00FFF1', stroke: '#0F073E', strokeWidth: 2 }}
-              dot={(props: { cx: number; cy: number; payload: { segundo: number } }) => (
-                <circle
-                  key={`dotA-${props.payload.segundo}`}
-                  cx={props.cx}
-                  cy={props.cy}
-                  r={4}
-                  fill="#0F073E"
-                  stroke="#30FFFB"
-                  strokeWidth={2}
-                />
-              )}
+              activeDot={{
+                r: 7,
+                fill: '#00FFF1',
+                stroke: '#0F073E',
+                strokeWidth: 2,
+              }}
+              dot={(props: DotItemDotProps) => {
+                if (props.cx == null || props.cy == null) return null;
+
+                return (
+                  <circle
+                    key={`dotA-${String(props.payload?.segundo ?? '')}`}
+                    cx={props.cx}
+                    cy={props.cy}
+                    r={4}
+                    fill="#0F073E"
+                    stroke="#30FFFB"
+                    strokeWidth={2}
+                  />
+                );
+              }}
             />
             <Area
               type="monotone"
@@ -266,18 +313,27 @@ const SectionTimeTesteAB = ({ data }: ISectionTimeTesteABProps) => {
               strokeWidth={2.5}
               fill="url(#retentionGradB)"
               connectNulls
-              activeDot={{ r: 7, fill: '#5B71B9', stroke: '#0F073E', strokeWidth: 2 }}
-              dot={(props: { cx: number; cy: number; payload: { segundo: number } }) => (
-                <circle
-                  key={`dotB-${props.payload.segundo}`}
-                  cx={props.cx}
-                  cy={props.cy}
-                  r={4}
-                  fill="#0F073E"
-                  stroke="#5B71B9"
-                  strokeWidth={2}
-                />
-              )}
+              activeDot={{
+                r: 7,
+                fill: '#5B71B9',
+                stroke: '#0F073E',
+                strokeWidth: 2,
+              }}
+              dot={(props: DotItemDotProps) => {
+                if (props.cx == null || props.cy == null) return null;
+
+                return (
+                  <circle
+                    key={`dotB-${String(props.payload?.segundo ?? '')}`}
+                    cx={props.cx}
+                    cy={props.cy}
+                    r={4}
+                    fill="#0F073E"
+                    stroke="#5B71B9"
+                    strokeWidth={2}
+                  />
+                );
+              }}
             />
             <Legend
               wrapperStyle={{
