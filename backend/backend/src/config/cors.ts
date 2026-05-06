@@ -8,7 +8,7 @@ const corsOpenConfig = cors({
 });
 
 const corsRestrictedConfig = cors({
-  origin: ['https://front-dev.d1jimwec3k4m0w.amplifyapp.com/', '*'],
+  origin: ['*'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
