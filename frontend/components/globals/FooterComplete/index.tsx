@@ -11,6 +11,7 @@ import {
   RiLinkedinBoxFill,
   RiYoutubeFill,
 } from 'react-icons/ri';
+import { IoLogoWhatsapp } from 'react-icons/io';
 
 interface FooterLink {
   label: string;
@@ -19,14 +20,13 @@ interface FooterLink {
 
 interface SocialLink extends FooterLink {
   imgIcon: React.ReactNode;
+  className: string;
 }
 
 interface FooterSection {
   title: string;
   links: FooterLink[];
 }
-
-
 
 const FooterComplete = () => {
   const pagesLinks: FooterLink[] = [
@@ -39,9 +39,9 @@ const FooterComplete = () => {
   const { width } = useIsMobile();
 
   const iconsProps = {
-  size: width && width < 768 ? 24 : 48,
-  color: '#f2f2f2',
-};
+    size: width && width < 768 ? 20 : 40,
+    color: '#f2f2f2',
+  };
 
   const platformLinks: FooterLink[] = [
     {
@@ -65,15 +65,28 @@ const FooterComplete = () => {
   const socialLinks: SocialLink[] = [
     {
       label: 'Instagram',
-      href: '#',
-      imgIcon: <RiInstagramFill {...iconsProps} />,
+      href: 'https://www.instagram.com/',
+      className: styles.social_icon_link_instagram,
+      imgIcon: <RiInstagramFill {...iconsProps} className={styles.icon}/>,
     },
     {
       label: 'LinkedIn',
-      href: '#',
-      imgIcon: <RiLinkedinBoxFill {...iconsProps} />,
+      href: 'https://www.linkedin.com/',
+      className: styles.social_icon_link_linkedin,
+      imgIcon: <RiLinkedinBoxFill {...iconsProps} className={styles.icon}/>,
     },
-    { label: 'Youtube', href: '#', imgIcon: <RiYoutubeFill {...iconsProps} /> },
+    {
+      label: 'Youtube',
+      href: 'https://www.youtube.com/',
+      className: styles.social_icon_link_youtube,
+      imgIcon: <RiYoutubeFill {...iconsProps} className={styles.icon}/>,
+    },
+    {
+      label: 'WhatsApp',
+      href: 'https://wa.me/553491449810?text=Olá!%20Gostaria%20de%20tirar%20minhas%20dúvidas%20sobre%20a%20Interactiplay.',
+      className: styles.social_icon_link_whatsapp,
+      imgIcon: <IoLogoWhatsapp {...iconsProps} className={styles.icon}/>,
+    },
   ];
 
   const sections: FooterSection[] = [
@@ -104,9 +117,7 @@ const FooterComplete = () => {
             <ul>
               {section.links.map((link, linkIndex) => (
                 <li key={linkIndex}>
-                  <Link 
-                    href={link.href}
-                  >{link.label}</Link>
+                  <Link href={link.href}>{link.label}</Link>
                 </li>
               ))}
             </ul>
@@ -117,18 +128,20 @@ const FooterComplete = () => {
           <h3>Redes Sociais</h3>
           <div className={styles.social_icons}>
             {socialLinks.map((link, index) => (
-              <a 
-                href={link.href} 
-                key={index} 
+              <Link
+                href={link.href}
+                target='_blank'
+                rel='noopener noreferrer'
+                key={index}
                 aria-label={link.label}
                 title={`Acessar ${link.label}`}
-                >
+                className={`${styles.social_icon_link} ${link.className}`}
+              >
                 {link.imgIcon}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
-
       </div>
       <div className={styles.footer_copyright}>
         <p>&copy;InteractiPlay - 2025 -Todos os direitos reservados</p>
@@ -138,7 +151,7 @@ const FooterComplete = () => {
           href="https://www.donutstech.com.br/"
         >
           <p className={styles.footer_copyright_donuts}>
-            Feito com amor e açucar - DonutsTech{" "}
+            Feito com amor e açucar - DonutsTech{' '}
             <Image
               src={'/media/icons/donutstechIcon.png'}
               alt="Logo"
@@ -146,7 +159,7 @@ const FooterComplete = () => {
               height={19}
               className={styles.footer_copyright_donuts_img}
               draggable={false}
-              loading='lazy'
+              loading="lazy"
             />
           </p>
         </a>

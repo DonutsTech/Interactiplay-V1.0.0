@@ -80,7 +80,47 @@
           &:hover {
             transform: scale(1.1);
           }
+
+          .icon {
+            color: $color-white;
+            transition: color 0.3s ease-in-out;
+          }
         }
+
+        .instagram {
+          &:hover {
+            .icon {
+              color: $color-purple-light-3;
+            }
+          }
+        }
+
+        .linkedin {
+          &:hover {
+            .icon {
+              color: $color-blue-light-1;
+            }
+          }
+        }
+
+        .youtube {
+          &:hover {
+            .icon {
+              color: $color-red-base;
+            }
+          }
+        }
+
+        .whatsapp {
+          scale: 0.9;
+          &:hover {
+            .icon {
+              color: $color-green-light-1;
+            }
+          }
+        }
+        
+
       }
     }
 
