@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 
 const DeviceGate = ({ children }: { children: ReactNode }) => {
-  const { isMobile } = useIsMobile();
+  const { isMobile, isTouchDevice } = useIsMobile();
   const pathname = usePathname();
   const router = useRouter();
   const [ready, setReady] = useState(false);
@@ -16,13 +16,13 @@ const DeviceGate = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    if (isMobile && !pathname.startsWith('/dashboard/user')) {
+    if ((isMobile || isTouchDevice) && !pathname.startsWith('/dashboard/user')) {
       router.replace('/dashboard/user/');
       return;
     }
 
     setReady(true);
-  }, [isMobile, pathname, router]);
+  }, [isMobile, isTouchDevice, pathname, router]);
 
   if (!ready) {
     return null;
