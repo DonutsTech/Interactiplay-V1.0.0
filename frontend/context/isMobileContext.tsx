@@ -31,10 +31,9 @@ export const IsMobileProvider = ({ children }: IsMobileProviderProps) => {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   const checkTouchDevice = () => {
-    const hasTouchEvents = 'ontouchstart' in window;
-    const hasTouchPoints = navigator.maxTouchPoints > 0;
-    const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
-    return hasTouchEvents || hasTouchPoints || hasCoarsePointer;
+    // Usa apenas o ponteiro primário: coarse = toque (celular/tablet),
+    // fine = mouse (desktop/notebook com touchscreen).
+    return window.matchMedia('(pointer: coarse)').matches;
   };
 
   useEffect(() => {
