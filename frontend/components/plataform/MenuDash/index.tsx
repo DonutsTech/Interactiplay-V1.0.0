@@ -25,7 +25,7 @@ import Helper from '../Helper';
 
 const MenuDash = () => {
   const { authUser, logout, isLoading } = useContext(AuthUserContext);
-  const { isMobile, width } = useIsMobile();
+  const { isMobile, isTouchDevice, width } = useIsMobile();
   const { handleRequest, showConfirmation, showWarning, showInfo } = useError();
   const { setUser } = useContext(UserContext);
   const router = useRouter();
@@ -52,7 +52,7 @@ const MenuDash = () => {
     );
   }
 
-  if (!authUser || isMobile) {
+  if (!authUser || isMobile || isTouchDevice) {
     return null;
   }
 
