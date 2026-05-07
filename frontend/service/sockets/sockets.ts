@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
 
 // const HOST = 'http://localhost:4000';
-const HOST = 'https://ec2-35-173-188-226.compute-1.amazonaws.com';
+const HOST = 'https://testeinteractiplay.duckdns.org';
 
 const socket = io(HOST + '/public', {
   transports: ['websocket'],
