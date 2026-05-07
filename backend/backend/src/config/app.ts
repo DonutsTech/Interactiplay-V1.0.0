@@ -29,7 +29,7 @@ export default class App {
     this.express.use(
       '/widget',
       corsOpenConfig,
-      express.static(path.resolve(__dirname, '../../widget')),
+      express.static(path.resolve(process.cwd(), 'widget')),
     );
   }
 
