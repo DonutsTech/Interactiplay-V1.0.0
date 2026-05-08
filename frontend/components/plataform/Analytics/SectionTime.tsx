@@ -23,15 +23,20 @@ const SectionTime = (data: IAnalyticsSocketData) => {
       .map(([sec, count]) => ({ sec: Number(sec), count }))
       .sort((a, b) => a.sec - b.sec);
 
+    const totalExitEvents = exits.reduce((sum, item) => sum + item.count, 0);
+    // TIME pode ter mais eventos que TOTAL_PLAYS; usa a maior base para manter a curva consistente.
+    const retentionBase = Math.max(totalPlays, totalExitEvents);
+
     const points: { segundo: number; retencao: number }[] = [
       { segundo: 0, retencao: 100 },
     ];
 
-    let remaining = totalPlays;
+    let remaining = retentionBase;
 
     for (const { sec, count } of exits) {
       remaining = Math.max(0, remaining - count);
-      const pct = totalPlays > 0 ? (remaining / totalPlays) * 100 : 0;
+      const pctRaw = retentionBase > 0 ? (remaining / retentionBase) * 100 : 0;
+      const pct = remaining > 0 ? Math.max(pctRaw, 0.1) : 0;
       points.push({ segundo: sec, retencao: parseFloat(pct.toFixed(1)) });
     }
 

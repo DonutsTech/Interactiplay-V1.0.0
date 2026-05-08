@@ -24,6 +24,20 @@ interface ISectionTimeTesteABProps {
   data: ITestABAnalyticsSocketData;
 }
 
+const getRetentionBaseInfo = (
+  time: Record<string, number>,
+  totalPlays: number
+) => {
+  const totalExitEvents = Object.values(time).reduce((sum, count) => sum + count, 0);
+  const retentionBase = Math.max(totalPlays, totalExitEvents);
+
+  return {
+    totalExitEvents,
+    retentionBase,
+    isAdjusted: totalExitEvents > totalPlays,
+  };
+};
+
 const buildRetentionCurve = (
   time: Record<string, number>,
   totalPlays: number
@@ -32,38 +46,50 @@ const buildRetentionCurve = (
     .map(([sec, count]) => ({ sec: Number(sec), count }))
     .sort((a, b) => a.sec - b.sec);
 
+  const { retentionBase } = getRetentionBaseInfo(time, totalPlays);
+
   const points: { segundo: number; retencao: number }[] = [
     { segundo: 0, retencao: 100 },
   ];
 
-  let remaining = totalPlays;
+  let remaining = retentionBase;
 
   for (const { sec, count } of exits) {
-    remaining -= count;
-    const pct = totalPlays > 0 ? (remaining / totalPlays) * 100 : 0;
+    remaining = Math.max(0, remaining - count);
+    const pctRaw = retentionBase > 0 ? (remaining / retentionBase) * 100 : 0;
+    const pct = remaining > 0 ? Math.max(pctRaw, 0.1) : 0;
     points.push({ segundo: sec, retencao: parseFloat(pct.toFixed(1)) });
   }
 
   return points;
 };
 
-const getDropPoint = (data: IAnalyticsSocketData) => {
-  return Object.entries(data.MODEL_TIME.TIME).reduce(
-    (best, [sec, count]) => {
-      const segundo = Number(sec);
-      if (count > best.count) {
-        return { segundo, count };
+const getBiggestDrop = (retentionData: Array<{ segundo: number; retencao: number }>) => {
+  return retentionData.slice(1).reduce(
+    (best, point, index) => {
+      const previous = retentionData[index];
+      const drop = previous.retencao - point.retencao;
+
+      if (drop > best.drop) {
+        return { segundo: point.segundo, drop };
       }
-      if (count === best.count && segundo > best.segundo) {
-        return { segundo, count };
-      }
+
       return best;
     },
-    { segundo: 0, count: 0 }
+    { segundo: 0, drop: 0 }
   );
 };
 
 const SectionTimeTesteAB = ({ data }: ISectionTimeTesteABProps) => {
+  const baseInfoA = getRetentionBaseInfo(
+    data.ANALYTICS_A.MODEL_TIME.TIME,
+    data.ANALYTICS_A.ANALYTICS.TOTAL_PLAYS
+  );
+  const baseInfoB = getRetentionBaseInfo(
+    data.ANALYTICS_B.MODEL_TIME.TIME,
+    data.ANALYTICS_B.ANALYTICS.TOTAL_PLAYS
+  );
+
   const retentionA = buildRetentionCurve(
     data.ANALYTICS_A.MODEL_TIME.TIME,
     data.ANALYTICS_A.ANALYTICS.TOTAL_PLAYS
@@ -73,8 +99,8 @@ const SectionTimeTesteAB = ({ data }: ISectionTimeTesteABProps) => {
     data.ANALYTICS_B.ANALYTICS.TOTAL_PLAYS
   );
 
-  const dropPointA = getDropPoint(data.ANALYTICS_A);
-  const dropPointB = getDropPoint(data.ANALYTICS_B);
+  const dropPointA = getBiggestDrop(retentionA);
+  const dropPointB = getBiggestDrop(retentionB);
 
   const avgTimeA =
     data.ANALYTICS_A.ANALYTICS.TOTAL_PLAYS > 0
@@ -181,6 +207,19 @@ const SectionTimeTesteAB = ({ data }: ISectionTimeTesteABProps) => {
           </strong>
         </div>
       </div>
+
+      {(baseInfoA.isAdjusted || baseInfoB.isAdjusted) && (
+        <p
+          style={{
+            marginTop: 8,
+            marginBottom: 6,
+            fontSize: 11,
+            color: 'rgba(242,242,242,0.62)',
+          }}
+        >
+          Base da retenção ajustada quando eventos de tempo superam plays: A base {baseInfoA.retentionBase} (plays {data.ANALYTICS_A.ANALYTICS.TOTAL_PLAYS}, eventos {baseInfoA.totalExitEvents}) | B base {baseInfoB.retentionBase} (plays {data.ANALYTICS_B.ANALYTICS.TOTAL_PLAYS}, eventos {baseInfoB.totalExitEvents}).
+        </p>
+      )}
 
       <div className={styles.retentionChart}>
         <p className={styles.retentionChartTitle}>
