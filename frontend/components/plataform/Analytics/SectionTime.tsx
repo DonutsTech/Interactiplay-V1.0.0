@@ -43,14 +43,18 @@ const SectionTime = (data: IAnalyticsSocketData) => {
     data.ANALYTICS.TOTAL_PLAYS
   );
 
-  const dropPoint = Object.entries(data.MODEL_TIME.TIME).reduce(
-    (best, [sec, count]) => {
-      const segundo = Number(sec);
-      if (count > best.count) return { segundo, count };
-      if (count === best.count && segundo > best.segundo) return { segundo, count };
+  const biggestDrop = retentionData.slice(1).reduce(
+    (best, point, index) => {
+      const previous = retentionData[index];
+      const drop = previous.retencao - point.retencao;
+
+      if (drop > best.drop) {
+        return { segundo: point.segundo, drop };
+      }
+
       return best;
     },
-    { segundo: 0, count: 0 }
+    { segundo: 0, drop: 0 }
   );
 
   const avgTime =
@@ -78,7 +82,7 @@ const SectionTime = (data: IAnalyticsSocketData) => {
         <div className={styles.retentionCard}>
           <span className={styles.retentionCardLabel}>Maior queda em</span>
           <strong className={styles.retentionCardValue}>
-            {formatDuration(dropPoint.segundo)}
+            {formatDuration(biggestDrop.segundo)}
           </strong>
         </div>
       </div>
@@ -143,7 +147,7 @@ const SectionTime = (data: IAnalyticsSocketData) => {
               }}
             />
             <ReferenceLine
-              x={dropPoint.segundo}
+              x={biggestDrop.segundo}
               stroke="#C72C41"
               strokeDasharray="4 2"
               label={{
