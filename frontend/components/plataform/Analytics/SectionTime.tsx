@@ -30,7 +30,7 @@ const SectionTime = (data: IAnalyticsSocketData) => {
     let remaining = totalPlays;
 
     for (const { sec, count } of exits) {
-      remaining -= count;
+      remaining = Math.max(0, remaining - count);
       const pct = totalPlays > 0 ? (remaining / totalPlays) * 100 : 0;
       points.push({ segundo: sec, retencao: parseFloat(pct.toFixed(1)) });
     }
