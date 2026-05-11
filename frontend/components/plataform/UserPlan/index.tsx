@@ -4,7 +4,7 @@ import { AuthUserContext } from '@/context/AuthUserContext';
 import { createPortalLink } from '@/service/user';
 import { formatPrice } from '@/utils/formatPrice';
 import { formatDateBR } from '@/utils/stringUtils';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styles from './UserPlan.module.scss';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,7 +14,6 @@ import {
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import BtnG from '../BtnG';
-import { getVideos } from '@/service/videos/videosservice';
 import { useVideos } from '@/context/VideosContext';
 import { getCampaigns } from '@/service/campaign/capaignServices';
 
@@ -25,73 +24,92 @@ interface IActivePlan {
 }
 
 const UserPlan = () => {
-  const { authUser } = useContext(AuthUserContext);
+  const { authUser, loadAuthUser } = useContext(AuthUserContext);
   const [portalLink, setPortalLink] = useState<string | null>(null);
   const [campaignsCount, setCampaignsCount] = useState(0);
-  const { videoCount } = useVideos();
+  const [isPanelLoading, setIsPanelLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(authUser);
+  const { videoCount, refreshVideos, isLoadingVideos } = useVideos();
 
-  const loadCampaignsCount = async () => {
+  const loadCampaignsCount = useCallback(async () => {
     try {
       const response = await getCampaigns();
-      
+
       if (Array.isArray(response)) {
         setCampaignsCount(response.length);
       }
-
     } catch (error) {
       console.error('Erro ao carregar a contagem de campanhas:', error);
     }
+  }, []);
 
-  };
-
-  
-
-  if (!authUser || !(authUser.USER && authUser.USER.PLAN)) {
-    return <p>Carregando...</p>;
-  }
-
-  const teste = authUser.USER.STRIPE_SUBSCRIPTION_STATUS === 'trialing';
-  // const teste = false;
-
-  const loadPlan = async () => {
+  const loadPlan = useCallback(async () => {
     const response = await createPortalLink();
 
     if (typeof response === 'string') {
       setPortalLink(response);
-    };
-  };
-
-  useEffect(() => {
-    loadPlan();
-    loadCampaignsCount();
+    }
   }, []);
 
+  useEffect(() => {
+    const initializePanel = async () => {
+      setIsPanelLoading(true);
+
+      try {
+        const freshUser = await loadAuthUser();
+
+        if (freshUser) {
+          setCurrentUser(freshUser);
+        }
+
+        await Promise.all([loadPlan(), loadCampaignsCount(), refreshVideos()]);
+      } finally {
+        setIsPanelLoading(false);
+      }
+    };
+
+    initializePanel();
+  }, [loadAuthUser, loadPlan, loadCampaignsCount, refreshVideos]);
+
+  useEffect(() => {
+    if (authUser) {
+      setCurrentUser(authUser);
+    }
+  }, [authUser]);
+
+  const userData = currentUser ?? authUser;
+
+  if (!userData || !(userData.USER && userData.USER.PLAN) || isPanelLoading || isLoadingVideos) {
+    return <p>Carregando...</p>;
+  }
+
+  const teste = userData.USER.STRIPE_SUBSCRIPTION_STATUS === 'trialing';
+  // const teste = false;
+
   const ACTIVE_PLAN: IActivePlan = {
-    PLAYS: teste ? 1000 : authUser.USER.PLAN.PLAYS,
-    VIDEOS: teste ? 10 : authUser.USER.PLAN.VIDEO_LIMIT,
-    PLAYS_PRICE: authUser.USER.PLAN.PLAYS_PRICE,
+    PLAYS: teste ? 1000 : userData.USER.PLAN.PLAYS,
+    VIDEOS: teste ? 10 : userData.USER.PLAN.VIDEO_LIMIT,
+    PLAYS_PRICE: userData.USER.PLAN.PLAYS_PRICE,
   };
 
-  const [usedplan, setUsedPlan] = useState({
-    plays: authUser.USER.HISTORY_PLAYS[0].QTD_PLAYS,
-    videos: videoCount,
-    campanhas: 0, //authUser.USER.CAMPAIGNS_QTD,
-    saldo: authUser.USER.HISTORY_PLAYS[0].QTD_PLAYS - ACTIVE_PLAN.PLAYS,
-  });
+  const playsUsed = userData.USER.HISTORY_PLAYS?.[0]?.QTD_PLAYS ?? 0;
+  const saldo = playsUsed - ACTIVE_PLAN.PLAYS;
 
   const status = useMemo(() => {
     return {
-      play_used: usedplan.plays,
-      videos_used: usedplan.videos,
+      play_used: playsUsed,
+      videos_used: videoCount,
       plays_percent:
-        usedplan.plays > 0 ? (usedplan.plays / ACTIVE_PLAN.PLAYS) * 100 : 0,
+        playsUsed > 0 ? (playsUsed / ACTIVE_PLAN.PLAYS) * 100 : 0,
       videos_percent:
-        usedplan.videos > 0 ? (usedplan.videos / ACTIVE_PLAN.VIDEOS) * 100 : 0,
-      saldo: usedplan.saldo,
-      custo: usedplan.saldo > 0 && ACTIVE_PLAN.PLAYS_PRICE ? formatPrice(usedplan.saldo * ACTIVE_PLAN.PLAYS_PRICE) : '0',
+        videoCount > 0 ? (videoCount / ACTIVE_PLAN.VIDEOS) * 100 : 0,
+      saldo,
+      custo: saldo > 0 && ACTIVE_PLAN.PLAYS_PRICE ? formatPrice(saldo * ACTIVE_PLAN.PLAYS_PRICE) : '0',
     };
   }, [
-    usedplan,
+    playsUsed,
+    videoCount,
+    saldo,
     ACTIVE_PLAN.PLAYS,
     ACTIVE_PLAN.VIDEOS,
     ACTIVE_PLAN.PLAYS_PRICE,
@@ -111,19 +129,19 @@ const UserPlan = () => {
           className={`${styles.container_info_item} ${styles.container_info_item_left}`}
         >
           <p className={styles.container_info_item_topic}>
-            {teste ? 'Período de Teste' : authUser.USER.PLAN.PLAN}
+            {teste ? 'Período de Teste' : userData.USER.PLAN.PLAN}
           </p>
           <p
             className={`${styles.container_info_item_date} ${styles.container_info_item_text}`}
           >
             {teste ? 'Até o dia:' : 'Renova:'}{' '}
-            {formatDateBR(authUser.USER.STRIPE_CURRENT_PERIOD_END)}
+            {formatDateBR(userData.USER.STRIPE_CURRENT_PERIOD_END)}
           </p>
           <p
             className={`${styles.container_info_item_price} ${styles.container_info_item_text}`}
           >
             {teste ? 'após ativação:' : 'investimento:'}{' '}
-            {formatPrice(authUser.USER.PLAN.PRICE)}
+            {formatPrice(userData.USER.PLAN.PRICE)}
           </p>
         </div>
         <div
@@ -136,7 +154,7 @@ const UserPlan = () => {
               icon={faPhotoVideo}
               className={styles.container_info_item_text_icon}
             />
-            {'  '} Até {teste ? '10' : authUser.USER.PLAN.VIDEO_LIMIT} vídeos
+            {'  '} Até {teste ? '10' : userData.USER.PLAN.VIDEO_LIMIT} vídeos
           </p>
           <p
             className={`${styles.container_info_item_text} ${styles.container_info_item_plays}`}
@@ -145,7 +163,7 @@ const UserPlan = () => {
               icon={faPlayCircle}
               className={styles.container_info_item_text_icon}
             />
-            {'  '} {teste ? '1000' : authUser.USER.PLAN.PLAYS} plays
+            {'  '} {teste ? '1000' : userData.USER.PLAN.PLAYS} plays
           </p>
           <p
             className={`${styles.container_info_item_text} ${styles.container_info_item_playsExtra}`}
@@ -157,7 +175,7 @@ const UserPlan = () => {
             {'  '}{' '}
             {teste
               ? 'Ative'
-              : `${formatPrice(authUser.USER.PLAN.PLAYS_PRICE)}/play Extra `}
+              : `${formatPrice(userData.USER.PLAN.PLAYS_PRICE)}/play Extra `}
           </p>
         </div>
         <div className={styles.container_info_btn}>
