@@ -79,20 +79,16 @@ const UserPlan = () => {
 
   const userData = currentUser ?? authUser;
 
-  if (!userData || !(userData.USER && userData.USER.PLAN) || isPanelLoading || isLoadingVideos) {
-    return <p>Carregando...</p>;
-  }
-
-  const teste = userData.USER.STRIPE_SUBSCRIPTION_STATUS === 'trialing';
+  const teste = userData?.USER?.STRIPE_SUBSCRIPTION_STATUS === 'trialing';
   // const teste = false;
 
   const ACTIVE_PLAN: IActivePlan = {
-    PLAYS: teste ? 1000 : userData.USER.PLAN.PLAYS,
-    VIDEOS: teste ? 10 : userData.USER.PLAN.VIDEO_LIMIT,
-    PLAYS_PRICE: userData.USER.PLAN.PLAYS_PRICE,
+    PLAYS: teste ? 1000 : userData?.USER?.PLAN?.PLAYS ?? 0,
+    VIDEOS: teste ? 10 : userData?.USER?.PLAN?.VIDEO_LIMIT ?? 0,
+    PLAYS_PRICE: userData?.USER?.PLAN?.PLAYS_PRICE ?? null,
   };
 
-  const playsUsed = userData.USER.HISTORY_PLAYS?.[0]?.QTD_PLAYS ?? 0;
+  const playsUsed = userData?.USER?.HISTORY_PLAYS?.[0]?.QTD_PLAYS ?? 0;
   const saldo = playsUsed - ACTIVE_PLAN.PLAYS;
 
   const status = useMemo(() => {
@@ -114,6 +110,10 @@ const UserPlan = () => {
     ACTIVE_PLAN.VIDEOS,
     ACTIVE_PLAN.PLAYS_PRICE,
   ]);
+
+  if (!userData || !(userData.USER && userData.USER.PLAN) || isPanelLoading || isLoadingVideos) {
+    return <p>Carregando...</p>;
+  }
 
   const handlerGerenciarPlano = () => {
     if (portalLink) {
