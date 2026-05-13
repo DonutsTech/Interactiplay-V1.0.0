@@ -58,11 +58,10 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
 
   const [otherBonds, setOtherBonds] = useState<Bond[]>([]);
 
-  // Salva snapshot inicial só na primeira abertura para cada dadosModal
+
   useEffect(() => {
     if (!dadosModal) return;
 
-    // Só salva se ainda não tem snapshot para este modal
     if (
       initialNodesRef.current.length === 0 &&
       initialEdgesRef.current.length === 0
@@ -89,7 +88,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
               },
             };
           }
-          // Reseta o ORDER do target node para null quando cancelar uma nova conexão
+
           if (node.id === dadosModal.TARGET) {
             return {
               ...node,
@@ -331,11 +330,11 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
     if (nodesChanged && initialNodesRef.current.length > 0) {
       const restoredNodes = JSON.parse(JSON.stringify(initialNodesRef.current));
       if (editingCampaign) {
-        // Em edição de campanha, restaura exatamente como estava (deep clone)
+        
         setNodes(restoredNodes);
         setEdges(JSON.parse(JSON.stringify(initialEdgesRef.current)));
       } else {
-        // Fora de edição de campanha, mantém lógica anterior
+        
         const reorderedNodes = orderForEdges(restoredNodes);
         setNodes(reorderedNodes || restoredNodes);
       }
