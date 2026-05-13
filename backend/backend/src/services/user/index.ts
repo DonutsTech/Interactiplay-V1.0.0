@@ -168,6 +168,26 @@ class UserService {
       throw new CustomError('Erro ao buscar o usuário', StatusCodes.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async fristLogin(id: string) {
+    try {
+      const user = await this.showId(id);
+
+      if (!user) {
+        throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
+      }
+
+      if (user.FIRST_ACESS) {
+        throw new CustomError('Primeiro login já realizado', StatusCodes.BAD_REQUEST);
+      }
+
+      const updatedUser = await this.update(id, { FIRST_ACESS: true });
+
+      return updatedUser;
+    } catch (error) {
+      throw new CustomError('Erro ao realizar o primeiro login', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
 
 export const userService = new UserService();

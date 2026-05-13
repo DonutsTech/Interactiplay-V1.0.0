@@ -25,6 +25,16 @@ class UserController {
       next(error);
     }
   }
+
+  async fristLogin(request: Request, response: Response, next: NextFunction) {
+    try {
+      const { user } = request as Request & { user: { ID: string } };
+      const updatedUser = await userService.fristLogin(user.ID);
+      return response.status(200).json(updatedUser);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const userController = new UserController();

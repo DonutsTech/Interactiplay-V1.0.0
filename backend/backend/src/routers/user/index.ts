@@ -20,6 +20,12 @@ class UserRouter {
       imageUpload.single('image'),
       userController.uploadImage,
     );
+    router.post(
+      '/user/frist-login',
+      isAuthenticateTokenDb,
+      isValidateUserPlan,
+      userController.fristLogin,
+    )
   }
 }
 
