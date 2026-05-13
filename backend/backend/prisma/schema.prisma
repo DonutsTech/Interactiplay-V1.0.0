@@ -133,23 +133,32 @@ model Analytics {
   @@map("analytics")
 }
 
-model Model_Play {
+model Model_Views {
   ID           String       @id @default(uuid())
-  ANALYTICS    Analytics?   @relation(fields: [ANALYTICS_ID], references: [ID])
-  ANALYTICS_ID String?
   DEVICE       String
   BROWSER      String
   OS           String
   COUNTRY      String
   CITY         String
   REGION       String
-  PLAY_UNIQUE  Int          @default(0)
-  PLAY_BLOCK   Int          @default(0)
-  PLAY         Int          @default(0)
-  VIEW         Int          @default(0)
-  MODEL_TIME   Model_Time[]
-  CREATED_AT   DateTime?    @default(now()) @db.Timestamp(0)
-  UPDATED_AT   DateTime?    @default(now()) @updatedAt
+  MODEL_PLAYS   Model_Play[]
+  CREATED_AT    DateTime?    @default(now()) @db.Timestamp(0)
+  UPDATED_AT    DateTime?    @default(now()) @updatedAt
+}
+
+model Model_Play {
+  ID                String       @id @default(uuid())
+  ANALYTICS         Analytics?   @relation(fields: [ANALYTICS_ID], references: [ID])
+  ANALYTICS_ID      String?
+  MODEL_VIEWS       Model_Views? @relation(fields: [MODEL_VIEWS_ID], references: [ID])
+  MODEL_VIEWS_ID    String?
+  PLAY_UNIQUE       Int          @default(0)
+  PLAY_BLOCK        Int          @default(0)
+  PLAY              Int          @default(0)
+  VIEW              Int          @default(0)
+  MODEL_TIME        Model_Time[]
+  CREATED_AT        DateTime?    @default(now()) @db.Timestamp(0)
+  UPDATED_AT        DateTime?    @default(now()) @updatedAt
 
   @@map("model_views")
 }

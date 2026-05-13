@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "pixels" ADD COLUMN     "ATIVE" BOOLEAN NOT NULL DEFAULT false;

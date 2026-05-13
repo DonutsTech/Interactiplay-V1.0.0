@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE "test_ab" ADD COLUMN     "USER_ID" TEXT;
-
--- AddForeignKey
-ALTER TABLE "test_ab" ADD CONSTRAINT "test_ab_USER_ID_fkey" FOREIGN KEY ("USER_ID") REFERENCES "users"("ID") ON DELETE SET NULL ON UPDATE CASCADE;

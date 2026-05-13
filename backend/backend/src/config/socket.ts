@@ -7,6 +7,7 @@ import { campaignVideoService } from '../services/campaignVideo';
 import { externalLinkService } from '../services/externalLink';
 import { modelPlayService } from '../services/modelPlay';
 import { modelTimeService } from '../services/modelTime';
+import { modelViewsService } from '../services/modelViews';
 
 export class SocketConfig {
   private io: SocketIOServer;
@@ -28,16 +29,15 @@ export class SocketConfig {
     const publicNamespace = this.io.of('/public');
 
     publicNamespace.on('connection', socket => {
-
       socket.on('init', async (data: ClientPublic) => {
-        let modelPlay;
-        if (data.ID_MODEL_PLAY === "" || data.ID_MODEL_PLAY === undefined) {
-          modelPlay = await modelPlayService.createModelPlaySocketPlay(data);
+        let modelView;
+        if (data.ID_MODEL_VIEW === '' || data.ID_MODEL_VIEW === undefined) {
+          modelView = await modelViewsService.createModelViewSocketView(data);
         } else {
-          modelPlay = await modelPlayService.getModelPlayByIdSocket(data);
+          modelView = await modelViewsService.getModelViewByIdSocket(data);
         }
 
-        socket.emit('initSuccess', modelPlay);
+        socket.emit('initSuccess', modelView);
       });
 
       socket.on('play_block', async (data: ClientPublic) => {
@@ -90,39 +90,69 @@ export class SocketConfig {
         }
       });
 
-      socket.on('bond_click_video', async (id: string) => {
+      socket.on('bond_click_video', async (id: string, id_campaign: string) => {
         if (id) {
           await bondService.updateBondForBondClick(id, false);
+
+          if (id_campaign) {
+            const analytics = await analyticsService.getAnalyticsForCampaign(id_campaign);
+            socket.to(`campaign_${id_campaign}`).emit('campaignAnalyticsData', analytics);
+          }
         }
       });
 
-      socket.on('bond_click_test_ab', async (id: string) => {
+      socket.on('bond_click_test_ab', async (id: string, id_campaign: string) => {
         if (id) {
           await bondService.updateBondForBondClick(id, true);
+
+          if (id_campaign) {
+            const analytics = await analyticsService.getAnalyticsForCampaign(id_campaign);
+            socket.to(`campaign_${id_campaign}`).emit('campaignAnalyticsData', analytics);
+          }
         }
       });
 
-      socket.on('external_link_click', async (id: string) => {
+      socket.on('external_link_click', async (id: string, id_campaign: string) => {
         if (id) {
           await externalLinkService.updateExternalLinkForClick(id, false);
+
+          if (id_campaign) {
+            const analytics = await analyticsService.getAnalyticsForCampaign(id_campaign);
+            socket.to(`campaign_${id_campaign}`).emit('campaignAnalyticsData', analytics);
+          }
         }
       });
 
-      socket.on('external_link_click_test_ab', async (id: string) => {
+      socket.on('external_link_click_test_ab', async (id: string, id_campaign: string) => {
         if (id) {
           await externalLinkService.updateExternalLinkForClick(id, true);
+
+          if (id_campaign) {
+            const analytics = await analyticsService.getAnalyticsForCampaign(id_campaign);
+            socket.to(`campaign_${id_campaign}`).emit('campaignAnalyticsData', analytics);
+          }
         }
       });
 
-      socket.on('continuity_click_video', async (id: string) => {
+      socket.on('continuity_click_video', async (id: string, id_campaign: string) => {
         if (id) {
           await bondService.updateBondForContinutyClick(id, false);
+
+          if (id_campaign) {
+            const analytics = await analyticsService.getAnalyticsForCampaign(id_campaign);
+            socket.to(`campaign_${id_campaign}`).emit('campaignAnalyticsData', analytics);
+          }
         }
       });
 
-      socket.on('continuity_click_test_ab', async (id: string) => {
+      socket.on('continuity_click_test_ab', async (id: string, id_campaign: string) => {
         if (id) {
           await bondService.updateBondForContinutyClick(id, true);
+
+          if (id_campaign) {
+            const analytics = await analyticsService.getAnalyticsForCampaign(id_campaign);
+            socket.to(`campaign_${id_campaign}`).emit('campaignAnalyticsData', analytics);
+          }
         }
       });
 
