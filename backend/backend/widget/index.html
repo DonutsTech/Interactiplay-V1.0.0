@@ -7,7 +7,7 @@
 
   </head>
   <body>
-    <div id="interactiplay" data-campaign=""></div>
+    <div interactiplay data-campaign="" data-testab=""></div>
   <script>
     let config = {};
 
@@ -17,10 +17,13 @@
       console.error("Config inválida no name");
     }
 
-    const app = document.getElementById("interactiplay");
+    const app = document.querySelector('[interactiplay]');
     app.dataset.campaign = config.campaign || "";
+    app.dataset.testab = config.testab || "";
     app.style = config.style || "";
+
   </script>
   <script type="module" crossorigin src="index.mjs"></script>
 </body>
 </html>
+>

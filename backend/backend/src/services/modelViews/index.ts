@@ -77,7 +77,7 @@ class ModelViewsService {
         REGION: modelView.REGION,
       };
 
-      if (modelView.MODEL_PLAYS.length === 0) {
+      if (!modelView.MODEL_PLAYS || !modelView.MODEL_PLAYS[0] || modelView.MODEL_PLAYS.length === 0) {
         const createModelPlay = await modelPlayService.createModelPlaySocketPlay({
           ...data,
           ...view,
@@ -89,6 +89,7 @@ class ModelViewsService {
       const modelPlay = await modelPlayService.getModelPlayByIdSocket({
         ...data,
         ...view,
+        ID_MODEL_PLAY: modelView.MODEL_PLAYS[0].ID,
       });
 
       return modelPlay;

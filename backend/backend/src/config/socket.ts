@@ -90,7 +90,8 @@ export class SocketConfig {
         }
       });
 
-      socket.on('bond_click_video', async (id: string, id_campaign: string) => {
+      socket.on('bond_click_video', async (data: { id: string, id_campaign: string} ) => {
+        const { id, id_campaign } = data;
         if (id) {
           await bondService.updateBondForBondClick(id, false);
 
@@ -101,7 +102,8 @@ export class SocketConfig {
         }
       });
 
-      socket.on('bond_click_test_ab', async (id: string, id_campaign: string) => {
+      socket.on('bond_click_test_ab', async (data: { id: string, id_campaign: string }) => {
+        const { id, id_campaign } = data;
         if (id) {
           await bondService.updateBondForBondClick(id, true);
 
@@ -112,7 +114,8 @@ export class SocketConfig {
         }
       });
 
-      socket.on('external_link_click', async (id: string, id_campaign: string) => {
+      socket.on('external_link_click', async (data: { id: string, id_campaign: string }) => {
+        const { id, id_campaign } = data;
         if (id) {
           await externalLinkService.updateExternalLinkForClick(id, false);
 
@@ -123,7 +126,8 @@ export class SocketConfig {
         }
       });
 
-      socket.on('external_link_click_test_ab', async (id: string, id_campaign: string) => {
+      socket.on('external_link_click_test_ab', async (data: { id: string, id_campaign: string }) => {
+        const { id, id_campaign } = data;
         if (id) {
           await externalLinkService.updateExternalLinkForClick(id, true);
 
@@ -134,7 +138,8 @@ export class SocketConfig {
         }
       });
 
-      socket.on('continuity_click_video', async (id: string, id_campaign: string) => {
+      socket.on('continuity_click_video', async (data: { id: string, id_campaign: string }) => {
+        const { id, id_campaign } = data;
         if (id) {
           await bondService.updateBondForContinutyClick(id, false);
 
@@ -145,7 +150,8 @@ export class SocketConfig {
         }
       });
 
-      socket.on('continuity_click_test_ab', async (id: string, id_campaign: string) => {
+      socket.on('continuity_click_test_ab', async (data: { id: string, id_campaign: string }) => {
+        const { id, id_campaign } = data;
         if (id) {
           await bondService.updateBondForContinutyClick(id, true);
 

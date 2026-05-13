@@ -181,8 +181,8 @@ class TestABService {
       result = await testABModel.updateBy({
         where: { ID: result.ID },
         data: {
-          EMBED_IFRAME: `<iframe src="https://testeinteractiplay.duckdns.org/widget/index.html" name='{"campaign": "${result.ID}"}'></iframe>`,
-          EMBED_JS: `<div id="interactiplay" data-testab="${result.ID}"></div> <script src="https://testeinteractiplay.duckdns.org/widget/index.mjs"></script>`,
+          EMBED_IFRAME: `<iframe src="https://testeinteractiplay.duckdns.org/widget/index.html" name='{"testab": "${result.ID}"}'></iframe>`,
+          EMBED_JS: `<div interactiplay data-testab="${result.ID}"></div> <script src="https://testeinteractiplay.duckdns.org/widget/index.mjs"></script>`,
           ANALYTICS_A: { connect: { ID: analyticsA.ID } },
           ANALYTICS_B: { connect: { ID: analyticsB.ID } },
         },

@@ -258,7 +258,7 @@ class CampaignService {
         where: { ID: create.ID },
         data: {
           EMBED_IFRAME: `<iframe src="https://testeinteractiplay.duckdns.org/widget/index.html" name='{"campaign": "${create.ID}"}'></iframe>`,
-          EMBED_JS: `<div id="interactiplay" data-campaign="${create.ID}"></div> <script src="https://testeinteractiplay.duckdns.org/widget/index.mjs"></script>`,
+          EMBED_JS: `<div interactiplay data-campaign="${create.ID}"></div> <script src="https://testeinteractiplay.duckdns.org/widget/index.mjs"></script>`,
         },
       });
 
