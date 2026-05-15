@@ -43,6 +43,7 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "incremental": true
   },
   "include": [
     "src/**/*"
