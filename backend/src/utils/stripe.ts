@@ -12,13 +12,13 @@ import { historyPlaysService } from '../services/historyPlays';
 import { planService } from '../services/plan';
 import { userService } from '../services/user';
 import { formatNummberForDate } from './format/data';
-import { formatProductsForPlan } from './format/plan';
+import { formatProductsForPlan, type PlanStripeNew } from './format/plan';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET as string, {
   httpClient: Stripe.createFetchHttpClient(),
 });
 
-export const getStripeProducts = async () => {
+export const getStripeProducts = async (): Promise<PlanStripeNew[]> => {
   try {
     const products = await stripe.products.list();
     const formattedProducts = formatProductsForPlan(products.data);

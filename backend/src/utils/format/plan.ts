@@ -11,7 +11,7 @@ interface PlanStripe {
   VIDEO_LIMIT: string,
 }
 
-interface Plan {
+export interface PlanStripeNew {
   PLAN: string,
   STRIPE_PLAN_ID: string,
   STRIPE_PLAN_PRICE: string,
@@ -43,5 +43,5 @@ export async function formatProductsForPlan(products: Stripe.Product[]) {
     PRICE: Number(plan.PRICE),
     STATUS: plan.STATUS === 'true',
     VIDEO_LIMIT: Number(plan.VIDEO_LIMIT),
-  })) as Plan[];
+  })) as PlanStripeNew[];
 }
