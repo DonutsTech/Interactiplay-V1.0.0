@@ -1,4 +1,38 @@
 {
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "target": "ES2022",
+
+    "types": ["node"],
+
+    "sourceMap": true,
+
+    "strict": true,
+
+    "isolatedModules": true,
+
+    "skipLibCheck": true,
+
+    "esModuleInterop": true,
+
+    "verbatimModuleSyntax": true
+  },
+
+  "include": ["src/**/*"],
+
+  "exclude": [
+    "node_modules",
+    "prisma",
+    "prisma.config.ts"
+  ]
+}
+/*
+{
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
@@ -44,7 +78,7 @@
     "esModuleInterop": true,
   },
   "include": [
-    "src/**/*"
+
   ],
   "exclude": [
     "node_modules",
@@ -52,3 +86,4 @@
     "prisma.config.ts"
   ]
 }
+*/
