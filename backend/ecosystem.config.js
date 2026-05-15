@@ -1,11 +1,24 @@
 module.exports = {
-  apps : [{
-    name: "minha-app",
-    script: "./src/index.ts",
-    instances: "max", // Ou número de instâncias
-    exec_mode: "cluster",
-    env: {
-      NODE_ENV: "production",
+  apps: [
+    {
+      name: "api",
+
+      script: "./dist/server.js",
+
+      instances: "max",
+
+      exec_mode: "cluster",
+
+      autorestart: true,
+
+      watch: false,
+
+      max_memory_restart: "500M",
+
+      env: {
+        NODE_ENV: "production",
+        PORT: 4000
+      }
     }
-  }]
+  ]
 }
