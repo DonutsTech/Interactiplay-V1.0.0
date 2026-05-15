@@ -1,1 +1,0 @@
-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/controllers/timeline/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAI/D,cAAM,kBAAkB;IACT,uBAAuB,CAAC,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,QAAQ,EAAE,IAAI,EAAE,YAAY;CAU9F;AAED,eAAO,MAAM,kBAAkB,oBAA2B,CAAC"}

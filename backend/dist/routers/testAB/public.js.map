@@ -1,1 +1,0 @@
-{"version":3,"file":"public.js","sourceRoot":"","sources":["../../../src/routers/testAB/public.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,gBAAgB,EAAE,MAAM,0BAA0B,CAAC;AAE5D,MAAM,kBAAkB;IACf,MAAM,CAAC,MAAM,CAAC,MAAc;QACjC,MAAM,CAAC,GAAG,CAAC,mBAAmB,EAAE,gBAAgB,CAAC,qBAAqB,CAAC,CAAC;IAC1E,CAAC;CACF;AAED,eAAe,kBAAkB,CAAC"}

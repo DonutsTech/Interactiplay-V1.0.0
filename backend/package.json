@@ -11,7 +11,7 @@
     "lint": "eslint src/**/*.{js,ts} --fix",
     "lint:check": "eslint src/**/*.{js,ts}",
     "format": "prettier --write src/**/*.{js,ts,json}",
-    "build": "tsc",
+    "build": "tsc && node fix-imports.js",
     "start": "node dist/server.js",
     "prod": "pm2 start ecosystem.config.cjs"
   },

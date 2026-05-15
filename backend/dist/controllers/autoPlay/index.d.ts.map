@@ -1,1 +1,0 @@
-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/controllers/autoPlay/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAI/D,cAAM,kBAAkB;IACT,0BAA0B,CACrC,OAAO,EAAE,OAAO,EAChB,QAAQ,EAAE,QAAQ,EAClB,IAAI,EAAE,YAAY;CAWrB;AAED,eAAO,MAAM,kBAAkB,oBAA2B,CAAC"}

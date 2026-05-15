@@ -1,1 +1,0 @@
-{"version":3,"file":"cors.d.ts","sourceRoot":"","sources":["../../src/config/cors.ts"],"names":[],"mappings":"AAAA,OAAO,IAAI,MAAM,MAAM,CAAC;AAExB,QAAA,MAAM,cAAc;cAe07B,CAAC;;;aAAmH,CAAC,sBAVjkC,CAAC;AAEH,QAAA,MAAM,oBAAoB;cAQo7B,CAAC;;;aAAmH,CAAC,sBAHjkC,CAAC;AAEH,OAAO,EAAE,cAAc,EAAE,oBAAoB,EAAE,CAAC"}
