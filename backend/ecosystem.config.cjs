@@ -1,9 +1,13 @@
+const path = require("path")
+
 module.exports = {
   apps: [
     {
       name: "api",
 
-      script: "./dist/server.js",
+      cwd: __dirname,
+
+      script: path.join(__dirname, "dist", "server.js"),
 
       instances: "max",
 
