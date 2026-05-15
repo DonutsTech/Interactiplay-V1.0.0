@@ -21,7 +21,7 @@ class UserRouter {
       userController.uploadImage,
     );
     router.post(
-      '/user/frist-login',
+      '/user/frist-acess',
       isAuthenticateTokenDb,
       isValidateUserPlan,
       userController.fristLogin,

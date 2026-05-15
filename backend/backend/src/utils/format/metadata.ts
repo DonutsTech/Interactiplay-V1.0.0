@@ -89,4 +89,19 @@ export function getMetadata(file: string): Promise<VideoMetadata | undefined> {
     );
   });
 }
+
+const input = document.querySelector('input[type="file"]');
+input.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  const url = URL.createObjectURL(file);
+  const video = document.createElement('video');
+  video.preload = 'metadata';
+  video.src = url;
+  video.onloadedmetadata = () => {
+    URL.revokeObjectURL(url);
+    console.log('Duração:', video.duration);
+    console.log('Largura:', video.videoWidth);
+    console.log('Altura:', video.videoHeight);
+  };
+});
 */

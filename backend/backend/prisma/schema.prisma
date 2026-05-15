@@ -39,7 +39,7 @@ model User {
   HASHED_TOKEN                String?
   CREATED_AT                  DateTime?       @default(now()) @db.Timestamp(0)
   UPDATED_AT                  DateTime?       @default(now()) @updatedAt
-  FIRST_ACESS                 Boolean         @default(true)
+  FIRST_ACESS                 Boolean         @default(false)
   VALIDATION_EMAIL            Boolean         @default(false)
   ROLE                        String          @default("client")
   ACTIVE                      Boolean         @default(false)

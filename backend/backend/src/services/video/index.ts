@@ -15,14 +15,10 @@ class VideoService {
         throw new CustomError('Arquivo de vídeo é obrigatório', StatusCodes.BAD_REQUEST);
       }
 
-      console.time('parallel-processing');
-
       const [uploadResult, metadata] = await Promise.all([
         uploadFileFromS3(file),
         getMetadata(file.path),
       ]);
-
-      console.time('parallel-processing-acabou');
 
       await deleteFile(file.path);
 
