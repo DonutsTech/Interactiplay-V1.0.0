@@ -29,6 +29,10 @@ export const schemaValidator = (path: string): RequestHandler => {
         return next();
       }
 
+      if (!schema) {
+        return next();
+      }
+
       const { error, value } = schema.validate(req.body, validationOptions);
 
       if (error) {

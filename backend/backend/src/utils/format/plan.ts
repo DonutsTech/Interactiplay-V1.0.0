@@ -1,5 +1,4 @@
 import type Stripe from "stripe";
-import type { Plan } from "../../@types/interface/plan";
 
 interface PlanStripe {
   PLAN: string,
@@ -10,6 +9,17 @@ interface PlanStripe {
   PRICE: string,
   STATUS: string,
   VIDEO_LIMIT: string,
+}
+
+interface Plan {
+  PLAN: string,
+  STRIPE_PLAN_ID: string,
+  STRIPE_PLAN_PRICE: string,
+  PLAYS: number,
+  PLAYS_PRICE: number,
+  PRICE: number,
+  STATUS: boolean,
+  VIDEO_LIMIT: number,
 }
 
 export async function formatProductsForPlan(products: Stripe.Product[]) {

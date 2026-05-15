@@ -47,7 +47,10 @@ class VideoController {
   async createVideoForUser(request: Request, response: Response, next: NextFunction) {
     try {
       const { user } = request as Request & { user: { ID: string } };
-      const file = request.file as MulterS3File | undefined;
+      const file = request.file as Express.Multer.File | undefined;
+      if (!file) {
+        return response.status(400).json({ error: 'No file uploaded' });
+      }
       const video = await videoService.createVideoForUser(user.ID, file);
       return response.status(201).json(video);
     } catch (error) {
