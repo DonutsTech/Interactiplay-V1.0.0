@@ -10,7 +10,8 @@
     "dev:full": "yarn run db:push && yarn run dev",
     "lint": "eslint src/**/*.{js,ts} --fix",
     "lint:check": "eslint src/**/*.{js,ts}",
-    "format": "prettier --write src/**/*.{js,ts,json}"
+    "format": "prettier --write src/**/*.{js,ts,json}",
+    "build": "tsc"
   },
   "type": "module",
   "devDependencies": {
