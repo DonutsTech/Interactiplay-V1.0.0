@@ -64,10 +64,24 @@ const SectionViews = (data: IAnalyticsSocketData) => {
     let mobile = 0;
     let others = 0;
 
-    for (const item of data.MODEL_PLAYS) {
-      if (item.DEVICE === 'desktop') desktop += item._sum.PLAY;
-      else if (item.DEVICE === 'mobile') mobile += item._sum.PLAY;
-      else others += item._sum.PLAY;
+    if (Array.isArray(data.MODEL_PLAYS)) {
+      for (const item of data.MODEL_PLAYS) {
+        const device = (item.DEVICE || '').toLowerCase();
+        const playCount = Number(item._sum?.PLAY ?? 0);
+
+        if (device === 'desktop') desktop += playCount;
+        else if (device === 'mobile') mobile += playCount;
+        else others += playCount;
+      }
+    } else {
+      for (const [deviceKey, count] of Object.entries(data.MODEL_PLAYS || {})) {
+        const device = deviceKey.toLowerCase();
+        const playCount = Number(count ?? 0);
+
+        if (device === 'desktop') desktop += playCount;
+        else if (device === 'mobile') mobile += playCount;
+        else others += playCount;
+      }
     }
 
     return [

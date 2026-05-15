@@ -1,5 +1,6 @@
 'use client';
 import Flow from '@/components/plataform/Flow';
+import Welcome from '@/components/plataform/Welcome';
 import { AuthUserContext } from '@/context/AuthUserContext';
 import { useContext } from 'react';
 
@@ -12,6 +13,11 @@ export default function Dashboard() {
 
   return (
     <>
+      {authUser.USER.FIRST_ACESS === true && (
+        <>
+          <Welcome />
+        </>
+      )}
       <Flow />
     </>
   );

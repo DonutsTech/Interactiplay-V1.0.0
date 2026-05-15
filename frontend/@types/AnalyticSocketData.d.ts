@@ -47,6 +47,8 @@ export interface IModelPlayItem {
   DEVICE: string;
 }
 
+export type IModelPlaysMap = Record<string, number>;
+
 export interface IModelTimeData {
   TIME: Record<string, number>; // chave = segundo do vídeo, valor = contagem de eventos
   TOTAL_TIMESCREEN: number;
@@ -56,7 +58,7 @@ export interface IModelTimeData {
 export interface IAnalyticsSocketData {
   CAMPAIGN: ICampaignData;
   ANALYTICS: IAnalyticsData;
-  MODEL_PLAYS: IModelPlayItem[];
+  MODEL_PLAYS: IModelPlayItem[] | IModelPlaysMap;
   MODEL_TIME: IModelTimeData;
 }
 

@@ -1,6 +1,8 @@
 'use client';
 
 import { AuthUserContext } from '@/context/AuthUserContext';
+import { useError } from '@/context/ErrorContext';
+import { AnimatedLogo } from '@/components/globals/AnimateLogo';
 import { createPortalLink } from '@/service/user';
 import { formatPrice } from '@/utils/formatPrice';
 import { formatDateBR } from '@/utils/stringUtils';
@@ -25,9 +27,9 @@ interface IActivePlan {
 
 const UserPlan = () => {
   const { authUser, loadAuthUser } = useContext(AuthUserContext);
+  const { isLoading, setIsLoading } = useError();
   const [portalLink, setPortalLink] = useState<string | null>(null);
   const [campaignsCount, setCampaignsCount] = useState(0);
-  const [isPanelLoading, setIsPanelLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(authUser);
   const { videoCount, refreshVideos, isLoadingVideos } = useVideos();
 
@@ -53,7 +55,7 @@ const UserPlan = () => {
 
   useEffect(() => {
     const initializePanel = async () => {
-      setIsPanelLoading(true);
+      setIsLoading(true);
 
       try {
         const freshUser = await loadAuthUser();
@@ -64,7 +66,7 @@ const UserPlan = () => {
 
         await Promise.all([loadPlan(), loadCampaignsCount(), refreshVideos()]);
       } finally {
-        setIsPanelLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -111,8 +113,12 @@ const UserPlan = () => {
     ACTIVE_PLAN.PLAYS_PRICE,
   ]);
 
-  if (!userData || !(userData.USER && userData.USER.PLAN) || isPanelLoading || isLoadingVideos) {
-    return <p>Carregando...</p>;
+  if (!userData || !(userData.USER && userData.USER.PLAN) || isLoading || isLoadingVideos) {
+    return (
+      <div className={styles.loading}>
+        <AnimatedLogo size={80} />
+      </div>
+    );
   }
 
   const handlerGerenciarPlano = () => {
