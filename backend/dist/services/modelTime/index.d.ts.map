@@ -1,0 +1,1 @@
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/services/modelTime/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,+BAA+B,CAAC;AAIlE,cAAM,gBAAgB;IACd,0BAA0B,CAAC,UAAU,EAAE,MAAM;IAY7C,kBAAkB,CAAC,IAAI,EAAE,YAAY,EAAE,MAAM,EAAE,MAAM;;;;;;;;;;;;;;;;;IA0CrD,oBAAoB,CAAC,WAAW,EAAE,MAAM;;;;;;;;;CAgD/C;AAED,eAAO,MAAM,gBAAgB,kBAAyB,CAAC"}

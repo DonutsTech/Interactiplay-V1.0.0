@@ -1,0 +1,120 @@
+import { StatusCodes } from 'http-status-codes';
+import { CustomError } from '../../error';
+import { historyPlaysModel } from '../../models/historyPlays';
+// import { advanceTestClock } from "../../utils/stripe";
+import { planService } from '../plan';
+import { userService } from '../user';
+class HistoryPlaysService {
+    async existsById(id) {
+        if (!(await historyPlaysModel.count({ ID: id }))) {
+            throw new CustomError('Histórico não encontrado, por favor verifique o ID', StatusCodes.NOT_FOUND);
+        }
+    }
+    async create(data) {
+        try {
+            const historyPlay = await historyPlaysModel.create({
+                data,
+            });
+            return historyPlay;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async update(id, data) {
+        try {
+            await this.existsById(id);
+            const historyPlay = await historyPlaysModel.updateBy({
+                where: { ID: id },
+                data,
+            });
+            return historyPlay;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async getHistoryPlaysByUserId(userId) {
+        try {
+            await userService.existsById(userId);
+            const historyPlays = await historyPlaysModel.findMany({
+                where: {
+                    USER_ID: userId,
+                },
+                orderBy: { STATUS: 'asc' },
+            });
+            return historyPlays;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async testUpdate(id) {
+        try {
+            await this.existsById(id);
+            const historyPlay = await historyPlaysModel.updateBy({
+                where: { ID: id },
+                data: {
+                    QTD_PLAYS: 70000,
+                },
+            });
+            return historyPlay;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    // async testClock() {
+    //   try {
+    //     const stripe = advanceTestClock('clock_1TLV5GHs4q3jg2YIfvnEZAAl');
+    //     console.log('advanceTestClock ?', stripe);
+    //   } catch (error) {
+    //     throw error;
+    //   }
+    // }
+    async historyPlayExistsByUserId(userId) {
+        try {
+            await userService.existsById(userId);
+            const plan = await planService.getPlanByUserId(userId);
+            const historyPlay = await historyPlaysModel.findBy({
+                where: {
+                    USER_ID: userId,
+                    STATUS: { in: ['ativo', 'teste'] },
+                },
+            });
+            if (!historyPlay) {
+                throw new CustomError('Histórico de plays não encontrado para este usuário, por favor verifique o ID', StatusCodes.NOT_FOUND);
+            }
+            return (plan?.PLAYS || 0) >= historyPlay.QTD_PLAYS + 1;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async updateHistoryPlayForUser(userId) {
+        try {
+            await userService.existsById(userId);
+            const historyPlay = await historyPlaysModel.findBy({
+                where: {
+                    USER_ID: userId,
+                    STATUS: { in: ['ativo', 'teste'] },
+                },
+            });
+            if (!historyPlay) {
+                throw new CustomError('Histórico de plays não encontrado para este usuário, por favor verifique o ID', StatusCodes.NOT_FOUND);
+            }
+            const updatedHistoryPlay = await historyPlaysModel.updateBy({
+                where: { ID: historyPlay.ID },
+                data: {
+                    QTD_PLAYS: { increment: 1 },
+                },
+            });
+            return updatedHistoryPlay;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+}
+export const historyPlaysService = new HistoryPlaysService();
+//# sourceMappingURL=index.js.map

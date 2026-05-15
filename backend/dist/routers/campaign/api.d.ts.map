@@ -1,0 +1,1 @@
+{"version":3,"file":"api.d.ts","sourceRoot":"","sources":["../../../src/routers/campaign/api.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAKtC,cAAM,iBAAiB;WACP,MAAM,CAAC,MAAM,EAAE,MAAM,GAAG,IAAI;CAuC3C;AAED,eAAe,iBAAiB,CAAC"}

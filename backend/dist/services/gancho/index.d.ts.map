@@ -1,0 +1,1 @@
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/services/gancho/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,8BAA8B,CAAC;AAKjE,cAAM,aAAa;IACX,uBAAuB,CAAC,UAAU,EAAE,MAAM,GAAG,OAAO,CAAC,IAAI,CAAC;IAY1D,wBAAwB,CAAC,UAAU,EAAE,MAAM,EAAE,IAAI,EAAE,YAAY;;;;;;;;;;;;CA+CtE;AAED,eAAO,MAAM,aAAa,eAAsB,CAAC"}

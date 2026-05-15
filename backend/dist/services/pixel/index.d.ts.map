@@ -1,0 +1,1 @@
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/services/pixel/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,8BAA8B,CAAC;AAKhE,cAAM,YAAY;IACV,sBAAsB,CAAC,UAAU,EAAE,MAAM,GAAG,OAAO,CAAC,IAAI,CAAC;IAYzD,uBAAuB,CAAC,UAAU,EAAE,MAAM,EAAE,IAAI,EAAE,WAAW;;;;;;;;;;;;;CA+CpE;AAED,eAAO,MAAM,YAAY,cAAqB,CAAC"}

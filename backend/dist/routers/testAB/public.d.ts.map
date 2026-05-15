@@ -1,0 +1,1 @@
+{"version":3,"file":"public.d.ts","sourceRoot":"","sources":["../../../src/routers/testAB/public.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAGtC,cAAM,kBAAkB;WACR,MAAM,CAAC,MAAM,EAAE,MAAM,GAAG,IAAI;CAG3C;AAED,eAAe,kBAAkB,CAAC"}

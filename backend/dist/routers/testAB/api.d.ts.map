@@ -1,0 +1,1 @@
+{"version":3,"file":"api.d.ts","sourceRoot":"","sources":["../../../src/routers/testAB/api.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAKtC,cAAM,eAAe;WACL,MAAM,CAAC,MAAM,EAAE,MAAM,GAAG,IAAI;CAoC3C;AAED,eAAe,eAAe,CAAC"}

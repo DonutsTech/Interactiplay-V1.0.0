@@ -1,0 +1,1 @@
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/services/bondVideo/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,kCAAkC,CAAC;AACxE,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,gCAAgC,CAAC;AAGjE,cAAM,gBAAgB;IACd,0BAA0B,CAAC,IAAI,EAAE,eAAe,GAAG,OAAO,CAAC,UAAU,CAAC;IA2BtE,0BAA0B,CAAC,UAAU,EAAE,MAAM;CAWpD;AAED,eAAO,MAAM,gBAAgB,kBAAyB,CAAC"}
