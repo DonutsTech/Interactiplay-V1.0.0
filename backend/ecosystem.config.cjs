@@ -18,7 +18,9 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 4000
-      }
+      },
+
+      node_args: "--experimental-specifier-resolution=node"
     }
   ]
 }
