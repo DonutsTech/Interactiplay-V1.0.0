@@ -34,12 +34,12 @@ model User {
   NAME                        String
   EMAIL                       String          @unique
   PHONE                       String
-  AVATAR                      String          @default("https://interacti-uploads.s3.us-east-1.amazonaws.com/images/padrao.png")
+  AVATAR                      String          @default("https://interacti-uploads.s3.us-east-1.amazonaws.com/uploads/images/avatar_default.png")
   HASHED_PASSWORD             String
   HASHED_TOKEN                String?
   CREATED_AT                  DateTime?       @default(now()) @db.Timestamp(0)
   UPDATED_AT                  DateTime?       @default(now()) @updatedAt
-  FIRST_ACESS                 Boolean         @default(false)
+  FIRST_ACESS                 Boolean         @default(true)
   VALIDATION_EMAIL            Boolean         @default(false)
   ROLE                        String          @default("client")
   ACTIVE                      Boolean         @default(false)

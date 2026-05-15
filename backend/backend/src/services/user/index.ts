@@ -181,7 +181,7 @@ class UserService {
         throw new CustomError('Primeiro login já realizado', StatusCodes.BAD_REQUEST);
       }
 
-      const updatedUser = await this.update(id, { FIRST_ACESS: true });
+      const updatedUser = await this.update(id, { FIRST_ACESS: false });
 
       return updatedUser;
     } catch (error) {
