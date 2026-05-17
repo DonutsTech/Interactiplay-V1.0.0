@@ -23,6 +23,15 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    container_name: stripe-cli
+    command: listen --forward-to https://api.experimenteumdonuts.app.br/data/webhook
+    volumes:
+      - ./stripe-config:/root/.config/stripe
+    networks:
+      - prisma-network
+    restart: unless-stopped
 networks:
   prisma-network:
 volumes:
