@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import type { createVideo, UpdateVideo } from '../../@types/interface/video';
+import type { createVideo, FormVideo, UpdateVideo } from '../../@types/interface/video';
 import { deleteFileFromS3, uploadFileFromS3 } from '../../config/s3';
 import { CustomError } from '../../error';
 import { videoModel } from '../../models/video';
@@ -9,31 +9,27 @@ import { campaignVideoService } from '../campaignVideo';
 import { userService } from '../user';
 
 class VideoService {
-  async createVideoForUser(userId: string, file: Express.Multer.File) {
+  async createVideoForUser(userId: string, file: Express.Multer.File, body: FormVideo) {
     try {
       if (!file) {
         throw new CustomError('Arquivo de vídeo é obrigatório', StatusCodes.BAD_REQUEST);
       }
 
-      const [uploadResult, metadata] = await Promise.all([
-        uploadFileFromS3(file),
-        getMetadata(file.path),
+      const [uploadResult] = await Promise.all([
+        uploadFileFromS3(file)
       ]);
 
       await deleteFile(file.path);
-
-      if (!metadata) {
-        throw new CustomError(
-          'Não foi possível obter as informações do vídeo',
-          StatusCodes.BAD_REQUEST,
-        );
-      }
 
       if (uploadResult === '') {
         throw new CustomError('Erro ao fazer upload do vídeo', StatusCodes.INTERNAL_SERVER_ERROR);
       }
 
-      const { duration, height, width } = metadata;
+      const { DURATION, HEIGHT, WIDTH } = body
+
+      const duration = Number(DURATION) || 0;
+      const width = Number(WIDTH) || 0;
+      const height = Number(HEIGHT) || 0;
 
       const create: createVideo = {
         NAME: file.originalname,

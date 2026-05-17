@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { MulterS3File } from '../../@types/file';
-import type { UpdateVideo } from '../../@types/interface/video';
+import type { FormVideo, UpdateVideo } from '../../@types/interface/video';
 import { videoService } from '../../services/video';
 
 class VideoController {
@@ -47,11 +47,12 @@ class VideoController {
   async createVideoForUser(request: Request, response: Response, next: NextFunction) {
     try {
       const { user } = request as Request & { user: { ID: string } };
+      const body = request.body as FormVideo;
       const file = request.file as Express.Multer.File | undefined;
       if (!file) {
         return response.status(400).json({ error: 'No file uploaded' });
       }
-      const video = await videoService.createVideoForUser(user.ID, file);
+      const video = await videoService.createVideoForUser(user.ID, file, body);
       return response.status(201).json(video);
     } catch (error) {
       next(error);

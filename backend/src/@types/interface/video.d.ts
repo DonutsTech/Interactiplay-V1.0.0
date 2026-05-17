@@ -9,3 +9,9 @@ export interface createVideo {
 }
 
 export type UpdateVideo = Parcial<createVideo>;
+
+export interface FormVideo {
+  DURATION: string;
+  WIDTH: string;
+  HEIGHT: string;
+}
