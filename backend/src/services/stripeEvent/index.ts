@@ -12,6 +12,8 @@ class StripeEventService {
     try {
       await this.existById(event.id);
 
+      console.log("Stripe Event Received:", event.type, "ID:", event.id);
+
       const customerId = (event.data.object as any).customer || null;
 
       await stripeEventModel.create({

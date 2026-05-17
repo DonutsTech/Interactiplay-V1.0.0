@@ -32,8 +32,6 @@ export const getStripeCustomerByEmail = async (email: string) => {
   try {
     const customers = await stripe.customers.list({ email });
 
-    console.log('getStripeCustomerByEmail ?', customers);
-
     return customers.data[0] || null;
   } catch (error) {
     handleStripeError(error);
@@ -92,12 +90,11 @@ export const createStripeCustomer = async (email: string, name: string) => {
       }
     }
 
-    // para teste clock tirar depois (tirar depois) aqui clock_1TLV5GHs4q3jg2YIfvnEZAAl
+    // para teste clock tirar depois (tirar depois) aqui clock_1TLV5GHs4q3jg2YIfvnEZAAl    // test_clock: 'clock_1TLV5GHs4q3jg2YIfvnEZAAl',
 
     const createCustomer = await stripe.customers.create({
       email,
       name,
-      // test_clock: 'clock_1TLV5GHs4q3jg2YIfvnEZAAl',
     });
 
     // console.log('createStripeCustomer ?', createCustomer);
