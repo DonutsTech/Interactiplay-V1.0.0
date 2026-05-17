@@ -58,6 +58,45 @@ export const getMp4DurationFromMvhd = async (video: File): Promise<number | null
   }
 };
 
+export const getVideoDimensions = async (
+  video: File
+): Promise<{ width: number; height: number } | null> => {
+  return new Promise((resolve) => {
+    const videoElement = document.createElement('video');
+    const objectUrl = URL.createObjectURL(video);
+
+    const onMetadataLoaded = () => {
+      cleanup();
+
+      const width = Number(videoElement.videoWidth);
+      const height = Number(videoElement.videoHeight);
+
+      if (width > 0 && height > 0) {
+        resolve({ width, height });
+        return;
+      }
+
+      resolve(null);
+    };
+
+    const onError = () => {
+      cleanup();
+      resolve(null);
+    };
+
+    const cleanup = () => {
+      URL.revokeObjectURL(objectUrl);
+      videoElement.removeEventListener('loadedmetadata', onMetadataLoaded);
+      videoElement.removeEventListener('error', onError);
+    };
+
+    videoElement.preload = 'metadata';
+    videoElement.addEventListener('loadedmetadata', onMetadataLoaded, { once: true });
+    videoElement.addEventListener('error', onError, { once: true });
+    videoElement.src = objectUrl;
+  });
+};
+
 
 export const getVideos = async (): Promise<{ STATUS: number; MESSAGE: string; VIDEOS: any[] } | ErrorMessage> => {
   try {
@@ -131,6 +170,13 @@ export const uploadVideo = async (video: File): Promise<{ STATUS: number; MESSAG
     if (duration !== null) {
       formData.append('DURATION', String(duration));
     }
+
+    const dimensions = await getVideoDimensions(video);
+    if (dimensions) {
+      formData.append('WIDTH', String(dimensions.width));
+      formData.append('HEIGHT', String(dimensions.height));
+    }
+
     
     const { data } = await api.post(VIDEO_URL, formData, {
       headers: {

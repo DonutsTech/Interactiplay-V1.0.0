@@ -2,10 +2,23 @@
 import Flow from '@/components/plataform/Flow';
 import Welcome from '@/components/plataform/Welcome';
 import { AuthUserContext } from '@/context/AuthUserContext';
-import { useContext } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
+
+const WELCOME_DISMISSED_SESSION_KEY = 'welcome-dismissed';
 
 export default function Dashboard() {
   const { authUser } = useContext(AuthUserContext);
+  const [isWelcomeDismissed, setIsWelcomeDismissed] = useState(false);
+
+  useEffect(() => {
+    const wasDismissed = sessionStorage.getItem(WELCOME_DISMISSED_SESSION_KEY) === '1';
+    setIsWelcomeDismissed(wasDismissed);
+  }, []);
+
+  const handleWelcomeDismiss = useCallback(() => {
+    sessionStorage.setItem(WELCOME_DISMISSED_SESSION_KEY, '1');
+    setIsWelcomeDismissed(true);
+  }, []);
 
   if (!authUser) {
     return <p>Carregando...</p>;
@@ -13,9 +26,9 @@ export default function Dashboard() {
 
   return (
     <>
-      {authUser.USER.FIRST_ACESS === true && (
+      {authUser.USER.FIRST_ACESS === true && !isWelcomeDismissed && (
         <>
-          <Welcome />
+          <Welcome onDismiss={handleWelcomeDismiss} />
         </>
       )}
       <Flow />

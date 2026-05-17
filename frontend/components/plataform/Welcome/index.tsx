@@ -5,19 +5,27 @@ import styles from './Welcome.module.scss';
 import { useCallback, useContext, useState } from 'react';
 import { AuthUserContext } from '@/context/AuthUserContext';
 import { postFristAcess } from '@/service/auth/me';
+import { useRouter } from 'next/navigation';
 
-const Welcome = () => {
+type WelcomeProps = {
+  onDismiss: () => void;
+};
+
+const Welcome = ({ onDismiss }: WelcomeProps) => {
   const { authUser, loadAuthUser } = useContext(AuthUserContext);
   const [isClosed, setIsClosed] = useState(false);
+  const router = useRouter();
 
   const handleClose = useCallback(async () => {
     setIsClosed(true);
+    onDismiss();
 
     const response = await postFristAcess();
     if (!('STATUS' in response) || response.STATUS < 400) {
       await loadAuthUser();
+      router.refresh();
     }
-  }, [loadAuthUser]);
+  }, [loadAuthUser, onDismiss, router]);
 
   if (isClosed) return null;
 
