@@ -177,6 +177,12 @@ export const uploadVideo = async (video: File): Promise<{ STATUS: number; MESSAG
       formData.append('HEIGHT', String(dimensions.height));
     }
 
+    console.log('Metadados enviados no upload:', {
+      DURATION: formData.get('DURATION'),
+      WIDTH: formData.get('WIDTH'),
+      HEIGHT: formData.get('HEIGHT')
+    });
+
     
     const { data } = await api.post(VIDEO_URL, formData, {
       headers: {
@@ -189,6 +195,7 @@ export const uploadVideo = async (video: File): Promise<{ STATUS: number; MESSAG
       throw MESSEGE_VALIDITY;
     }
 
+    console.log('Resposta do upload:', data);
 
     return data;
   } catch (error) {
