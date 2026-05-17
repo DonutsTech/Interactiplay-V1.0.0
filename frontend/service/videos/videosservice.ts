@@ -6,95 +6,80 @@ import { messageError, MESSEGE_VALIDITY } from '@/utils/error';
 
 export const VIDEO_URL = '/user/videos';
 
-const MVHD_HEADER = [0x6d, 0x76, 0x68, 0x64]; // "mvhd"
-const MVHD_SCAN_BYTES = 2 * 1024 * 1024;
+const getVideoMetadata = async (video: File): Promise<{ duration: number; width: number; height: number } | null> => {
+  return new Promise((resolve) => {
+    const videoElement = document.createElement('video');
+    const objectUrl = URL.createObjectURL(video);
 
-const findHeaderIndex = (bytes: Uint8Array, header: number[]): number => {
-  for (let i = 0; i <= bytes.length - header.length; i += 1) {
-    let matched = true;
+    const cleanup = () => {
+      URL.revokeObjectURL(objectUrl);
+      videoElement.onloadedmetadata = null;
+      videoElement.ontimeupdate = null;
+      videoElement.onerror = null;
+    };
 
-    for (let j = 0; j < header.length; j += 1) {
-      if (bytes[i + j] !== header[j]) {
-        matched = false;
-        break;
+    const resolveMetadata = () => {
+      const duration = Number(videoElement.duration);
+      const width = Number(videoElement.videoWidth);
+      const height = Number(videoElement.videoHeight);
+
+      cleanup();
+
+      if (!Number.isFinite(duration) || duration <= 0 || width <= 0 || height <= 0) {
+        resolve(null);
+        return;
       }
-    }
 
-    if (matched) return i;
-  }
+      resolve({
+        duration: Math.floor(duration * 1000) / 1000,
+        width,
+        height
+      });
+    };
 
-  return -1;
+    videoElement.preload = 'metadata';
+    videoElement.onloadedmetadata = () => {
+      if (videoElement.duration === Infinity) {
+        videoElement.currentTime = 1e101;
+        videoElement.ontimeupdate = () => {
+          videoElement.ontimeupdate = null;
+          resolveMetadata();
+        };
+
+        return;
+      }
+
+      resolveMetadata();
+    };
+
+    videoElement.onerror = () => {
+      cleanup();
+      resolve(null);
+    };
+
+    videoElement.src = objectUrl;
+    videoElement.load();
+  });
 };
 
 export const getMp4DurationFromMvhd = async (video: File): Promise<number | null> => {
-  try {
-    const chunk = await video.slice(0, MVHD_SCAN_BYTES).arrayBuffer();
-    const bytes = new Uint8Array(chunk);
-    const view = new DataView(chunk);
-
-    const headerIndex = findHeaderIndex(bytes, MVHD_HEADER);
-    if (headerIndex < 0) return null;
-
-    const version = bytes[headerIndex + 4];
-    let timeScaleOffset = headerIndex + 16;
-    let durationOffset = headerIndex + 20;
-
-    if (version === 1) {
-      timeScaleOffset = headerIndex + 24;
-      durationOffset = headerIndex + 28;
-    }
-
-    if (durationOffset + 4 > bytes.length) return null;
-
-    const timeScale = view.getUint32(timeScaleOffset, false);
-    if (timeScale <= 0) return null;
-
-    const duration = view.getUint32(durationOffset, false);
-    const videoLength = Math.floor((duration / timeScale) * 1000) / 1000;
-
-    return Number.isFinite(videoLength) && videoLength > 0 ? videoLength : null;
-  } catch {
-    return null;
-  }
+  const metadata = await getVideoMetadata(video);
+  return metadata?.duration ?? null;
 };
 
 export const getVideoDimensions = async (
   video: File
 ): Promise<{ width: number; height: number } | null> => {
-  return new Promise((resolve) => {
-    const videoElement = document.createElement('video');
-    const objectUrl = URL.createObjectURL(video);
+  const metadata = await getVideoMetadata(video);
 
-    const onMetadataLoaded = () => {
-      cleanup();
+  if (!metadata) {
+    return null;
+  }
 
-      const width = Number(videoElement.videoWidth);
-      const height = Number(videoElement.videoHeight);
-
-      if (width > 0 && height > 0) {
-        resolve({ width, height });
-        return;
-      }
-
-      resolve(null);
-    };
-
-    const onError = () => {
-      cleanup();
-      resolve(null);
-    };
-
-    const cleanup = () => {
-      URL.revokeObjectURL(objectUrl);
-      videoElement.removeEventListener('loadedmetadata', onMetadataLoaded);
-      videoElement.removeEventListener('error', onError);
-    };
-
-    videoElement.preload = 'metadata';
-    videoElement.addEventListener('loadedmetadata', onMetadataLoaded, { once: true });
-    videoElement.addEventListener('error', onError, { once: true });
-    videoElement.src = objectUrl;
-  });
+  return {
+    width: metadata.width,
+    height: metadata.height
+  };
 };
 
 
