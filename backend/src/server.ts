@@ -3,6 +3,7 @@ import http from 'http';
 import path from 'path';
 import App from './config/app';
 import { SocketConfig } from './config/socket';
+import { initAdmin } from './utils/initAdmin';
 import { initPlan } from './utils/initPlan';
 //import { initADM } from './utils/initAdmin';
 
@@ -19,7 +20,7 @@ const server = http.createServer(app);
 const socketConfig = new SocketConfig(server);
 
 server.listen(PORT, () => {
-  //initADM();
+  initAdmin();
   initPlan();
   console.log(`Server is running on port ${PORT}`);
 });

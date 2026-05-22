@@ -31,6 +31,7 @@ export const getStripeProducts = async (): Promise<PlanStripeNew[]> => {
 export const getStripeCustomerByEmail = async (email: string) => {
   try {
     const customers = await stripe.customers.list({ email });
+    console.log('getStripeCustomerByEmail ?', customers.data);
 
     return customers.data[0] || null;
   } catch (error) {
@@ -78,11 +79,11 @@ export const createStripeCustomer = async (email: string, name: string) => {
         return {
           STRIPE_CUSTOMER_ID: customer.id,
           STRIPE_SUBSCRIPTION_ID: subscription.id ? subscription.id : '',
-          STRIPE_SUBSCRIPTION_STATUS: subscription.status || '',
-          STRIPE_CURRENT_PERIOD_END: periodEnd ? formatNummberForDate(periodEnd) : '',
-          STRIPE_CURRENT_PERIOD_START: periodStart ? formatNummberForDate(periodStart) : '',
-          STRIPE_TRIAL_END: trialEnd ? formatNummberForDate(trialEnd) : '',
-          STRIPE_TRIAL_START: trialStart ? formatNummberForDate(trialStart) : '',
+          STRIPE_SUBSCRIPTION_STATUS: subscription.status || false,
+          STRIPE_CURRENT_PERIOD_END: periodEnd ? formatNummberForDate(periodEnd) : null,
+          STRIPE_CURRENT_PERIOD_START: periodStart ? formatNummberForDate(periodStart) : null,
+          STRIPE_TRIAL_END: trialEnd ? formatNummberForDate(trialEnd) : null,
+          STRIPE_TRIAL_START: trialStart ? formatNummberForDate(trialStart) : null,
           ACTIVE: subscription.status === 'active' || subscription.status === 'trialing',
           ...(plan ? { PLAN: { connect: { ID: plan.ID } } } : {}),
           ...(plan ?  { HISTORY_PLAYS: { create: { QTD_PLAYS: 0,  STATUS:  subscription.status === 'trialing' ? 'teste' : 'ativo' } }} : {}),
@@ -115,7 +116,11 @@ export const createStripeFreeCustomer = async ({
   planId,
   userId,
   price,
-}: FunctionCheckoutFree) => {
+}: FunctionCheckoutFree): Promise<{
+  STRIPE_SUBSCRIPTION_ID: string;
+  STRIPE_SUBSCRIPTION_STATUS: string;
+  ACTIVE: boolean;
+}> => {
   try {
     const customer = await getStripeCustomerByEmail(email);
 
@@ -133,7 +138,14 @@ export const createStripeFreeCustomer = async ({
       },
     });
 
-    return subscription;
+    const id = subscription.id;
+    const status = subscription.status;
+
+    return {
+      STRIPE_SUBSCRIPTION_ID: id ? id : '',
+      STRIPE_SUBSCRIPTION_STATUS: status || '',
+      ACTIVE: status === 'active' || status === 'trialing',
+    };
   } catch (error) {
     handleStripeError(error);
   }
@@ -186,7 +198,7 @@ export const handleCheckoutSessionCompleted = async (event: {
   data: { object: Stripe.Checkout.Session };
 }) => {
   try {
-    console.log('handleCheckoutSessionCompleted - 1 ?', JSON.stringify(event.data.object));
+    console.log('handleCheckoutSessionCompleted ?', JSON.stringify(event.data.object));
     const idUser = event.data.object.client_reference_id as string;
     const stripeSubscriptionId = event.data.object.subscription as string;
     const stripeCustumerId = event.data.object.customer as string;
@@ -259,6 +271,7 @@ export const handleSubscriptionSessionCompleted = async (event: {
   };
 }) => {
   try {
+    console.log('handleSubscriptionSessionCompleted ?', JSON.stringify(event.data.object));
     const subscriptionStatus = event.data.object.status;
     const stripeCustumerId = event.data.object.customer as string;
     const stripeSubscriptionId = event.data.object.id as string;
@@ -299,6 +312,8 @@ export const handleCancelPlan = async (event: { data: { object: Stripe.Subscript
     const subscriptionStatus = event.data.object.status;
 
     const user = await userService.showStripeCustomerId(stripeCustumerId);
+
+    console.log('handleCancelPlan ?', JSON.stringify(event.data.object));
 
     if (user) {
       await userService.update(user.ID, {
@@ -457,6 +472,7 @@ export const handleInvoicePaid = async (event: {
 
 export const handleInvoicePaymentFailed = async (event: { data: { object: Stripe.Invoice } }) => {
   try {
+    console.log('handleInvoicePaymentFailed - 4 ?', JSON.stringify(event.data.object));
     const stripeCustumerId = event.data.object.customer as string;
     const line = event.data.object.lines.data;
 
