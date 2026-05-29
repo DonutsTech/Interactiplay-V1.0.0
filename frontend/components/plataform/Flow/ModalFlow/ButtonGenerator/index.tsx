@@ -1,23 +1,23 @@
 // components/plataform/Flow/ModalFlow/ButtonGenerator/index.tsx
-'use client';
+"use client";
 
-import { Bond } from '@/@types/flow';
-import { useFlow } from '@/context/FlowContext';
+import { Bond } from "@/@types/flow";
+import { useFlow } from "@/context/FlowContext";
 import {
   formatNumber,
   getInputWidth,
   getSlider,
   handleStartChange,
-} from '@/utils/rangeUtils';
+} from "@/utils/rangeUtils";
 import {
   faBan,
   faCheck,
   faTriangleExclamation,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import classNames from 'classnames';
-import { Dispatch, SetStateAction } from 'react';
-import styles from './ButtonGenerator.module.scss';
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import classNames from "classnames";
+import { Dispatch, SetStateAction } from "react";
+import styles from "./ButtonGenerator.module.scss";
 
 interface ButtonGeneratorProps {
   duration: number;
@@ -111,7 +111,7 @@ const ButtonGenerator = ({
 
     return node.data.BONDS.some(
       (bond: Bond) =>
-        bond.BUTTON === false && bond.VIDEO_ID !== dadosModal.TARGET
+        bond.BUTTON === false && bond.VIDEO_ID !== dadosModal.TARGET,
     );
   };
 
@@ -132,12 +132,12 @@ const ButtonGenerator = ({
               onChange={() => setBtnActive(!btnActive)}
             />
             <label htmlFor="btnActive">
-              {btnActive ? 'Click' : 'Sequência'}
+              {btnActive ? "Click" : "Sequência"}
             </label>
           </div>
         ) : (
           <p className={styles.container_header_warning}>
-            <FontAwesomeIcon icon={faTriangleExclamation} color="#FFD700" />{' '}
+            <FontAwesomeIcon icon={faTriangleExclamation} color="#FFD700" />{" "}
             Este vídeo já possui uma conexão de sequência ativa.
           </p>
         )}
@@ -206,12 +206,12 @@ const ButtonGenerator = ({
                 <input
                   type="range"
                   min={0}
-                  max={duration -1}
+                  max={duration - 1}
                   id="delay"
                   value={start}
                   onChange={(e) => setStart(Number(e.target.value))}
                   style={{
-                    background: getSlider(start, 0, duration -1),
+                    background: getSlider(start, 0, duration - 1),
                   }}
                 />
               </div>
@@ -221,14 +221,35 @@ const ButtonGenerator = ({
                   inputMode="numeric"
                   pattern="[0-9]*"
                   id="delay_number"
-                  max={duration -1}
+                  max={duration - 1}
                   value={formatNumber(start)}
-                  onChange={(e) => handleStartChange(e, duration, setStart)}
+                  onChange={(e) => {
+                    let val = e.target.value.replace(/\D/g, ""); // remove não números
+                    let num = Number(val);
+                    if (val === "") {
+                      setStart(0);
+                    } else if (num > duration - 1) {
+                      setStart(duration - 1);
+                    } else {
+                      setStart(num);
+                    }
+                  }}
                   onFocus={(e) => {
                     e.target.value = start.toString();
                   }}
                   onBlur={(e) => {
-                    e.target.value = formatNumber(start);
+                    let val = e.target.value.replace(/\D/g, "");
+                    let num = Number(val);
+                    if (val === "" || isNaN(num)) {
+                      setStart(0);
+                      e.target.value = formatNumber(0);
+                    } else if (num > duration - 1) {
+                      setStart(duration - 1);
+                      e.target.value = formatNumber(duration - 1);
+                    } else {
+                      setStart(num);
+                      e.target.value = formatNumber(num);
+                    }
                   }}
                   style={{
                     width: getInputWidth(start),
@@ -246,7 +267,7 @@ const ButtonGenerator = ({
             <br />
             <span>
               <FontAwesomeIcon icon={faTriangleExclamation} color="#FFD700" />
-            </span>{' '}
+            </span>{" "}
             Só pode haver uma conexão do tipo sequência por vídeo.
           </p>
         )}
@@ -258,7 +279,7 @@ const ButtonGenerator = ({
             [styles.container_footer_btn]: true,
             [styles.container_footer_btn_save]: true,
           })}
-          disabled={btnActive && text.trim() === ''}
+          disabled={btnActive && text.trim() === ""}
           onClick={saveBtn}
         >
           Salvar

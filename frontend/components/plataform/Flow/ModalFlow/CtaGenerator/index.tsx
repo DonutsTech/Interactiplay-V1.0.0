@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { Dispatch, SetStateAction } from 'react';
-import styles from './CtaGenerator.module.scss';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBan, faCheck } from '@fortawesome/free-solid-svg-icons';
-import classNames from 'classnames';
+import { Dispatch, SetStateAction } from "react";
+import styles from "./CtaGenerator.module.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBan, faCheck } from "@fortawesome/free-solid-svg-icons";
+import classNames from "classnames";
 import {
   formatNumber,
   getInputWidth,
   getSlider,
   handleStartChange,
-} from '@/utils/rangeUtils';
-import { useFlow } from '@/context/FlowContext';
-import { isValidUrl } from '@/utils/urlValidator';
+} from "@/utils/rangeUtils";
+import { useFlow } from "@/context/FlowContext";
+import { isValidUrl } from "@/utils/urlValidator";
 
 interface CtaGeneratorProps {
   duration: number;
@@ -112,14 +112,14 @@ const CtaGenerator = ({
   };
 
   const resetCta = () => {
-    setCtaText('');
-    setAlignment('center');
-    setTextStyle('normal');
-    setTextColor('#000000');
-    setButtonText('');
-    setButtonLink('');
-    setButtonColor('#23118E');
-    setButtonTextColor('#FFFFFF');
+    setCtaText("");
+    setAlignment("center");
+    setTextStyle("normal");
+    setTextColor("#000000");
+    setButtonText("");
+    setButtonLink("");
+    setButtonColor("#23118E");
+    setButtonTextColor("#FFFFFF");
     setBorderRadius(0);
     setStart(0);
   };
@@ -143,7 +143,7 @@ const CtaGenerator = ({
               }
             }}
           />
-          <label htmlFor="ctaActive">{ctaActive ? 'Ativo' : 'Inativo'}</label>
+          <label htmlFor="ctaActive">{ctaActive ? "Ativo" : "Inativo"}</label>
         </div>
       </div>
 
@@ -159,9 +159,9 @@ const CtaGenerator = ({
                 value={ctaText}
                 onChange={(e) => setCtaText(e.target.value)}
                 style={{
-                  textAlign: (alignment || 'center') as any,
-                  fontWeight: textStyle === 'bold' ? 'bold' : 'normal',
-                  fontStyle: textStyle === 'italic' ? 'italic' : 'normal',
+                  textAlign: (alignment || "center") as any,
+                  fontWeight: textStyle === "bold" ? "bold" : "normal",
+                  fontStyle: textStyle === "italic" ? "italic" : "normal",
                 }}
               />
             </div>
@@ -295,12 +295,33 @@ const CtaGenerator = ({
                   max={duration - 1}
                   id="delay_number"
                   value={formatNumber(start)}
-                  onChange={(e) => handleStartChange(e, duration, setStart)}
+                  onChange={(e) => {
+                    let val = e.target.value.replace(/\D/g, ""); // remove não números
+                    let num = Number(val);
+                    if (val === "") {
+                      setStart(0);
+                    } else if (num > duration - 1) {
+                      setStart(duration - 1);
+                    } else {
+                      setStart(num);
+                    }
+                  }}
                   onFocus={(e) => {
                     e.target.value = start.toString();
                   }}
                   onBlur={(e) => {
-                    e.target.value = formatNumber(start);
+                    let val = e.target.value.replace(/\D/g, "");
+                    let num = Number(val);
+                    if (val === "" || isNaN(num)) {
+                      setStart(0);
+                      e.target.value = formatNumber(0);
+                    } else if (num > duration - 1) {
+                      setStart(duration - 1);
+                      e.target.value = formatNumber(duration - 1);
+                    } else {
+                      setStart(num);
+                      e.target.value = formatNumber(num);
+                    }
                   }}
                   style={{
                     width: getInputWidth(start),
@@ -325,8 +346,8 @@ const CtaGenerator = ({
           })}
           disabled={
             ctaActive &&
-            (buttonLink.trim() === '' ||
-              buttonText.trim() === '' ||
+            (buttonLink.trim() === "" ||
+              buttonText.trim() === "" ||
               !isValidUrl(buttonLink))
           }
           onClick={saveCta}
