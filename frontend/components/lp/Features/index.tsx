@@ -12,25 +12,25 @@ const Features = () => {
   const { user, setUser } = useContext(UserContext);
 
   const featuresData = [
-        {
-      video: '/media/videos/video_flow_ok.mp4',
-      title: 'Flow',
+    {
+      video: "/media/videos/video_flow_ok2.mp4",
+      title: "Flow",
       description:
-        'Conecte vídeos para deixar a experiência do seu cliente interativa e personalizada.',
+        "Conecte vídeos para deixar a experiência do seu cliente interativa e personalizada.",
       reverse: false,
     },
     {
-      video: '/media/videos/video_btns_ok.mp4',
-      title: 'Botões de Ação',
+      video: "/media/videos/video_btns_ok.mp4",
+      title: "Botões de Ação",
       description:
-        'Um botão surge dentro ou abaixo do seu VSL, sincronizado perfeitamente com o tempo do vídeo, impulsionando sua conversão.',
+        "Um botão surge dentro ou abaixo do seu VSL, sincronizado perfeitamente com o tempo do vídeo, impulsionando sua conversão.",
       reverse: true,
     },
     {
-      video: '/media/videos/SmartPlay.mp4',
-      title: 'SmartPlay',
+      video: "/media/videos/SmartPlay.mp4",
+      title: "Analytics",
       description:
-        'O Smart Autoplay é compatível com todos os navegadores, simulando o início imediato do vídeo para criar urgência, incentivando a visualização completa. Ao clicar, o vídeo reinicia, garantindo que nenhum segundo seja perdido.',
+        "Com o Analytics Interactiplay, você acompanha cliques, visualizações, tempo assistido e engajamento em tempo real, otimizando estratégias e potencializando resultados com dados precisos e insights práticos.",
       reverse: false,
     },
   ];

@@ -221,6 +221,7 @@ const ButtonGenerator = ({
                   inputMode="numeric"
                   pattern="[0-9]*"
                   id="delay_number"
+                  max={duration -1}
                   value={formatNumber(start)}
                   onChange={(e) => handleStartChange(e, duration, setStart)}
                   onFocus={(e) => {

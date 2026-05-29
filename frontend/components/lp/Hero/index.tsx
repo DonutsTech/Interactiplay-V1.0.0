@@ -59,7 +59,7 @@ const Hero = () => {
             {mounted && (
               //Mockup provisório, substituir depois por Campanha interativo
               <video
-                src="/media/videos/VHero_mockup.mp4"
+                src="/media/videos/app.mp4"
                 autoPlay
                 muted
                 loop

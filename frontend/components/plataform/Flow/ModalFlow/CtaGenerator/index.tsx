@@ -292,6 +292,7 @@ const CtaGenerator = ({
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
+                  max={duration - 1}
                   id="delay_number"
                   value={formatNumber(start)}
                   onChange={(e) => handleStartChange(e, duration, setStart)}

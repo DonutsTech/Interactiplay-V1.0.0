@@ -116,7 +116,7 @@ const InputVideo = () => {
           <input
             type="file"
             accept="video/mp4"
-            title="Clique ou arraste o arquivo"
+            title="Clique ou arraste o vídeo"
             className={styles.inputVideo_input}
             onChange={handleVideoUpload}
             disabled={isDisabled}
