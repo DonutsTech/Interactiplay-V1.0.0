@@ -76,11 +76,18 @@ class AuthService {
 
   async verificationStripedSubscription(user: User): Promise<string> {
     try {
-
       if (user.STRIPE_SUBSCRIPTION_STATUS === '' || user.STRIPE_SUBSCRIPTION_STATUS === '') {
         throw new CustomError<User & { PORTAL_URL: string }>(
           'Assinatura não encontrada, por favor realize a assinatura para acessar o conteúdo',
           StatusCodes.FORBIDDEN,
+          { ...user, PORTAL_URL: '' },
+        );
+      }
+
+      if (user.STRIPE_SUBSCRIPTION_STATUS === 'canceled') {
+        throw new CustomError<User & { PORTAL_URL: string }>(
+          'Assinatura cancelada, por favor realize uma nova assinatura para acessar o conteúdo',
+          StatusCodes.PARTIAL_CONTENT,
           { ...user, PORTAL_URL: '' },
         );
       }
@@ -218,7 +225,7 @@ class AuthService {
     }
   }
 
-  async paymentCheckout(data: PaymentCheckout) {
+  async paymentCheckout(data: PaymentCheckout, trivial: boolean) {
     try {
       const plan = await planService.showId(data.ID_PLAN);
 
@@ -234,6 +241,7 @@ class AuthService {
         token,
         userId: user.ID,
         price: plan.STRIPE_PLAN_PRICE,
+        trivial,
       });
 
       if (!stripe) {

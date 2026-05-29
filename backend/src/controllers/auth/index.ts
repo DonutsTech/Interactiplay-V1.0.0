@@ -78,7 +78,17 @@ class AuthController {
   async paymentCheckout(request: Request, response: Response, next: NextFunction) {
     try {
       const body: PaymentCheckout = request.body;
-      const paymentCheckout = await authService.paymentCheckout({ ...body });
+      const paymentCheckout = await authService.paymentCheckout({ ...body }, true);
+      return response.status(200).json(paymentCheckout);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async paymentCheckoutNew(request: Request, response: Response, next: NextFunction) {
+    try {
+      const body: PaymentCheckout = request.body;
+      const paymentCheckout = await authService.paymentCheckout({  ...body }, false);
       return response.status(200).json(paymentCheckout);
     } catch (error) {
       next(error);

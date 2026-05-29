@@ -27,10 +27,12 @@ class WebhookController {
       return;
     }
 
+    console.log('Evento recebido:', event.type);
+
     const isNewEvent = await stripeEventService.createIfNotExists(event);
 
     if (!isNewEvent) {
-      return response.json({ received: true });
+      return response.status(200).send('Event já processado');
     }
 
     const getCustomerId = (event: any): string | null => {
@@ -48,8 +50,6 @@ class WebhookController {
     };
 
     const getUserFromEvent = async () => {
-      const obj = event.data.object as any;
-
       const customerId = getCustomerId(event);
 
       if (!customerId) {

@@ -9,6 +9,8 @@ import createTestAB from './testAB/create';
 import { createTimeline } from './timeline';
 import { updateUser } from './user';
 import { videoUpdate } from './video';
+import { createMail } from './mail';
+import updateEmail from './user/updateEmail';
 
 const schemas: { [key: string]: ObjectSchema } = {
   'auth/forget': forgetAuth,
@@ -25,6 +27,8 @@ const schemas: { [key: string]: ObjectSchema } = {
   'pixel/create': createPixel,
   'timeline/create': createTimeline,
   'testAB/create': createTestAB,
+  'mail/create': createMail,
+  'user/updateEmail': updateEmail,
 };
 
 export default schemas;

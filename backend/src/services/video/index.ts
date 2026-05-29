@@ -196,6 +196,20 @@ class VideoService {
       throw error;
     }
   }
+
+  async deleteByUserId(userId: string) {
+    try {
+      const videos = await videoModel.findMany({
+        where: {
+          USER_ID: userId,
+        },
+      });
+
+      return videos;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const videoService = new VideoService();

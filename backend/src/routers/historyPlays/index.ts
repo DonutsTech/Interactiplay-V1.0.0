@@ -11,13 +11,6 @@ class HistoryPlaysRouter {
       isValidateUserPlan,
       historyPlaysController.getHistoryPlaysByUserId,
     );
-    router.get(
-      '/history-plays/:id',
-      isAuthenticateTokenDb,
-      isValidateUserPlan,
-      historyPlaysController.testUpdate,
-    );
-    //router.get('/test', historyPlaysController.test);
   }
 }
 

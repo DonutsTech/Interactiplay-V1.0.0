@@ -1,3 +1,4 @@
+import { Role } from "../enums/role.enum";
 import { User } from "../generated/prisma/browser";
 import type { UserCreateInput } from "../generated/prisma/models";
 import { userModel } from "../models/user";
@@ -42,7 +43,7 @@ export async function initAdmin() {
       EMAIL: process.env.ADMIN_EMAIL as string,
       PHONE: process.env.ADMIN_PHONE as string,
       HASHED_PASSWORD: process.env.ADMIN_PASSWORD as string,
-      ROLE: 'ADMIN',
+      ROLE: Role.ADMIN,
       VALIDATION_EMAIL: true,
     }
 
@@ -51,7 +52,7 @@ export async function initAdmin() {
       EMAIL: process.env.ADMIN_EMAIL_DONUTS as string,
       PHONE: process.env.ADMIN_PHONE_DONUTS as string,
       HASHED_PASSWORD: process.env.ADMIN_PASSWORD_DONUTS as string,
-      ROLE: 'ADMIN',
+      ROLE: Role.ADMIN,
       VALIDATION_EMAIL: true,
     }
 

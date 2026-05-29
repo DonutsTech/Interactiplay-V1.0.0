@@ -1,6 +1,7 @@
 import type { Router } from 'express';
 import { authController } from '../../controllers/auth';
 import { isAuthenticateToken, isAuthenticateTokenDb, schemaValidator } from '../../middleware';
+import { isValidateRole } from '../../middleware/isValidateRole';
 
 class AuthRouter {
   public static create(router: Router): void {
@@ -19,6 +20,11 @@ class AuthRouter {
       '/payment-checkout',
       schemaValidator('auth/payment'),
       authController.paymentCheckout,
+    );
+    router.post(
+      '/payment-checkout-new',
+      schemaValidator('auth/payment'),
+      authController.paymentCheckoutNew,
     );
     router.post(
       '/send-email-validate-email',

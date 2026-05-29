@@ -4,6 +4,7 @@ export interface FunctionCheckout {
   planId: string;
   token: string;
   price: string;
+  trivial: boolean;
 }
 
 export interface FunctionCheckoutFree {

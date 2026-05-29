@@ -6,6 +6,11 @@ import type { Prisma } from '../../generated/prisma/client';
 import type { UserGetPayload } from '../../generated/prisma/models';
 import { userModel } from '../../models/user';
 import { photoService } from '../photo';
+import { UserUpdateEmailByAdmin } from '../../@types/interface/user';
+import { campaignModel } from '../../models/campaign';
+import { campaignService } from '../campaign';
+import { historyPlaysService } from '../historyPlays';
+import { videoService } from '../video';
 
 class UserService {
   async existsByEmail(email: string) {
@@ -34,6 +39,8 @@ class UserService {
         data,
         include: { PLAN: true, HISTORY_PLAYS: true },
       });
+
+      console.log('userService.create', user);
 
       return user;
     } catch (error) {
@@ -136,7 +143,7 @@ class UserService {
 
       if (
         user &&
-        !(user.AVATAR === 'https://interacti-uploads.s3.us-east-1.amazonaws.com/images/padrao.png')
+        !(user.AVATAR === 'https://interacti-uploads.s3.us-east-1.amazonaws.com/uploads/images/avatar.png')
       ) {
         await photoService.deleteImageFile(user.AVATAR);
       }
@@ -186,6 +193,58 @@ class UserService {
       return updatedUser;
     } catch (error) {
       throw new CustomError('Erro ao realizar o primeiro login', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async updateUserEmailByAdmin(data: UserUpdateEmailByAdmin) {
+    try {
+      const { EMAILOLD, EMAILNEW } = data;
+
+      const user = await this.showEmail(EMAILOLD);
+
+      if (!user) {
+        throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
+      }
+
+      const existNewEmail = await userModel.count({ EMAIL: EMAILNEW });
+
+      if (existNewEmail) {
+        throw new CustomError('O email novo já está em uso', StatusCodes.BAD_REQUEST);
+      }
+
+      const updatedUser = await this.update(user.ID, { EMAIL: EMAILNEW });
+
+      return updatedUser;
+    }  catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteInfoUsers() {
+    try {
+      const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+      const users = await userModel.findMany({
+        where: {
+          STRIPE_SUBSCRIPTION_STATUS: {
+            notIn: ['ativo', 'trivial'],
+          },
+          UPDATED_AT: {
+            lte: sixMonthsAgo,
+          },
+        },
+      });
+
+      for (const user of users) {
+        await campaignService.deleteCampaignForUserWithFlowAdmin(user.ID);
+        await historyPlaysService.deleteByUserId(user.ID);
+        await videoService.deleteByUserId(user.ID);
+      }
+
+      return { MESSAGE: 'Informações dos usuários inativos deletadas com sucesso' };
+    } catch (error) {
+      throw error;
     }
   }
 }

@@ -5,6 +5,8 @@ import { historyPlaysModel } from '../../models/historyPlays';
 // import { advanceTestClock } from "../../utils/stripe";
 import { planService } from '../plan';
 import { userService } from '../user';
+import { mailService } from '../mail';
+import { Notice } from '../../@types/interface/mail';
 
 class HistoryPlaysService {
   async existsById(id: string) {
@@ -58,34 +60,6 @@ class HistoryPlaysService {
     }
   }
 
-  async testUpdate(id: string) {
-    try {
-      await this.existsById(id);
-
-      const historyPlay = await historyPlaysModel.updateBy({
-        where: { ID: id },
-        data: {
-          QTD_PLAYS: 70000,
-        },
-      });
-
-      return historyPlay;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // async testClock() {
-  //   try {
-  //     const stripe = advanceTestClock('clock_1TLV5GHs4q3jg2YIfvnEZAAl');
-
-  //     console.log('advanceTestClock ?', stripe);
-
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   async historyPlayExistsByUserId(userId: string) {
     try {
       await userService.existsById(userId);
@@ -137,7 +111,50 @@ class HistoryPlaysService {
         },
       });
 
+      const user = await userService.showId(userId);
+
+      const plan = await planService.getPlanByUserId(userId);
+
+      const planTotalPlays = plan?.PLAYS || 0;
+      const plays75Percent = Math.ceil(planTotalPlays * 0.75);
+      const value = updatedHistoryPlay.QTD_PLAYS - planTotalPlays;
+
+      const noticePlan: Notice = {
+        EMAIL: user.EMAIL,
+        NAME: user.NAME,
+      };
+
+      if (historyPlay.STATUS === 'teste' && updatedHistoryPlay.QTD_PLAYS === 1000 && user) {
+        await mailService.sendNoticePlanTest(noticePlan);
+      }
+
+      if (historyPlay.STATUS === 'ativo' && plays75Percent === updatedHistoryPlay.QTD_PLAYS && user) {
+        await mailService.sendNoticePlan75(noticePlan);
+      }
+
+      if (historyPlay.STATUS === 'ativo' && updatedHistoryPlay.QTD_PLAYS === planTotalPlays && user) {
+        await mailService.sendNoticePlan100(noticePlan);
+      }
+
+      if (historyPlay.STATUS === 'ativo' && value % 1000 === 0 && user) {
+        await mailService.sendNoticePlanTest(noticePlan);
+      }
+
       return updatedHistoryPlay;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteByUserId(userId: string) {
+    try {
+      await userService.existsById(userId);
+
+      const historyPlays = await historyPlaysModel.deleteMany({
+        USER_ID: userId,
+      });
+
+      return historyPlays;
     } catch (error) {
       throw error;
     }

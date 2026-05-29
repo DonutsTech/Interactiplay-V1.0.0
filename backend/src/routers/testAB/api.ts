@@ -2,6 +2,7 @@ import type { Router } from "express";
 import { isAuthenticateTokenDb, schemaValidator } from "../../middleware";
 import { isValidateUserPlan } from "../../middleware/isValidateUserPlan";
 import { testABController } from "../../controllers/testAB";
+import { isValidateRole } from "../../middleware/isValidateRole";
 
 class TestABApiRouter {
   public static create(router: Router): void {
@@ -22,6 +23,7 @@ class TestABApiRouter {
       "/testAB",
       isAuthenticateTokenDb,
       isValidateUserPlan,
+      isValidateRole(['ADMIN']),
       testABController.getTestABAll,
     );
 
