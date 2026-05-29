@@ -1,0 +1,40 @@
+.card {
+  position: relative;
+  width: 190px;
+  height: 254px;
+  background: $color-darkBlue-dark-3;
+  display: flex;
+  place-content: center;
+  place-items: center;
+  overflow: hidden;
+  padding: 16px 18px;
+  background: linear-gradient(137deg, $color-blue-light-3 0%, $color-ciano-base 100%);
+  transition: 0.3s ease;
+  border-radius: 30px;
+  filter: drop-shadow(0px 0px 8px rgba($color-blue-light-3, 0.3));
+}
+
+.card::before {
+  content: "";
+  // background-color: $color-obsidian;
+  background-color: $color-darkBlue-dark-3;
+  position: absolute;
+  z-index: -1;
+  transition: 0.3s ease;
+  height: 98%;
+  width: 98%;
+  top: 1%;
+  left: 1%;
+  border-radius: 28px;
+}
+
+.card:hover {
+  // border: solid 2px $color-ciano-base;
+  filter: drop-shadow(0px 0px 12px rgba($color-ciano-base, 1));
+}
+
+.text {
+  text-align: center;
+  color: $color-white;
+  font-size: 18px;
+}

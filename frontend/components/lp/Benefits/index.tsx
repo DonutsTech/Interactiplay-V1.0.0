@@ -1,5 +1,6 @@
 'use client';
 import SliderCardLuz from '../SliderCardLuz';
+import SliderCards from '../SliderCards';
 
 const Benefits = () => {
   const benefitsData = [
@@ -21,7 +22,7 @@ const Benefits = () => {
   ];
 
   return (
-    <SliderCardLuz
+    <SliderCards
       title="Benefícios"
       dados={benefitsData}
       button

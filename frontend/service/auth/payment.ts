@@ -29,3 +29,26 @@ export const postPaymentCheckout = async (
     return error as ErrorMessage;
   }
 };
+
+export const URL_PAYMENT_CHECKOUT_NEW = '/payment-checkout-new';
+
+export const postPaymentCheckoutNew = async (
+  body: CheckoutPlanRegister
+): Promise<PaymentCheckoutResponse | ErrorMessage> => {
+  try {
+    const { data } = await api.post(URL_PAYMENT_CHECKOUT_NEW, body);
+
+    if (!data) {
+      throw MESSEGE_VALIDITY;
+    }
+
+    if (!(typeof data === 'object')) {
+      throw MESSEGE_VALIDITY;
+    }
+
+    return data;
+
+  } catch (error: ErrorMessage | unknown) {
+    return error as ErrorMessage;
+  }
+};

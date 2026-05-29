@@ -33,6 +33,7 @@ export const metadata: Metadata = {
     'ISL',
     'plataforma',
     'vídeo interativo',
+    'vídeo de vendas interativo'
   ],
   authors: [{ name: 'DonutsTech', url: 'https://donutstech.com.br' }],
   creator: 'DonutsTech',

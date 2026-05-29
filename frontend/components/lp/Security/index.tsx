@@ -1,4 +1,5 @@
 import SliderCardLuz from "../SliderCardLuz";
+import SliderCards from "../SliderCards";
 
 
 const Security = () => {
@@ -20,7 +21,7 @@ const securityData = [
     }
   ];
   return(
-    <SliderCardLuz 
+    <SliderCards
       dados={securityData}
       title="Segurança e Confiança"
       subtitle={`Sua segurança é nossa prioridade, utilizamos as melhores tecnologias do mercado.`}

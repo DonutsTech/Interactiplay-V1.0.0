@@ -39,6 +39,7 @@ const FormLogin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+
     const response = await handleRequest(
       () =>
         postLogin({
@@ -49,8 +50,46 @@ const FormLogin = () => {
         loadingMessage: 'Realizando login...',
         suppressErrorToast: true,
         onError: async (error) => {
-          if (error.STATUS === 403) {
-            const errorResponse = error as any;
+          const errorResponse = error as any;
+          if (error.STATUS === 206) {
+            // Assinatura cancelada: vai para renovação de plano
+            if (errorResponse.USER) {
+              setUser({
+                id: errorResponse.USER.ID,
+                name: errorResponse.USER.NAME,
+                email: errorResponse.USER.EMAIL,
+                selectedPlan: errorResponse.USER.SELECTED_PLAN || '',
+              });
+            }
+            const goToRenew = await showConfirmation(
+              error.MESSAGE || 'Sua assinatura foi cancelada. Escolha um novo plano para continuar.',
+              {
+                title: 'Assinatura cancelada',
+                type: 'warning',
+                confirmText: 'Escolher Plano',
+                cancelText: 'Cancelar',
+              }
+            );
+            if (goToRenew) {
+              router.push('/acess/renewal');
+            }
+          } else if (error.STATUS === 402) {
+            // Assinatura inativa: vai para o portal de pagamento
+            const goToPortal = await showConfirmation(
+              errorResponse.MESSAGE || 'Sua assinatura está inativa. Deseja acessar o portal de pagamento?',
+              {
+                title: 'Assinatura inativa',
+                type: 'warning',
+                confirmText: 'Ir para pagamento',
+                cancelText: 'Cancelar',
+              }
+            );
+            if (goToPortal && errorResponse.LINK) {
+              window.location.href = errorResponse.LINK;
+            } else if (goToPortal && errorResponse.PORTAL) {
+              window.location.href = errorResponse.PORTAL;
+            }
+          } else if (error.STATUS === 403) {
             if (errorResponse.USER) {
               setUser({
                 id: errorResponse.USER.ID,
@@ -59,7 +98,6 @@ const FormLogin = () => {
                 selectedPlan: '',
               });
             }
-
             const goToPlans = await showConfirmation(
               error.MESSAGE || 'Você precisa escolher um plano.',
               {
@@ -69,26 +107,8 @@ const FormLogin = () => {
                 cancelText: 'Cancelar',
               }
             );
-
             if (goToPlans) {
               router.push('/acess/plans');
-            }
-          } else if (error.STATUS === 402) {
-            const errorResponse = error as any;
-            const renew = await showConfirmation(
-              errorResponse.MESSAGE ||
-                'Sua assinatura expirou. Deseja renovar agora?',
-              {
-                title: 'Assinatura expirada',
-                type: 'warning',
-                confirmText: 'Renovar Agora',
-                cancelText: 'Cancelar',
-              }
-            );
-            if (renew && errorResponse.PORTAL) {
-              window.open(errorResponse.PORTAL, '_blank');
-            } else if (renew) {
-              console.log('Acessou o Portal de Renovação'); // Somente para teste
             }
           } else if (error.STATUS === 401) {
             showConfirmation(error.MESSAGE || 'Email ou senha incorretos.', {
