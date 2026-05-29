@@ -82,7 +82,7 @@ const Formulario: React.FC = () => {
         PHONE: form.telefone,
         MESSAGE: form.mensagem,
       };
-      const res = await fetch('/send-email-contact', {
+      const res = await fetch('/api/send-email-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
