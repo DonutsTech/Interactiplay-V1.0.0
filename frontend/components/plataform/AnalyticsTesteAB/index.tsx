@@ -104,26 +104,52 @@ const AnalyticsTesteAB = ({ testAB, onClose }: IAnalyticsTesteABProps) => {
             >
               <TbHandClick className={styles.icon} />
               <div className={styles.info_item_dados}>
-                <p>
-                  A:{' '}
-                  {data
-                    ? data.ANALYTICS_A.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
-                      ? (data.ANALYTICS_A.CAMPAIGN.FEATURE?.EXTERNAL_LINK
-                          ?.BUTTON_CLICK_TEST_AB ?? 0)
-                      : 0
-                    : '—'}{' '}
-                  Clicks CTA
-                </p>
-                <p>
-                  B:{' '}
-                  {data
-                    ? data.ANALYTICS_B.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
-                      ? (data.ANALYTICS_B.CAMPAIGN.FEATURE?.EXTERNAL_LINK
-                          ?.BUTTON_CLICK_TEST_AB ?? 0)
-                      : 0
-                    : '—'}{' '}
-                  Clicks CTA
-                </p>
+                {(() => {
+                  // Campanha A
+                  let ctaGeralA = data?.ANALYTICS_A.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
+                    ? (data?.ANALYTICS_A.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_TEST_AB ?? 0)
+                    : 0;
+                  let ctaInternoA = Array.isArray(data?.ANALYTICS_A.CAMPAIGN.CAMPAIGN_VIDEOS)
+                    ? data.ANALYTICS_A.CAMPAIGN.CAMPAIGN_VIDEOS.reduce((sum, video) => {
+                        if (video.CTA === true) {
+                          return sum + (video.CTA_CLICK_TEST_AB ?? 0);
+                        }
+                        return sum;
+                      }, 0)
+                    : 0;
+                  let totalCTAA = ctaGeralA + ctaInternoA;
+                  let totalPlaysA = data?.ANALYTICS_A.ANALYTICS.TOTAL_PLAYS ?? 0;
+                  let pctA = totalPlaysA > 0 ? ((totalCTAA / totalPlaysA) * 100).toFixed(2) : '0.00';
+
+                  // Campanha B
+                  let ctaGeralB = data?.ANALYTICS_B.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
+                    ? (data?.ANALYTICS_B.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_TEST_AB ?? 0)
+                    : 0;
+                  let ctaInternoB = Array.isArray(data?.ANALYTICS_B.CAMPAIGN.CAMPAIGN_VIDEOS)
+                    ? data.ANALYTICS_B.CAMPAIGN.CAMPAIGN_VIDEOS.reduce((sum, video) => {
+                        if (video.CTA === true) {
+                          return sum + (video.CTA_CLICK_TEST_AB ?? 0);
+                        }
+                        return sum;
+                      }, 0)
+                    : 0;
+                  let totalCTAB = ctaGeralB + ctaInternoB;
+                  let totalPlaysB = data?.ANALYTICS_B.ANALYTICS.TOTAL_PLAYS ?? 0;
+                  let pctB = totalPlaysB > 0 ? ((totalCTAB / totalPlaysB) * 100).toFixed(2) : '0.00';
+
+                  return (
+                    <>
+                      <p>
+                        A: {data ? totalCTAA : '—'} Clicks em CTA (Geral + Interno)
+                        <span style={{ marginLeft: 8, color: '#aaa', fontSize: 12 }}>({pctA}%)</span>
+                      </p>
+                      <p>
+                        B: {data ? totalCTAB : '—'} Clicks em CTA (Geral + Interno)
+                        <span style={{ marginLeft: 8, color: '#aaa', fontSize: 12 }}>({pctB}%)</span>
+                      </p>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 

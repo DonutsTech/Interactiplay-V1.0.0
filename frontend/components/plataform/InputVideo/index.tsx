@@ -111,7 +111,7 @@ const InputVideo = () => {
           <p className={styles.inputVideo_text}>
             {isDisabled
               ? `Limite de ${videoLimit} vídeo(s) atingido`
-              : 'Clique ou arraste o arquivo'}
+              : 'Clique ou arraste o vídeo'}
           </p>
           <input
             type="file"

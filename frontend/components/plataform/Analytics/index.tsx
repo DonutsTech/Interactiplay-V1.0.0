@@ -98,23 +98,34 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
             >
               <TbHandClick className={styles.icon} />
               <div className={styles.info_item_dados}>
-                <p>
-                  {data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
+                {(() => {
+                  // CTA Geral (EXTERNAL_LINK)
+                  const ctaGeral = data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
                     ? (data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ?? 0)
-                    : 0}{' '}
-                  Click no CTA Geral
-                </p>
-                <p>
-                  {data.ANALYTICS.TOTAL_PLAYS > 0 &&
-                  data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
-                    ? (
-                        ((data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ?? 0) /
-                          data.ANALYTICS.TOTAL_PLAYS) *
-                        100
-                      ).toFixed(2)
-                    : '0.00'}
-                  %
-                </p>
+                    : 0;
+                  // CTA Interno (vídeos)
+                  const ctaInternoTotal = Array.isArray(data.CAMPAIGN.CAMPAIGN_VIDEOS)
+                    ? data.CAMPAIGN.CAMPAIGN_VIDEOS.reduce((sum, video) => {
+                        if (video.CTA === true) {
+                          return sum + (video.CTA_CLICK_CAMPAING ?? 0);
+                        }
+                        return sum;
+                      }, 0)
+                    : 0;
+                  const totalCTA = ctaGeral + ctaInternoTotal;
+                  const totalPlays = data.ANALYTICS.TOTAL_PLAYS;
+                  const pct = totalPlays > 0 ? ((totalCTA / totalPlays) * 100).toFixed(2) : '0.00';
+                  return (
+                    <>
+                      <p>
+                        {totalCTA} Clicks em CTA (Geral + Interno)
+                      </p>
+                      <p>
+                        {pct}%
+                      </p>
+                    </>
+                  );
+                })()}
               </div>
             </div>
             <div

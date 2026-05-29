@@ -13,17 +13,28 @@ const SectionViews = (data: IAnalyticsSocketData) => {
   const total = data.ANALYTICS.TOTAL_VIEWS;
   const totalPlays = data.ANALYTICS.TOTAL_PLAYS;
 
+  // CTA Geral (EXTERNAL_LINK)
   const ctaGeral =
     data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
       ? (data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ?? 0)
       : 0;
+  // CTA Interno (vídeos)
+  const ctaInternoTotal = Array.isArray(data.CAMPAIGN.CAMPAIGN_VIDEOS)
+    ? data.CAMPAIGN.CAMPAIGN_VIDEOS.reduce((sum, video) => {
+        if (video.CTA === true) {
+          return sum + (video.CTA_CLICK_CAMPAING ?? 0);
+        }
+        return sum;
+      }, 0)
+    : 0;
+  const totalCTA = ctaGeral + ctaInternoTotal;
 
   const radialData = useMemo(
     () => [
       {
         name: 'Clicks CTA',
-        value: totalPlays > 0 ? (ctaGeral / totalPlays) * 100 : 0,
-        absolute: ctaGeral,
+        value: totalPlays > 0 ? (totalCTA / totalPlays) * 100 : 0,
+        absolute: totalCTA,
         base: totalPlays,
         fill: '#5FFF9E',
         complemento: 'do total de plays',
@@ -56,7 +67,7 @@ const SectionViews = (data: IAnalyticsSocketData) => {
         complemento: 'do total de views',
       },
     ],
-    [ctaGeral, data.ANALYTICS.TOTAL_PLAY_UNIQUE, data.ANALYTICS.TOTAL_PLAYS, total, totalPlays]
+    [totalCTA, data.ANALYTICS.TOTAL_PLAY_UNIQUE, data.ANALYTICS.TOTAL_PLAYS, total, totalPlays]
   );
 
   const deviceData = useMemo(() => {
@@ -161,7 +172,7 @@ const SectionViews = (data: IAnalyticsSocketData) => {
               const stages = [
                 '1. Alcance',
                 '2. Engajamento',
-                '3. Retenção',
+                '3. Descoberta',
                 '4. Conversão',
               ];
               return (
