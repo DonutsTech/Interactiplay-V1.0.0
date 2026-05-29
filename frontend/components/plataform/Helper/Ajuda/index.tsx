@@ -78,11 +78,6 @@ const Ajuda = () => {
   }, [authUser]);
 
 
-
-
-
-
-  // Handler de envio do formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await handleRequest(
@@ -197,7 +192,7 @@ const Ajuda = () => {
           <BtnG
             type="submit"
             text={isLoading ? "Enviando..." : "Enviar"}
-            disabled={!msgPayload.message || isLoading}
+            disabled={msgPayload.message.trim().length < 3 || isLoading}
           />
         </form>
       </div>
