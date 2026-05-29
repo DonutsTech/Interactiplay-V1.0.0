@@ -1,86 +1,157 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import React, { useState } from 'react';
 import styles from './Formulario.module.scss';
 import { phoneMask, validarCelularBRCompleto } from '@/utils/PhoneUtils';
+import { useError } from '@/context/ErrorContext';
+import ButtonAcess from '@/components/acess/ButtonAcess';
 
-const formSchema = z.object({
-  nome: z.string().min(3, 'O nome é obrigatório'),
-  email: z.string().email('Email inválido'),
-  telefone: z.string().refine(validarCelularBRCompleto, {
-    message: 'Telefone inválido.',
-  }),
-  mensagem: z
-    .string()
-    .min(10, 'A mensagem muito curta. Por favor, forneça mais detalhes.'),
-});
+interface FormData {
+  nome: string;
+  email: string;
+  telefone: string;
+  mensagem: string;
+}
 
-type FormData = z.infer<typeof formSchema>;
+const validateEmail = (email: string) => {
+  if (!email) return false;
+  // Regex simples, igual cadastro
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
 
-const Formulario = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    setValue,
-  } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+const validateNome = (nome: string) => {
+  if (!nome) return false;
+  return nome.trim().length >= 3;
+};
+
+const validateMensagem = (mensagem: string) => {
+  if (!mensagem) return false;
+  return mensagem.trim().length > 0;
+};
+
+const Formulario: React.FC = () => {
+  const [form, setForm] = useState<FormData>({
+    nome: '',
+    email: '',
+    telefone: '',
+    mensagem: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { showError, showSuccess } = useError();
 
-  const onSubmit = async (data: FormData) => {
-    console.log('Formulário enviado:', data);
-    // #completar Adicionar a lógica para enviar os dados para o backend ou API
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setForm((prev: FormData) => ({
+      ...prev,
+      [name]: name === 'telefone' ? phoneMask(value) : value
+    }));
+  };
+
+  const validate = (): boolean => {
+    if (!validateNome(form.nome)) {
+      showError('O nome é obrigatório e deve ter pelo menos 3 caracteres.');
+      return false;
+    }
+    const emailValido = validateEmail(form.email);
+    const telefoneValido = validarCelularBRCompleto(form.telefone);
+    if (!emailValido && !telefoneValido) {
+      showError('Informe pelo menos um contato válido: email ou telefone.');
+      return false;
+    }
+    if (form.email && !emailValido) {
+      showError('Email inválido.');
+      return false;
+    }
+    if (form.telefone && !telefoneValido) {
+      showError('Telefone inválido.');
+      return false;
+    }
+    if (!validateMensagem(form.mensagem)) {
+      showError('A mensagem não pode estar vazia.');
+      return false;
+    }
+    return true;
+  };
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!validate()) return;
+    setIsSubmitting(true);
+    try {
+      const body = {
+        EMAIL: form.email,
+        NAME: form.nome,
+        PHONE: form.telefone,
+        MESSAGE: form.mensagem,
+      };
+      const res = await fetch('/send-email-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.MESSAGE || 'Erro ao enviar mensagem.');
+      }
+      showSuccess('Mensagem enviada com sucesso!');
+      setForm({ nome: '', email: '', telefone: '', mensagem: '' });
+    } catch (err: any) {
+      showError(err.message || 'Erro ao enviar mensagem.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+    <form className={styles.form} onSubmit={onSubmit} autoComplete="off">
       <div className={styles.form_group}>
         <label htmlFor="nome">Nome</label>
         <input
           id="nome"
-          {...register('nome')}
+          name="nome"
+          value={form.nome}
+          onChange={handleChange}
           placeholder="Digite seu nome"
           required
         />
-        <span className={styles.errorMsg}>{errors.nome ? errors.nome.message : ''}</span>
       </div>
       <div className={styles.form_group}>
         <label htmlFor="email">Email</label>
-        <input 
+        <input
           id="email"
-          {...register('email')}
+          name="email"
+          value={form.email}
+          onChange={handleChange}
           placeholder="Digite o seu e-mail"
-          required
         />
-        <span className={styles.errorMsg}>{errors.email ? errors.email.message : ''}</span>
       </div>
       <div className={styles.form_group}>
         <label htmlFor="telefone">Whatsapp</label>
-        <input 
-          id='telefone'
-          {...register('telefone')}
-          placeholder='Seu telefone'
-          onChange={(e) => {
-            const masked = phoneMask(e.target.value);
-            setValue('telefone', masked);
-          }}
+        <input
+          id="telefone"
+          name="telefone"
+          value={form.telefone}
+          onChange={handleChange}
+          placeholder="Seu telefone"
         />
-        <span className={styles.errorMsg}>{errors.telefone ? errors.telefone.message : ''}</span>
       </div>
       <div className={styles.form_group}>
         <label htmlFor="mensagem">Mensagem</label>
-        <textarea 
+        <textarea
           id="mensagem"
-          {...register('mensagem')}
+          name="mensagem"
+          value={form.mensagem}
+          onChange={handleChange}
           placeholder="Escreva sua mensagem"
           rows={4}
-          
+          required
         />
-        <span className={styles.errorMsg}>{errors.mensagem ? errors.mensagem.message : ''}</span>
-      </div>  
-      <button type="submit" disabled={isSubmitting} className={styles.submitBtn}>
-        {isSubmitting ? 'Enviando...' : 'Enviar'}
-      </button>
+      </div>
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <ButtonAcess
+          text={isSubmitting ? 'Enviando...' : 'Enviar'}
+          type="submit"
+          disabled={isSubmitting}
+        />
+      </div>
     </form>
   );
 };
