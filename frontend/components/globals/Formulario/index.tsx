@@ -82,11 +82,14 @@ const Formulario: React.FC = () => {
         PHONE: form.telefone,
         MESSAGE: form.mensagem,
       };
-      const res = await fetch('/api/send-email-contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      const res = await fetch(
+        "https://api.experimenteumdonuts.app.br/api/send-email-contact",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+      );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data?.MESSAGE || 'Erro ao enviar mensagem.');
