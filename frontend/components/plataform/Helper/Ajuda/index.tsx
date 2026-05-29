@@ -9,9 +9,9 @@ import { FaTrashAlt } from "react-icons/fa";
 import Link from 'next/link';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthUserContext } from '@/context/AuthUserContext';
-import { phoneMask } from '@/utils/PhoneUtils';
-import { formatDateBR } from '@/utils/stringUtils';
+import { useError } from '@/context/ErrorContext';
 import BtnG from '../../BtnG';
+import { sendEmailSup } from '@/service/externalLink/sendEmailSup';
 
 
 interface IMsgPayload {
@@ -24,11 +24,13 @@ interface IMsgPayload {
 
 
 const Ajuda = () => {
-  const {authUser} = useContext(AuthUserContext);
+
+  const { authUser } = useContext(AuthUserContext);
+  const { handleRequest, isLoading } = useError();
   const [href, setHref] = useState<string>('');
 
   if (!authUser) {
-    return null; 
+    return null;
   }
 
   const [msgPayload, setMsgPayload] = useState<IMsgPayload>({
@@ -79,34 +81,62 @@ const Ajuda = () => {
 
 
 
+
+  // Handler de envio do formulário
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleRequest(
+      () => sendEmailSup({
+        EMAIL: msgPayload.email,
+        NAME: msgPayload.name,
+        PHONE: msgPayload.phone,
+        MESSAGE: msgPayload.message,
+        PHOTOS: msgPayload.images,
+      }),
+      {
+        loadingMessage: 'Enviando mensagem...',
+        successMessage: 'Mensagem enviada com sucesso! Em breve entraremos em contato.',
+        errorToastOptions: { autoClose: 7000 },
+        onSuccess: () => {
+          setMsgPayload({
+            name: authUser.USER.NAME,
+            email: authUser.USER.EMAIL,
+            phone: authUser.USER.PHONE,
+            message: '',
+            images: []
+          });
+        },
+      }
+    );
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.left}>
-
         <h4>
           Dúvidas? <br /> Vamos transformar sua ideia em interação!
         </h4>
         <Image src={logo} alt="Logo Interactiplay" width={200} />
         <div className={styles.helper}>
           <p>Confira a nossa seção de perguntas Frequentes:</p>
-          <Link 
+          <Link
             href="https://interactiplay.tawk.help/"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.helperLink}
-            title='Acessar seção de perguntas frequentes'
+            title="Acessar seção de perguntas frequentes"
           >
-            Acesse aqui <FaArrowRightLong  className={styles.arrow}/>
+            Acesse aqui <FaArrowRightLong className={styles.arrow} />
           </Link>
         </div>
         <div className={styles.whats}>
           <p>Ou se preferir, fale com a gente no WhatsApp:</p>
-          <Link 
+          <Link
             href={href}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.whatsLink}
-            title='Mandar mensagem no whatsapp'
+            title="Mandar mensagem no whatsapp"
           >
             Enviar a mensagem <IoLogoWhatsapp className={styles.whatsIcon} />
           </Link>
@@ -114,13 +144,13 @@ const Ajuda = () => {
       </div>
       <div className={styles.right}>
         <p className={styles.title}>Algo que podemos melhorar? <br /> Nos avise!</p>
-        <form action="submit">
+        <form onSubmit={handleSubmit}>
           <div className={`${styles.formGroup} ${styles.image}`}>
-            <input 
+            <input
               type="file"
               id="image"
-              accept='.jpeg, .png'
-              placeholder='Imagem do erro'
+              accept=".jpeg, .png"
+              placeholder="Imagem do erro"
               ref={fileInputRef}
               onChange={(e) => {
                 const files = e.target.files;
@@ -129,15 +159,16 @@ const Ajuda = () => {
                 }
               }}
               multiple
+              disabled={isLoading}
             />
-
           </div>
           <div className={`${styles.formGroup} ${styles.message}`}>
-            <textarea 
+            <textarea
               id="ajuda-message-textarea"
-              placeholder='Descreva aqui, você pode também incluir imagens, basta colar.'
+              placeholder="Descreva aqui, você pode também incluir imagens, basta colar."
               value={msgPayload.message}
-              onChange={(e) => setMsgPayload({...msgPayload, message: e.target.value})}
+              onChange={(e) => setMsgPayload({ ...msgPayload, message: e.target.value })}
+              disabled={isLoading}
             />
           </div>
           {msgPayload.message.length > 0 && (
@@ -152,7 +183,6 @@ const Ajuda = () => {
                   <span
                     title="Remover imagem"
                     className={styles.remove}
-                    // style={{marginLeft:8, cursor:'pointer', color:'#f44'}}
                     onClick={() => {
                       setMsgPayload(prev => ({
                         ...prev,
@@ -164,10 +194,10 @@ const Ajuda = () => {
               ))}
             </ul>
           </div>
-          <BtnG 
-            type='submit'
-            text="Enviar"
-            disabled={!msgPayload.message}
+          <BtnG
+            type="submit"
+            text={isLoading ? "Enviando..." : "Enviar"}
+            disabled={!msgPayload.message || isLoading}
           />
         </form>
       </div>
