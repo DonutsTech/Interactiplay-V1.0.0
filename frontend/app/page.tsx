@@ -17,11 +17,13 @@ import Security from '@/components/lp/Security';
 import SocialProof from '@/components/lp/SocialProof';
 import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
+import { useRouter } from 'next/navigation';
 import { useContext, useEffect } from 'react';
 
 export default function Home() {
   const { isLoading } = useIsLoading();
   const { user, setUser } = useContext(UserContext);
+  const router = useRouter();
 
   useEffect(() => {
     if (user.id === '') {
@@ -34,6 +36,12 @@ export default function Home() {
       return;
     }
   }, []);
+
+    useEffect(() => {
+      if (window.location.pathname === "/") {
+        router.replace("/");
+      }
+    }, [router]);
 
   return (
     <>

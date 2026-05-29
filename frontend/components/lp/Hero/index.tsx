@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import BtnDefault from '@/components/globals/BtnDefault';
-import { useIsLoading } from '@/context/ErrorContext';
-import { UserContext } from '@/context/UserContext';
-import { useContext, useEffect, useState } from 'react';
-import styles from './Hero.module.scss';
+import BtnDefault from "@/components/globals/BtnDefault";
+import { useIsLoading } from "@/context/ErrorContext";
+import { UserContext } from "@/context/UserContext";
+import { useContext, useEffect, useState } from "react";
+import styles from "./Hero.module.scss";
 
 const Hero = () => {
   const [mounted, setMounted] = useState(false);
@@ -28,13 +28,13 @@ const Hero = () => {
           <h1 className={styles.hero_container_left_title}>
             Crie vídeos de vendas interativos que convertem 5x mais em relação a
             vídeos estáticos
-          </h1>{' '}
+          </h1>{" "}
           <br />
           <h3 className={styles.hero_container_left_description}>
             Apresentamos a ISL — Interacti Sales Letter: uma nova geração de
             vídeos de vendas que adaptam a mensagem à dor do seu cliente e o
             levam direto à ação.
-          </h3>{' '}
+          </h3>{" "}
           <br />
           <div className={styles.hero_container_left_btn}>
             <BtnDefault
@@ -44,7 +44,7 @@ const Hero = () => {
                 setIsLoading(true);
                 setUser({
                   ...user,
-                  selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
+                  selectedPlan: "db9da2ad-c416-45d7-a420-41c73fef270b",
                 });
                 setTimeout(() => {
                   setIsLoading(false);
@@ -56,8 +56,8 @@ const Hero = () => {
 
         <div className={styles.hero_container_right}>
           <div className={styles.hero_container_right_videoWrapper}>
-            {mounted && (
-              //Mockup provisório, substituir depois por Campanha interativo
+            {/* {mounted && (
+              Mockup provisório, substituir depois por Campanha interativo
               <video
                 src="/media/videos/app.mp4"
                 autoPlay
@@ -69,7 +69,26 @@ const Hero = () => {
               >
                 Seu navegador não suporta vídeo.
               </video>
-            )}
+              <iframe
+                src="https://api.experimenteumdonuts.app.br/widget/index.html"
+                name='{"campaign": "55bc55fb-be85-4055-9cf9-059216369070"}'
+              ></iframe>
+
+              
+            )} */}
+            <iframe
+              src="https://api.experimenteumdonuts.app.br/widget/index.html"
+              name='{"campaign": "55bc55fb-be85-4055-9cf9-059216369070"}'
+              style={{
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                overflow: 'hidden',
+                display: 'block',
+              }}
+              scrolling="no"
+              allowFullScreen
+            />
           </div>
           <div className={styles.hero_container_right_btn}>
             <BtnDefault
@@ -79,7 +98,7 @@ const Hero = () => {
                 setIsLoading(true);
                 setUser({
                   ...user,
-                  selectedPlan: 'db9da2ad-c416-45d7-a420-41c73fef270b',
+                  selectedPlan: "db9da2ad-c416-45d7-a420-41c73fef270b",
                 });
                 setTimeout(() => {
                   setIsLoading(false);
