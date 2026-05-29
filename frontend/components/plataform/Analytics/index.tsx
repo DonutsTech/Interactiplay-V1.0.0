@@ -118,7 +118,7 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
                   return (
                     <>
                       <p>
-                        {totalCTA} Clicks em CTA (Geral + Interno)
+                        {totalCTA} Clicks em CTA 
                       </p>
                       <p>
                         {pct}%

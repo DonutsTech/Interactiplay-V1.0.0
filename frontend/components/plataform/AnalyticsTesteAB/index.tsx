@@ -140,11 +140,11 @@ const AnalyticsTesteAB = ({ testAB, onClose }: IAnalyticsTesteABProps) => {
                   return (
                     <>
                       <p>
-                        A: {data ? totalCTAA : '—'} Clicks em CTA (Geral + Interno)
+                        A: {data ? totalCTAA : '—'} Clicks em CTA 
                         <span style={{ marginLeft: 8, color: '#aaa', fontSize: 12 }}>({pctA}%)</span>
                       </p>
                       <p>
-                        B: {data ? totalCTAB : '—'} Clicks em CTA (Geral + Interno)
+                        B: {data ? totalCTAB : '—'} Clicks em CTA 
                         <span style={{ marginLeft: 8, color: '#aaa', fontSize: 12 }}>({pctB}%)</span>
                       </p>
                     </>
