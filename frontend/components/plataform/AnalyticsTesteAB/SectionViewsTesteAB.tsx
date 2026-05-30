@@ -49,26 +49,15 @@ const CampaignEfficiencyPanel = ({
     : 0;
   const totalCTA = ctaGeral + ctaInternoTotal;
 
+  // Funil: Views (sempre 100%), Plays (% sobre Views), Plays Únicos e Clicks (% sobre Plays)
   const radialData = [
     {
-      name: 'Clicks CTA',
-      value:
-        totalPlays > 0
-          ? (totalCTA / totalPlays) * 100
-          : 0,
-      absolute: totalCTA,
-      base: totalPlays,
-      fill: '#5FFF9E',
-      complemento: 'do total de plays',
-    },
-    {
-      name: 'Plays Unicos',
-      value:
-        totalPlays > 0 ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100 : 0,
-      absolute: data.ANALYTICS.TOTAL_PLAY_UNIQUE,
-      base: totalPlays,
-      fill: '#FFE85F',
-      complemento: 'do total de plays',
+      name: 'Views',
+      value: 100,
+      absolute: total,
+      base: total,
+      fill: 'rgba(242,242,242,0.4)',
+      complemento: 'do total de views',
     },
     {
       name: 'Plays',
@@ -79,12 +68,20 @@ const CampaignEfficiencyPanel = ({
       complemento: 'do total de views',
     },
     {
-      name: 'Views',
-      value: 100,
-      absolute: total,
-      base: total,
-      fill: 'rgba(242,242,242,0.4)',
-      complemento: 'do total de views',
+      name: 'Plays Unicos',
+      value: totalPlays > 0 ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100 : 0,
+      absolute: data.ANALYTICS.TOTAL_PLAY_UNIQUE,
+      base: totalPlays,
+      fill: '#FFE85F',
+      complemento: 'do total de plays',
+    },
+    {
+      name: 'Clicks CTA',
+      value: totalPlays > 0 ? (totalCTA / totalPlays) * 100 : 0,
+      absolute: totalCTA,
+      base: totalPlays,
+      fill: '#5FFF9E',
+      complemento: 'do total de plays',
     },
   ];
 
@@ -153,10 +150,9 @@ const CampaignEfficiencyPanel = ({
       </div>
 
       <div className={localStyles.viewsLegend}>
-        {[...radialData].reverse().map((item, index) => {
+        {radialData.map((item, index) => {
           const pct = item.base > 0 ? ((item.absolute / item.base) * 100).toFixed(1) : '0.0';
           const stages = ['1. Alcance', '2. Engajamento', '3. Retencao', '4. Conversao'];
-
           return (
             <div key={item.name} className={localStyles.viewsLegendItem}>
               <span className={localStyles.viewsLegendStage}>{stages[index]}</span>

@@ -29,26 +29,16 @@ const SectionViews = (data: IAnalyticsSocketData) => {
     : 0;
   const totalCTA = ctaGeral + ctaInternoTotal;
 
+  // Funil: Views (sempre 100%), Plays (% sobre Views), Plays Únicos e Clicks (% sobre Plays)
   const radialData = useMemo(
     () => [
       {
-        name: 'Clicks CTA',
-        value: totalPlays > 0 ? (totalCTA / totalPlays) * 100 : 0,
-        absolute: totalCTA,
-        base: totalPlays,
-        fill: '#5FFF9E',
-        complemento: 'do total de plays',
-      },
-      {
-        name: 'Plays Únicos',
-        value:
-          totalPlays > 0
-            ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100
-            : 0,
-        absolute: data.ANALYTICS.TOTAL_PLAY_UNIQUE,
-        base: totalPlays,
-        fill: '#FFE85F',
-        complemento: 'do total de plays',
+        name: 'Views',
+        value: 100,
+        absolute: total,
+        base: total,
+        fill: 'rgba(242,242,242,0.4)',
+        complemento: 'do total de views',
       },
       {
         name: 'Plays',
@@ -59,15 +49,23 @@ const SectionViews = (data: IAnalyticsSocketData) => {
         complemento: 'do total de views',
       },
       {
-        name: 'Views',
-        value: 100,
-        absolute: total,
-        base: total,
-        fill: 'rgba(242,242,242,0.4)',
-        complemento: 'do total de views',
+        name: 'Plays Únicos',
+        value: totalPlays > 0 ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100 : 0,
+        absolute: data.ANALYTICS.TOTAL_PLAY_UNIQUE,
+        base: totalPlays,
+        fill: '#FFE85F',
+        complemento: 'do total de plays',
+      },
+      {
+        name: 'Clicks CTA',
+        value: totalPlays > 0 ? (totalCTA / totalPlays) * 100 : 0,
+        absolute: totalCTA,
+        base: totalPlays,
+        fill: '#5FFF9E',
+        complemento: 'do total de plays',
       },
     ],
-    [totalCTA, data.ANALYTICS.TOTAL_PLAY_UNIQUE, data.ANALYTICS.TOTAL_PLAYS, total, totalPlays]
+    [total, totalPlays, data.ANALYTICS.TOTAL_PLAYS, data.ANALYTICS.TOTAL_PLAY_UNIQUE, totalCTA]
   );
 
   const deviceData = useMemo(() => {
@@ -164,7 +162,7 @@ const SectionViews = (data: IAnalyticsSocketData) => {
             </ResponsiveContainer>
           </div>
           <div className={styles.funnelLegend}>
-            {[...radialData].reverse().map((item, index) => {
+            {radialData.map((item, index) => {
               const pct =
                 item.base > 0
                   ? ((item.absolute / item.base) * 100).toFixed(2)
@@ -187,7 +185,6 @@ const SectionViews = (data: IAnalyticsSocketData) => {
                   <span className={styles.funnelPct}>
                     {pct}% {item.complemento}
                   </span>
-                  {/* <span className={styles.funnelPct}>{item.complemento}</span> */}
                 </div>
               );
             })}
