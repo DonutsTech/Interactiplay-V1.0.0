@@ -42,7 +42,7 @@ class MailService {
 
       await transporterInfo.sendMail({
         from: process.env.MAIL_USER_3,
-        to: process.env.MAIL_USER_1,
+        to: process.env.MAIL_USER_2,
         subject: 'Nova Solicitação do usuario',
         html,
         ...(attachments ? { attachments } : {}),
