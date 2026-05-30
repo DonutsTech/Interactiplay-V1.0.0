@@ -33,19 +33,37 @@ const CampaignEfficiencyPanel = ({
 }: ICampaignEfficiencyPanelProps) => {
   const total = data.ANALYTICS.TOTAL_VIEWS;
   const totalPlays = data.ANALYTICS.TOTAL_PLAYS;
+  // CTA Geral
   const ctaGeral =
     data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
       ? (data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_TEST_AB ?? 0)
       : 0;
 
+  // Cliques CTA interno dos vídeos
+  const ctaInterno = Array.isArray(data.CAMPAIGN.CAMPAIGN_VIDEOS)
+    ? data.CAMPAIGN.CAMPAIGN_VIDEOS.reduce(
+        (acc, video) => acc + (video.CTA_CLICK_TEST_AB ?? 0),
+        0
+      )
+    : 0;
+
+  // Soma total de cliques
+  const totalCta = ctaGeral + ctaInterno;
+
   const radialData = [
     {
       name: "Clicks CTA",
-      value: totalPlays > 0 ? (ctaGeral / totalPlays) * 100 : 0,
-      absolute: ctaGeral,
+      value:
+        totalPlays > 0
+          ? Math.min((totalCta / totalPlays) * 100, 100)
+          : 0,
+      absolute: totalCta,
       base: totalPlays,
       fill: "#5FFF9E",
       complemento: "do total de plays",
+      realPct: totalPlays > 0 ? ((totalCta / totalPlays) * 100) : 0,
+      ctaGeral,
+      ctaInterno,
     },
     {
       name: "Plays Unicos",
@@ -82,6 +100,7 @@ const CampaignEfficiencyPanel = ({
         <span className={badgeClassName}>{badgeLabel}</span>
         Eficiencia
       </p>
+
       <div className={styles.radialArea}>
         <ResponsiveContainer width="100%" height={220}>
           <RadialBarChart
@@ -104,8 +123,46 @@ const CampaignEfficiencyPanel = ({
                 if (!payload || payload.length === 0) {
                   return null;
                 }
-
                 const item = payload[0];
+                // Tooltip especial para Clicks CTA
+                if (item.payload.name === "Clicks CTA") {
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: "#0F073E",
+                        border: "1px solid rgba(153,0,255,0.3)",
+                        borderRadius: "10px",
+                        padding: "8px 12px",
+                        fontSize: "12px",
+                        color: "#F2F2F2",
+                        minWidth: "170px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontWeight: 600,
+                          marginBottom: 4,
+                          color: item.payload.fill,
+                        }}
+                      >
+                        {item.payload.name}
+                      </p>
+                      <p style={{ marginBottom: 2 }}>
+                        {item.payload.realPct?.toFixed(1)}% do total
+                      </p>
+                      <p style={{ color: "rgba(242,242,242,0.5)", marginBottom: 2 }}>
+                        {item.payload.absolute} usuario{item.payload.absolute !== 1 ? "s" : ""}
+                      </p>
+                      <p style={{ color: "#5FFF9E", marginBottom: 0 }}>
+                        CTA Geral: {item.payload.ctaGeral}
+                      </p>
+                      <p style={{ color: "#FFE85F", marginBottom: 0 }}>
+                        CTA Interno: {item.payload.ctaInterno}
+                      </p>
+                    </div>
+                  );
+                }
+                // Demais
                 return (
                   <div
                     style={{
