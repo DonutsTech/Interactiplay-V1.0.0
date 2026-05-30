@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import styles from '../Analytics/Analytics.module.scss';
-import localStyles from './AnalyticsTesteAB.module.scss';
+import styles from "../Analytics/Analytics.module.scss";
+import localStyles from "./AnalyticsTesteAB.module.scss";
 import {
   Cell,
   Pie,
@@ -10,11 +10,11 @@ import {
   RadialBarChart,
   ResponsiveContainer,
   Tooltip,
-} from 'recharts';
+} from "recharts";
 import {
   IAnalyticsSocketData,
   ITestABAnalyticsSocketData,
-} from '@/@types/AnalyticSocketData';
+} from "@/@types/AnalyticSocketData";
 
 interface ISectionViewsTesteABProps {
   data: ITestABAnalyticsSocketData;
@@ -33,55 +33,46 @@ const CampaignEfficiencyPanel = ({
 }: ICampaignEfficiencyPanelProps) => {
   const total = data.ANALYTICS.TOTAL_VIEWS;
   const totalPlays = data.ANALYTICS.TOTAL_PLAYS;
-  // CTA Geral (EXTERNAL_LINK)
   const ctaGeral =
     data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
       ? (data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_TEST_AB ?? 0)
       : 0;
-  // CTA Interno (vídeos)
-  const ctaInternoTotal = Array.isArray(data.CAMPAIGN.CAMPAIGN_VIDEOS)
-    ? data.CAMPAIGN.CAMPAIGN_VIDEOS.reduce((sum, video) => {
-        if (video.CTA === true) {
-          return sum + (video.CTA_CLICK_TEST_AB ?? 0);
-        }
-        return sum;
-      }, 0)
-    : 0;
-  const totalCTA = ctaGeral + ctaInternoTotal;
 
-  // Funil: Views (sempre 100%), Plays (% sobre Views), Plays Únicos e Clicks (% sobre Plays)
   const radialData = [
     {
-      name: 'Views',
-      value: 100,
-      absolute: total,
-      base: total,
-      fill: 'rgba(242,242,242,0.4)',
-      complemento: 'do total de views',
+      name: "Clicks CTA",
+      value: totalPlays > 0 ? (ctaGeral / totalPlays) * 100 : 0,
+      absolute: ctaGeral,
+      base: totalPlays,
+      fill: "#5FFF9E",
+      complemento: "do total de plays",
     },
     {
-      name: 'Plays',
+      name: "Plays Unicos",
+      value:
+        totalPlays > 0
+          ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100
+          : 0,
+      absolute: data.ANALYTICS.TOTAL_PLAY_UNIQUE,
+      base: totalPlays,
+      fill: "#FFE85F",
+      complemento: "do total de plays",
+    },
+    {
+      name: "Plays",
       value: total > 0 ? (data.ANALYTICS.TOTAL_PLAYS / total) * 100 : 0,
       absolute: data.ANALYTICS.TOTAL_PLAYS,
       base: total,
-      fill: '#00FFF1',
-      complemento: 'do total de views',
+      fill: "#00FFF1",
+      complemento: "do total de views",
     },
     {
-      name: 'Plays Unicos',
-      value: totalPlays > 0 ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100 : 0,
-      absolute: data.ANALYTICS.TOTAL_PLAY_UNIQUE,
-      base: totalPlays,
-      fill: '#FFE85F',
-      complemento: 'do total de plays',
-    },
-    {
-      name: 'Clicks CTA',
-      value: totalPlays > 0 ? (totalCTA / totalPlays) * 100 : 0,
-      absolute: totalCTA,
-      base: totalPlays,
-      fill: '#5FFF9E',
-      complemento: 'do total de plays',
+      name: "Views",
+      value: 100,
+      absolute: total,
+      base: total,
+      fill: "rgba(242,242,242,0.4)",
+      complemento: "do total de views",
     },
   ];
 
@@ -106,7 +97,7 @@ const CampaignEfficiencyPanel = ({
             <RadialBar
               dataKey="value"
               cornerRadius={8}
-              background={{ fill: 'rgba(255,255,255,0.04)' }}
+              background={{ fill: "rgba(255,255,255,0.04)" }}
             />
             <Tooltip
               content={({ payload }) => {
@@ -118,13 +109,13 @@ const CampaignEfficiencyPanel = ({
                 return (
                   <div
                     style={{
-                      backgroundColor: '#0F073E',
-                      border: '1px solid rgba(153,0,255,0.3)',
-                      borderRadius: '10px',
-                      padding: '8px 12px',
-                      fontSize: '12px',
-                      color: '#F2F2F2',
-                      minWidth: '140px',
+                      backgroundColor: "#0F073E",
+                      border: "1px solid rgba(153,0,255,0.3)",
+                      borderRadius: "10px",
+                      padding: "8px 12px",
+                      fontSize: "12px",
+                      color: "#F2F2F2",
+                      minWidth: "140px",
                     }}
                   >
                     <p
@@ -136,10 +127,12 @@ const CampaignEfficiencyPanel = ({
                     >
                       {item.payload.name}
                     </p>
-                    <p style={{ marginBottom: 2 }}>{Number(item.value).toFixed(1)}% do total</p>
-                    <p style={{ color: 'rgba(242,242,242,0.5)' }}>
+                    <p style={{ marginBottom: 2 }}>
+                      {Number(item.value).toFixed(1)}% do total
+                    </p>
+                    <p style={{ color: "rgba(242,242,242,0.5)" }}>
                       {item.payload.absolute} usuario
-                      {item.payload.absolute !== 1 ? 's' : ''}
+                      {item.payload.absolute !== 1 ? "s" : ""}
                     </p>
                   </div>
                 );
@@ -150,16 +143,34 @@ const CampaignEfficiencyPanel = ({
       </div>
 
       <div className={localStyles.viewsLegend}>
-        {radialData.map((item, index) => {
-          const pct = item.base > 0 ? ((item.absolute / item.base) * 100).toFixed(1) : '0.0';
-          const stages = ['1. Alcance', '2. Engajamento', '3. Retencao', '4. Conversao'];
+        {[...radialData].reverse().map((item, index) => {
+          const pct =
+            item.base > 0
+              ? ((item.absolute / item.base) * 100).toFixed(1)
+              : "0.0";
+          const stages = [
+            "1. Alcance",
+            "2. Engajamento",
+            "3. Descoberta",
+            "4. Conversao",
+          ];
+
           return (
             <div key={item.name} className={localStyles.viewsLegendItem}>
-              <span className={localStyles.viewsLegendStage}>{stages[index]}</span>
-              <span className={localStyles.viewsLegendDot} style={{ backgroundColor: item.fill }} />
+              <span className={localStyles.viewsLegendStage}>
+                {stages[index]}
+              </span>
+              <span
+                className={localStyles.viewsLegendDot}
+                style={{ backgroundColor: item.fill }}
+              />
               <span className={localStyles.viewsLegendName}>{item.name}</span>
-              <span className={localStyles.viewsLegendValue}>{item.absolute}</span>
-              <span className={localStyles.viewsLegendPct}>{pct}% {item.complemento}</span>
+              <span className={localStyles.viewsLegendValue}>
+                {item.absolute}
+              </span>
+              <span className={localStyles.viewsLegendPct}>
+                {pct}% {item.complemento}
+              </span>
             </div>
           );
         })}
@@ -178,19 +189,21 @@ const CombinedDonutPanel = ({ data }: { data: ITestABAnalyticsSocketData }) => {
   const totalPlays = playsA + playsB;
 
   const viewsData = [
-    { name: 'Views A', value: viewsA, fill: '#00FFF1' },
-    { name: 'Views B', value: viewsB, fill: '#5E7BFF' },
+    { name: "Views A", value: viewsA, fill: "#00FFF1" },
+    { name: "Views B", value: viewsB, fill: "#5E7BFF" },
   ];
 
   const playsData = [
-    { name: 'Plays A', value: playsA, fill: '#8CFFF9' },
-    { name: 'Plays B', value: playsB, fill: '#AAB8FF' },
+    { name: "Plays A", value: playsA, fill: "#8CFFF9" },
+    { name: "Plays B", value: playsB, fill: "#AAB8FF" },
   ];
 
   return (
     <div className={localStyles.viewsDonutCenter}>
-
-      <div className={styles.radialArea} style={{ width: '100%', minWidth: 0, position: 'relative' }}>
+      <div
+        className={styles.radialArea}
+        style={{ width: "100%", minWidth: 0, position: "relative" }}
+      >
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             {/* Aro externo: Views */}
@@ -226,23 +239,34 @@ const CombinedDonutPanel = ({ data }: { data: ITestABAnalyticsSocketData }) => {
               content={({ payload }) => {
                 if (!payload || payload.length === 0) return null;
                 const item = payload[0]?.payload;
-                const isViewsData = item.name.includes('Views');
+                const isViewsData = item.name.includes("Views");
                 const base = isViewsData ? totalViews : totalPlays;
-                const pct = base > 0 ? ((item.value / base) * 100).toFixed(1) : '0.0';
+                const pct =
+                  base > 0 ? ((item.value / base) * 100).toFixed(1) : "0.0";
                 return (
                   <div
                     style={{
-                      backgroundColor: '#0F073E',
-                      border: '1px solid rgba(153,0,255,0.3)',
+                      backgroundColor: "#0F073E",
+                      border: "1px solid rgba(153,0,255,0.3)",
                       borderRadius: 10,
-                      padding: '8px 12px',
+                      padding: "8px 12px",
                       fontSize: 12,
-                      color: '#F2F2F2',
+                      color: "#F2F2F2",
                     }}
                   >
-                    <p style={{ fontWeight: 600, color: item.fill, marginBottom: 4 }}>{item.name}</p>
+                    <p
+                      style={{
+                        fontWeight: 600,
+                        color: item.fill,
+                        marginBottom: 4,
+                      }}
+                    >
+                      {item.name}
+                    </p>
                     <p style={{ marginBottom: 2 }}>{item.value} entradas</p>
-                    <p style={{ color: 'rgba(242,242,242,0.6)' }}>{pct}% do total</p>
+                    <p style={{ color: "rgba(242,242,242,0.6)" }}>
+                      {pct}% do total
+                    </p>
                   </div>
                 );
               }}
@@ -253,19 +277,38 @@ const CombinedDonutPanel = ({ data }: { data: ITestABAnalyticsSocketData }) => {
         {/* Label central */}
         <div
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            textAlign: 'center',
-            pointerEvents: 'none',
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "center",
+            pointerEvents: "none",
             lineHeight: 1.5,
             zIndex: 0,
           }}
         >
-          <p style={{ fontSize: 9, color: 'rgba(242,242,242,0.35)', marginBottom: 1 }}>total</p>
-          <p style={{ fontSize: 13, fontWeight: 700, color: '#F2F2F2', lineHeight: 1.2 }}>{totalViews} views</p>
-          <p style={{ fontSize: 11, color: 'rgba(242,242,242,0.5)' }}>{totalPlays} plays</p>
+          <p
+            style={{
+              fontSize: 9,
+              color: "rgba(242,242,242,0.35)",
+              marginBottom: 1,
+            }}
+          >
+            total
+          </p>
+          <p
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: "#F2F2F2",
+              lineHeight: 1.2,
+            }}
+          >
+            {totalViews} views
+          </p>
+          <p style={{ fontSize: 11, color: "rgba(242,242,242,0.5)" }}>
+            {totalPlays} plays
+          </p>
         </div>
       </div>
     </div>
@@ -278,17 +321,17 @@ const SectionViewsTesteAB = ({ data }: ISectionViewsTesteABProps) => {
       <p className={localStyles.viewsCampaignTitle}>Views</p>
 
       <div className={localStyles.viewsRow}>
-          <CampaignEfficiencyPanel
-            badgeClassName={localStyles.slotA}
-            badgeLabel="A"
-            data={data.ANALYTICS_A}
-          />
-          <CombinedDonutPanel data={data} />
-          <CampaignEfficiencyPanel
-            badgeClassName={localStyles.slotB}
-            badgeLabel="B"
-            data={data.ANALYTICS_B}
-          />
+        <CampaignEfficiencyPanel
+          badgeClassName={localStyles.slotA}
+          badgeLabel="A"
+          data={data.ANALYTICS_A}
+        />
+        <CombinedDonutPanel data={data} />
+        <CampaignEfficiencyPanel
+          badgeClassName={localStyles.slotB}
+          badgeLabel="B"
+          data={data.ANALYTICS_B}
+        />
       </div>
     </div>
   );

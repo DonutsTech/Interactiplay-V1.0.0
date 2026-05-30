@@ -1,84 +1,93 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import styles from './Analytics.module.scss';
-import { IAnalyticsSocketData } from '@/@types/AnalyticSocketData';
+import { useMemo } from "react";
+import styles from "./Analytics.module.scss";
+import { IAnalyticsSocketData } from "@/@types/AnalyticSocketData";
 import {
-  RadialBarChart, RadialBar,
-  PieChart, Pie,
-  Tooltip, ResponsiveContainer, Cell,
-} from 'recharts';
+  RadialBarChart,
+  RadialBar,
+  PieChart,
+  Pie,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 
 const SectionViews = (data: IAnalyticsSocketData) => {
   const total = data.ANALYTICS.TOTAL_VIEWS;
   const totalPlays = data.ANALYTICS.TOTAL_PLAYS;
 
-  // CTA Geral (EXTERNAL_LINK)
+
+  // CTA Geral
   const ctaGeral =
     data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.ATIVE === true
       ? (data.CAMPAIGN.FEATURE?.EXTERNAL_LINK?.BUTTON_CLICK_CAMPAING ?? 0)
       : 0;
-  // CTA Interno (vídeos)
-  const ctaInternoTotal = Array.isArray(data.CAMPAIGN.CAMPAIGN_VIDEOS)
-    ? data.CAMPAIGN.CAMPAIGN_VIDEOS.reduce((sum, video) => {
-        if (video.CTA === true) {
-          return sum + (video.CTA_CLICK_CAMPAING ?? 0);
-        }
-        return sum;
-      }, 0)
+
+  // Cliques CTA interno dos vídeos
+  const ctaInterno = Array.isArray(data.CAMPAIGN.CAMPAIGN_VIDEOS)
+    ? data.CAMPAIGN.CAMPAIGN_VIDEOS.reduce(
+        (acc, video) => acc + (video.CTA_CLICK_CAMPAING ?? 0),
+        0
+      )
     : 0;
-  const totalCTA = ctaGeral + ctaInternoTotal;
 
-  // Ordem: Views (externo), Plays, Plays Únicos, Clicks CTA (interno)
-  const radialData = useMemo(() => {
-    // Cálculos reais
-    const viewsPct = 100;
-    const playsPct = total > 0 ? (data.ANALYTICS.TOTAL_PLAYS / total) * 100 : 0;
-    const playsUniquePct = totalPlays > 0 ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100 : 0;
-    const ctaPct = totalPlays > 0 ? (totalCTA / totalPlays) * 100 : 0;
+  // Soma total de cliques
+  const totalCta = ctaGeral + ctaInterno;
 
-    // Clamp visual para máximo 100%
-    const clamp = (v: number) => Math.min(100, v);
-
-    return [
+  const radialData = useMemo(
+    () => [
       {
-        name: 'Views',
-        value: viewsPct, // sempre 100%
-        valueReal: viewsPct,
-        absolute: total,
-        base: total,
-        fill: 'rgba(242,242,242,0.4)',
-        complemento: 'do total de views',
+        name: "Clicks CTA",
+        // Limita visualmente a 100% mas tooltip mostra real
+        value:
+          totalPlays > 0
+            ? Math.min((totalCta / totalPlays) * 100, 100)
+            : 0,
+        absolute: totalCta,
+        base: totalPlays,
+        fill: "#5FFF9E",
+        complemento: "do total de plays",
+        realPct: totalPlays > 0 ? ((totalCta / totalPlays) * 100) : 0,
+        ctaGeral,
+        ctaInterno,
       },
       {
-        name: 'Plays',
-        value: clamp(playsPct),
-        valueReal: playsPct,
-        absolute: data.ANALYTICS.TOTAL_PLAYS,
-        base: total,
-        fill: '#00FFF1',
-        complemento: 'do total de views',
-      },
-      {
-        name: 'Plays Únicos',
-        value: clamp(playsUniquePct),
-        valueReal: playsUniquePct,
+        name: "Plays Únicos",
+        value:
+          totalPlays > 0
+            ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100
+            : 0,
         absolute: data.ANALYTICS.TOTAL_PLAY_UNIQUE,
         base: totalPlays,
-        fill: '#FFE85F',
-        complemento: 'do total de plays',
+        fill: "#FFE85F",
+        complemento: "do total de plays",
       },
       {
-        name: 'Clicks CTA',
-        value: clamp(ctaPct),
-        valueReal: ctaPct,
-        absolute: totalCTA,
-        base: totalPlays,
-        fill: '#5FFF9E',
-        complemento: 'do total de plays',
+        name: "Plays",
+        value: total > 0 ? (data.ANALYTICS.TOTAL_PLAYS / total) * 100 : 0,
+        absolute: data.ANALYTICS.TOTAL_PLAYS,
+        base: total,
+        fill: "#00FFF1",
+        complemento: "do total de views",
       },
-    ];
-  }, [totalCTA, data.ANALYTICS.TOTAL_PLAY_UNIQUE, data.ANALYTICS.TOTAL_PLAYS, total, totalPlays]);
+      {
+        name: "Views",
+        value: 100,
+        absolute: total,
+        base: total,
+        fill: "rgba(242,242,242,0.4)",
+        complemento: "do total de views",
+      },
+    ],
+    [
+      ctaGeral,
+      data.ANALYTICS.TOTAL_PLAY_UNIQUE,
+      data.ANALYTICS.TOTAL_PLAYS,
+      total,
+      totalPlays,
+    ],
+  );
 
   const deviceData = useMemo(() => {
     let desktop = 0;
@@ -87,11 +96,11 @@ const SectionViews = (data: IAnalyticsSocketData) => {
 
     if (Array.isArray(data.MODEL_PLAYS)) {
       for (const item of data.MODEL_PLAYS) {
-        const device = (item.DEVICE || '').toLowerCase();
+        const device = (item.DEVICE || "").toLowerCase();
         const playCount = Number(item._sum?.PLAY ?? 0);
 
-        if (device === 'desktop') desktop += playCount;
-        else if (device === 'mobile') mobile += playCount;
+        if (device === "desktop") desktop += playCount;
+        else if (device === "mobile") mobile += playCount;
         else others += playCount;
       }
     } else {
@@ -99,16 +108,16 @@ const SectionViews = (data: IAnalyticsSocketData) => {
         const device = deviceKey.toLowerCase();
         const playCount = Number(count ?? 0);
 
-        if (device === 'desktop') desktop += playCount;
-        else if (device === 'mobile') mobile += playCount;
+        if (device === "desktop") desktop += playCount;
+        else if (device === "mobile") mobile += playCount;
         else others += playCount;
       }
     }
 
     return [
-      { name: 'Desktop', value: desktop, fill: '#00FFF1' },
-      { name: 'Mobile', value: mobile, fill: '#9900FF' },
-      { name: 'Outros', value: others, fill: '#FFCE08' },
+      { name: "Desktop", value: desktop, fill: "#00FFF1" },
+      { name: "Mobile", value: mobile, fill: "#9900FF" },
+      { name: "Outros", value: others, fill: "#FFCE08" },
     ].filter((d) => d.value > 0);
   }, [data.MODEL_PLAYS]);
 
@@ -129,47 +138,64 @@ const SectionViews = (data: IAnalyticsSocketData) => {
                 startAngle={90}
                 endAngle={-270}
               >
-                {/* Cada RadialBar representa um índice do array radialData */}
-                <RadialBar
-                  background={{ fill: 'rgba(255,255,255,0.04)' }}
-                  dataKey="value"
-                  cornerRadius={8}
-                  fill={radialData[0].fill}
-                  name={radialData[0].name}
-                />
                 <RadialBar
                   dataKey="value"
                   cornerRadius={8}
-                  fill={radialData[1].fill}
-                  name={radialData[1].name}
-                />
-                <RadialBar
-                  dataKey="value"
-                  cornerRadius={8}
-                  fill={radialData[2].fill}
-                  name={radialData[2].name}
-                />
-                <RadialBar
-                  dataKey="value"
-                  cornerRadius={8}
-                  fill={radialData[3].fill}
-                  name={radialData[3].name}
+                  background={{ fill: "rgba(255,255,255,0.04)" }}
                 />
                 <Tooltip
                   content={({ payload }) => {
                     if (!payload || payload.length === 0) return null;
                     const item = payload[0];
-                    // Mostra valor real, mesmo se visualmente limitado
+                    // Tooltip especial para Clicks CTA
+                    if (item.payload.name === "Clicks CTA") {
+                      return (
+                        <div
+                          style={{
+                            backgroundColor: "#0F073E",
+                            border: "1px solid rgba(153,0,255,0.3)",
+                            borderRadius: "10px",
+                            padding: "8px 12px",
+                            fontSize: "12px",
+                            color: "#F2F2F2",
+                            minWidth: "170px",
+                          }}
+                        >
+                          <p
+                            style={{
+                              fontWeight: 600,
+                              marginBottom: 4,
+                              color: item.payload.fill,
+                            }}
+                          >
+                            {item.payload.name}
+                          </p>
+                          <p style={{ marginBottom: 2 }}>
+                            {item.payload.realPct?.toFixed(1)}% do total
+                          </p>
+                          <p style={{ color: "rgba(242,242,242,0.5)", marginBottom: 2 }}>
+                            {item.payload.absolute} usuário{item.payload.absolute !== 1 ? "s" : ""}
+                          </p>
+                          <p style={{ color: "#5FFF9E", marginBottom: 0 }}>
+                            CTA Geral: {item.payload.ctaGeral}
+                          </p>
+                          <p style={{ color: "#FFE85F", marginBottom: 0 }}>
+                            CTA Interno: {item.payload.ctaInterno}
+                          </p>
+                        </div>
+                      );
+                    }
+                    // Demais
                     return (
                       <div
                         style={{
-                          backgroundColor: '#0F073E',
-                          border: '1px solid rgba(153,0,255,0.3)',
-                          borderRadius: '10px',
-                          padding: '8px 12px',
-                          fontSize: '12px',
-                          color: '#F2F2F2',
-                          minWidth: '140px',
+                          backgroundColor: "#0F073E",
+                          border: "1px solid rgba(153,0,255,0.3)",
+                          borderRadius: "10px",
+                          padding: "8px 12px",
+                          fontSize: "12px",
+                          color: "#F2F2F2",
+                          minWidth: "140px",
                         }}
                       >
                         <p
@@ -182,11 +208,11 @@ const SectionViews = (data: IAnalyticsSocketData) => {
                           {item.payload.name}
                         </p>
                         <p style={{ marginBottom: 2 }}>
-                          {Number(item.payload.valueReal ?? item.value).toFixed(1)}% do total
+                          {Number(item.value).toFixed(1)}% do total
                         </p>
-                        <p style={{ color: 'rgba(242,242,242,0.5)' }}>
+                        <p style={{ color: "rgba(242,242,242,0.5)" }}>
                           {item.payload.absolute} usuário
-                          {item.payload.absolute !== 1 ? 's' : ''}
+                          {item.payload.absolute !== 1 ? "s" : ""}
                         </p>
                       </div>
                     );
@@ -196,16 +222,16 @@ const SectionViews = (data: IAnalyticsSocketData) => {
             </ResponsiveContainer>
           </div>
           <div className={styles.funnelLegend}>
-            {radialData.map((item, index) => {
+            {[...radialData].reverse().map((item, index) => {
               const pct =
                 item.base > 0
                   ? ((item.absolute / item.base) * 100).toFixed(2)
-                  : '0.0';
+                  : "0.0";
               const stages = [
-                '1. Alcance',
-                '2. Engajamento',
-                '3. Descoberta',
-                '4. Conversão',
+                "1. Alcance",
+                "2. Engajamento",
+                "3. Descoberta",
+                "4. Conversão",
               ];
               return (
                 <div key={item.name} className={styles.funnelLegendItem}>
@@ -219,6 +245,7 @@ const SectionViews = (data: IAnalyticsSocketData) => {
                   <span className={styles.funnelPct}>
                     {pct}% {item.complemento}
                   </span>
+                  {/* <span className={styles.funnelPct}>{item.complemento}</span> */}
                 </div>
               );
             })}
@@ -250,17 +277,17 @@ const SectionViews = (data: IAnalyticsSocketData) => {
                   const pct =
                     totalPlays > 0
                       ? ((item.payload.value / totalPlays) * 100).toFixed(1)
-                      : '0';
+                      : "0";
                   return (
                     <div
                       style={{
-                        backgroundColor: '#0F073E',
-                        border: '1px solid rgba(153,0,255,0.3)',
-                        borderRadius: '10px',
-                        padding: '8px 12px',
-                        fontSize: '12px',
-                        color: '#F2F2F2',
-                        minWidth: '120px',
+                        backgroundColor: "#0F073E",
+                        border: "1px solid rgba(153,0,255,0.3)",
+                        borderRadius: "10px",
+                        padding: "8px 12px",
+                        fontSize: "12px",
+                        color: "#F2F2F2",
+                        minWidth: "120px",
                       }}
                     >
                       <p
@@ -273,7 +300,7 @@ const SectionViews = (data: IAnalyticsSocketData) => {
                         {item.payload.name}
                       </p>
                       <p>{item.payload.value} plays</p>
-                      <p style={{ color: 'rgba(242,242,242,0.5)' }}>
+                      <p style={{ color: "rgba(242,242,242,0.5)" }}>
                         {pct}% do total
                       </p>
                     </div>
@@ -288,7 +315,7 @@ const SectionViews = (data: IAnalyticsSocketData) => {
               const pct =
                 totalPlays > 0
                   ? ((item.value / totalPlays) * 100).toFixed(1)
-                  : '0';
+                  : "0";
               return (
                 <div key={item.name} className={styles.deviceLegendItem}>
                   <span
