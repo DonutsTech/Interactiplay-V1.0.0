@@ -29,12 +29,22 @@ const SectionViews = (data: IAnalyticsSocketData) => {
     : 0;
   const totalCTA = ctaGeral + ctaInternoTotal;
 
-  // Funil: Views (sempre 100%), Plays (% sobre Views), Plays Únicos e Clicks (% sobre Plays)
-  const radialData = useMemo(
-    () => [
+  // Ordem: Views (externo), Plays, Plays Únicos, Clicks CTA (interno)
+  const radialData = useMemo(() => {
+    // Cálculos reais
+    const viewsPct = 100;
+    const playsPct = total > 0 ? (data.ANALYTICS.TOTAL_PLAYS / total) * 100 : 0;
+    const playsUniquePct = totalPlays > 0 ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100 : 0;
+    const ctaPct = totalPlays > 0 ? (totalCTA / totalPlays) * 100 : 0;
+
+    // Clamp visual para máximo 100%
+    const clamp = (v: number) => Math.min(100, v);
+
+    return [
       {
         name: 'Views',
-        value: 100,
+        value: viewsPct, // sempre 100%
+        valueReal: viewsPct,
         absolute: total,
         base: total,
         fill: 'rgba(242,242,242,0.4)',
@@ -42,7 +52,8 @@ const SectionViews = (data: IAnalyticsSocketData) => {
       },
       {
         name: 'Plays',
-        value: total > 0 ? (data.ANALYTICS.TOTAL_PLAYS / total) * 100 : 0,
+        value: clamp(playsPct),
+        valueReal: playsPct,
         absolute: data.ANALYTICS.TOTAL_PLAYS,
         base: total,
         fill: '#00FFF1',
@@ -50,7 +61,8 @@ const SectionViews = (data: IAnalyticsSocketData) => {
       },
       {
         name: 'Plays Únicos',
-        value: totalPlays > 0 ? (data.ANALYTICS.TOTAL_PLAY_UNIQUE / totalPlays) * 100 : 0,
+        value: clamp(playsUniquePct),
+        valueReal: playsUniquePct,
         absolute: data.ANALYTICS.TOTAL_PLAY_UNIQUE,
         base: totalPlays,
         fill: '#FFE85F',
@@ -58,15 +70,15 @@ const SectionViews = (data: IAnalyticsSocketData) => {
       },
       {
         name: 'Clicks CTA',
-        value: totalPlays > 0 ? (totalCTA / totalPlays) * 100 : 0,
+        value: clamp(ctaPct),
+        valueReal: ctaPct,
         absolute: totalCTA,
         base: totalPlays,
         fill: '#5FFF9E',
         complemento: 'do total de plays',
       },
-    ],
-    [total, totalPlays, data.ANALYTICS.TOTAL_PLAYS, data.ANALYTICS.TOTAL_PLAY_UNIQUE, totalCTA]
-  );
+    ];
+  }, [totalCTA, data.ANALYTICS.TOTAL_PLAY_UNIQUE, data.ANALYTICS.TOTAL_PLAYS, total, totalPlays]);
 
   const deviceData = useMemo(() => {
     let desktop = 0;
@@ -117,15 +129,37 @@ const SectionViews = (data: IAnalyticsSocketData) => {
                 startAngle={90}
                 endAngle={-270}
               >
+                {/* Cada RadialBar representa um índice do array radialData */}
+                <RadialBar
+                  background={{ fill: 'rgba(255,255,255,0.04)' }}
+                  dataKey="value"
+                  cornerRadius={8}
+                  fill={radialData[0].fill}
+                  name={radialData[0].name}
+                />
                 <RadialBar
                   dataKey="value"
                   cornerRadius={8}
-                  background={{ fill: 'rgba(255,255,255,0.04)' }}
+                  fill={radialData[1].fill}
+                  name={radialData[1].name}
+                />
+                <RadialBar
+                  dataKey="value"
+                  cornerRadius={8}
+                  fill={radialData[2].fill}
+                  name={radialData[2].name}
+                />
+                <RadialBar
+                  dataKey="value"
+                  cornerRadius={8}
+                  fill={radialData[3].fill}
+                  name={radialData[3].name}
                 />
                 <Tooltip
                   content={({ payload }) => {
                     if (!payload || payload.length === 0) return null;
                     const item = payload[0];
+                    // Mostra valor real, mesmo se visualmente limitado
                     return (
                       <div
                         style={{
@@ -148,7 +182,7 @@ const SectionViews = (data: IAnalyticsSocketData) => {
                           {item.payload.name}
                         </p>
                         <p style={{ marginBottom: 2 }}>
-                          {Number(item.value).toFixed(1)}% do total
+                          {Number(item.payload.valueReal ?? item.value).toFixed(1)}% do total
                         </p>
                         <p style={{ color: 'rgba(242,242,242,0.5)' }}>
                           {item.payload.absolute} usuário
