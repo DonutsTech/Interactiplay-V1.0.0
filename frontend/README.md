@@ -23,14 +23,24 @@ Para habilitar o Meta Pixel no frontend, configure:
 ```bash
 NEXT_PUBLIC_FACEBOOK_PIXEL_ID=3385503044964307
 NEXT_PUBLIC_SITE_URL=https://www.experimenteumdonuts.app.br
+META_CONVERSIONS_API_TOKEN=seu_token_da_conversion_api
+META_TEST_EVENT_CODE=opcional_para_teste
 ```
 
 Quando o dominio oficial mudar, atualize apenas `NEXT_PUBLIC_SITE_URL` para `https://interactiplay.com.br`.
 
+### Meta CAPI em paralelo ao Pixel
+
+O frontend possui uma rota server-side em `app/api/meta/conversions/route.ts`
+que envia eventos para a Meta Conversion API em paralelo ao Pixel do navegador.
+
+Para deduplicacao correta, o mesmo `event_id` e enviado no browser (`fbq`) e no
+server-side (CAPI).
+
 ### Deploy no AWS Amplify
 
 Este projeto possui `amplify.yml` para garantir que as variaveis `NEXT_PUBLIC_*`
-sejam escritas em `.env.production` durante o build.
+e `META_*` sejam escritas em `.env.production` durante o build.
 
 Sempre que alterar variaveis de ambiente no Amplify, execute um novo build (nao
 apenas reimplantar a mesma versao) para refletir no bundle do cliente.

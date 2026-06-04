@@ -1,5 +1,17 @@
 type MetaPixelParams = Record<string, string | number | boolean>;
 
+type MetaUserData = {
+  email?: string;
+  phone?: string;
+};
+
+type MetaEventOptions = {
+  eventId?: string;
+  userData?: MetaUserData;
+};
+
+import { postMetaCapiEvent } from './metaConversions';
+
 type ConsentPayload = {
   marketing: boolean;
   updatedAt: string;
@@ -23,6 +35,14 @@ export const getMetaPixelId = (): string =>
 export const hasMetaPixelId = (): boolean => getMetaPixelId().length > 0;
 
 const isBrowser = (): boolean => typeof window !== 'undefined';
+
+const generateEventId = (): string => {
+  if (isBrowser() && typeof window.crypto?.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
 
 export const getMarketingConsent = (): boolean | null => {
   if (!isBrowser()) {
@@ -80,18 +100,33 @@ export const initializeMetaPixel = (): boolean => {
 
 export const trackMetaEvent = (
   eventName: string,
-  params?: MetaPixelParams
+  params?: MetaPixelParams,
+  options?: MetaEventOptions
 ): boolean => {
+  const eventId = options?.eventId ?? generateEventId();
+
+  if (isBrowser() && getMarketingConsent() && hasMetaPixelId()) {
+    void postMetaCapiEvent({
+      eventName,
+      eventId,
+      customData: params,
+      userData: options?.userData,
+      eventSourceUrl: window.location.href,
+    });
+  }
+
   if (!initializeMetaPixel() || typeof window.fbq !== 'function') {
     return false;
   }
 
+  const eventOptions = { eventID: eventId };
+
   if (params) {
-    window.fbq('track', eventName, params);
+    window.fbq('track', eventName, params, eventOptions);
     return true;
   }
 
-  window.fbq('track', eventName);
+  window.fbq('track', eventName, {}, eventOptions);
   return true;
 };
 

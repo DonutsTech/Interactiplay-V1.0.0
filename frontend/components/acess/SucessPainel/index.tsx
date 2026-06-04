@@ -48,8 +48,20 @@ const SucessPainel = () => {
 
       if (loadedUser) {
         if (!hasTrackedConversion.current) {
-          trackMetaEvent('CompleteRegistration');
-          trackMetaEvent('Purchase');
+          const userEmail = loadedUser.USER.EMAIL;
+
+          trackMetaEvent('CompleteRegistration', undefined, {
+            userData: {
+              email: userEmail,
+            },
+          });
+
+          trackMetaEvent('Purchase', undefined, {
+            userData: {
+              email: userEmail,
+            },
+          });
+
           hasTrackedConversion.current = true;
         }
 

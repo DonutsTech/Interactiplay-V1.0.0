@@ -105,6 +105,11 @@ const FormCadastro = () => {
     if (response) {
       trackMetaEvent('Lead', {
         content_name: 'cadastro',
+      }, {
+        userData: {
+          email: registerPackage.email,
+          phone: registerPackage.phone,
+        },
       });
 
       setUser((prevUser) => ({
