@@ -5,6 +5,11 @@ import './globals.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import FooterComplete from '@/components/globals/FooterComplete';
 import { ToastContainer } from 'react-toastify';
+import MetaPixelManager from '@/components/globals/MetaPixelManager';
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+  'https://www.experimenteumdonuts.app.br';
 
 const poppins = Poppins({
   variable: '--font-poppins',
@@ -22,6 +27,7 @@ const russoOne = Russo_One({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'Interactiplay - ISL Campanha interativa',
   description:
     'Crie campanhas interativas e aumente o engajamento do seu público com a Interactiplay.',
@@ -47,7 +53,7 @@ export const metadata: Metadata = {
     title: 'Interactiplay - ISL Campanha interativa',
     description:
       'Crie campanhas interativas e aumente o engajamento do seu público com a Interactiplay.',
-    url: 'https://experimenteumdonuts.app.br', // Substitua pela URL real do seu site
+    url: SITE_URL,
     siteName: 'Interactiplay',
     images: [
       {
@@ -87,6 +93,7 @@ export default function RootLayout({
             theme="colored"
             limit={3}
           />
+          <MetaPixelManager />
           {children}
         </body>
       </AppProvider>

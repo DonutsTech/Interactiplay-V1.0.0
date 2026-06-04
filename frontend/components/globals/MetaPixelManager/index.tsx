@@ -1,0 +1,170 @@
+'use client';
+
+import Link from 'next/link';
+import Script from 'next/script';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import styles from './MetaPixelManager.module.scss';
+import {
+  MARKETING_CONSENT_EVENT,
+  MARKETING_CONSENT_STORAGE_KEY,
+  getMarketingConsent,
+  getMetaPixelId,
+  hasMetaPixelId,
+  setMarketingConsent,
+  trackMetaPageView,
+} from '@/utils/metaPixel';
+
+const MetaPixelManager = () => {
+  const pathname = usePathname();
+  const isDashboardRoute = pathname?.startsWith('/dashboard') ?? false;
+  const [marketingConsent, setMarketingConsentState] = useState<boolean | null>(
+    null
+  );
+  const [isBannerOpen, setIsBannerOpen] = useState(false);
+  const lastTrackedPathRef = useRef('');
+
+  const pixelId = getMetaPixelId();
+
+  useEffect(() => {
+    const consent = getMarketingConsent();
+    setMarketingConsentState(consent);
+    setIsBannerOpen(consent === null);
+
+    const handleConsentUpdate = () => {
+      const updatedConsent = getMarketingConsent();
+      setMarketingConsentState(updatedConsent);
+      if (updatedConsent === null) {
+        setIsBannerOpen(true);
+      }
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === MARKETING_CONSENT_STORAGE_KEY) {
+        handleConsentUpdate();
+      }
+    };
+
+    window.addEventListener(MARKETING_CONSENT_EVENT, handleConsentUpdate);
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener(MARKETING_CONSENT_EVENT, handleConsentUpdate);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (marketingConsent !== true || !pathname || isDashboardRoute) {
+      return;
+    }
+
+    if (lastTrackedPathRef.current === pathname) {
+      return;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 20;
+    const attemptTrack = () => {
+      attempts += 1;
+
+      if (trackMetaPageView(pathname)) {
+        lastTrackedPathRef.current = pathname;
+        return true;
+      }
+
+      return false;
+    };
+
+    if (attemptTrack()) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      if (attemptTrack() || attempts >= maxAttempts) {
+        window.clearInterval(interval);
+      }
+    }, 150);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [marketingConsent, pathname, isDashboardRoute]);
+
+  const handleConsent = (accepted: boolean) => {
+    setMarketingConsent(accepted);
+    setMarketingConsentState(accepted);
+    setIsBannerOpen(false);
+
+    if (!accepted) {
+      lastTrackedPathRef.current = '';
+    }
+  };
+
+  return (
+    <>
+      {marketingConsent === true && hasMetaPixelId() && !isDashboardRoute && (
+        <Script id="meta-pixel-bootstrap" strategy="afterInteractive">
+          {`
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '${pixelId}');
+          `}
+        </Script>
+      )}
+
+      {isBannerOpen && !isDashboardRoute && (
+        <div className={styles.consentRoot}>
+          <div className={styles.panel}>
+            <h4 className={styles.title}>Preferencias de cookies</h4>
+            <p className={styles.description}>
+              Utilizamos cookies de marketing para medir conversoes e melhorar
+              campanhas. Voce pode aceitar ou recusar os cookies nao essenciais.
+              Saiba mais em{' '}
+              <Link href="/Policy" className={styles.policyLink}>
+                Politica de Privacidade
+              </Link>
+              .
+            </p>
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className={styles.primaryBtn}
+                onClick={() => handleConsent(true)}
+              >
+                Aceitar marketing
+              </button>
+              <button
+                type="button"
+                className={styles.secondaryBtn}
+                onClick={() => handleConsent(false)}
+              >
+                Recusar nao essenciais
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!isBannerOpen && marketingConsent === false && !isDashboardRoute && (
+        <div className={styles.floatingActions}>
+          <button
+            type="button"
+            className={styles.manageBtn}
+            onClick={() => setIsBannerOpen(true)}
+          >
+            Gerenciar cookies
+          </button>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default MetaPixelManager;

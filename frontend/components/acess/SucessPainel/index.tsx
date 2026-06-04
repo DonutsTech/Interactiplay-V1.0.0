@@ -5,6 +5,7 @@ import { AuthUserContext } from '@/context/AuthUserContext';
 import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
 import { setToken } from '@/service/token';
+import { trackMetaEvent } from '@/utils/metaPixel';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
@@ -17,17 +18,21 @@ const SucessPainel = () => {
   const { setIsLoading } = useIsLoading();
   const [tokenSet, setTokenSet] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isMounted, setMounted] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const isUnmountedRef = useRef(false);
+  const hasTrackedConversion = useRef(false);
   const router = useRouter();
 
   const token = useSearchParams().get('token');
 
   useEffect(() => {
+    setIsClient(true);
+
     return () => {
-      setMounted(true);
+      isUnmountedRef.current = true;
       setIsLoading(false);
     };
-  }, []);
+  }, [setIsLoading]);
 
   useEffect(() => {
     const handleToken = async () => {
@@ -39,9 +44,15 @@ const SucessPainel = () => {
 
       const loadedUser = await loadAuthUser();
 
-      if (!isMounted) return;
+      if (isUnmountedRef.current) return;
 
       if (loadedUser) {
+        if (!hasTrackedConversion.current) {
+          trackMetaEvent('CompleteRegistration');
+          trackMetaEvent('Purchase');
+          hasTrackedConversion.current = true;
+        }
+
         setUser((prev) => ({
           ...prev,
           id: loadedUser.USER.ID,
@@ -81,7 +92,7 @@ const SucessPainel = () => {
         draggable={false}
       />
       <div className={styles.head}>
-        <h2>Parabéns{user.name && isMounted ? ` ${user.name.split(' ')[0]}` : ''}!</h2>
+        <h2>Parabéns{user.name && isClient ? ` ${user.name.split(' ')[0]}` : ''}!</h2>
         <p>
           Seu cadastro foi realizado com sucesso.
           <br />

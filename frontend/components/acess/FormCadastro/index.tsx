@@ -18,6 +18,7 @@ import { postRegister } from '@/service/auth';
 import { sanitizeByRegex } from '@/utils/stringUtils';
 import { useRouter } from 'next/navigation';
 import { useError } from '@/context/ErrorContext';
+import { trackMetaEvent } from '@/utils/metaPixel';
 
 interface RegisterPackage {
   name: string;
@@ -102,6 +103,10 @@ const FormCadastro = () => {
     });
 
     if (response) {
+      trackMetaEvent('Lead', {
+        content_name: 'cadastro',
+      });
+
       setUser((prevUser) => ({
         ...prevUser,
         id: response.ID,
