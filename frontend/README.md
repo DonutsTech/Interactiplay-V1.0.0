@@ -27,6 +27,14 @@ NEXT_PUBLIC_SITE_URL=https://www.experimenteumdonuts.app.br
 
 Quando o dominio oficial mudar, atualize apenas `NEXT_PUBLIC_SITE_URL` para `https://interactiplay.com.br`.
 
+### Deploy no AWS Amplify
+
+Este projeto possui `amplify.yml` para garantir que as variaveis `NEXT_PUBLIC_*`
+sejam escritas em `.env.production` durante o build.
+
+Sempre que alterar variaveis de ambiente no Amplify, execute um novo build (nao
+apenas reimplantar a mesma versao) para refletir no bundle do cliente.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
