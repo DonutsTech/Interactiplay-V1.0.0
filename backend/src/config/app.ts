@@ -15,6 +15,7 @@ export default class App {
     this.midleware();
     this.routes();
     this.errorHandler();
+    this.health();
     this.notFound();
   }
 
@@ -53,6 +54,15 @@ export default class App {
     const router = express.Router();
     applyWebHookRouters(router);
     this.express.use('/data', router);
+  }
+
+  private health(): void {
+    this.express.get('/health', (_req, res) => {
+      res.status(StatusCodes.OK).json({
+        STATUS: StatusCodes.OK,
+        MESSAGE: 'Servidor rodando normalmente',
+      });
+    });
   }
 
   private notFound(): void {

@@ -58,6 +58,7 @@
     "multer-s3": "anacronw/multer-s3#b0f0ffb55c1642b699a032a48c3bc1b942b6a10e",
     "nodemailer": "^8.0.5",
     "pg": "^8.18.0",
+    "redis": "^6.0.0",
     "socket.io": "^4.8.3",
     "stripe": "^20.4.1",
     "uuid": "^13.0.0"
