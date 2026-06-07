@@ -9,11 +9,11 @@ import { CustomError } from '../error';
 import { handleStripeError } from '../error/errorStripe';
 import type { Plan } from '../generated/prisma/client';
 import { historyPlaysService } from '../services/historyPlays';
+import { mailService } from '../services/mail';
 import { planService } from '../services/plan';
 import { userService } from '../services/user';
 import { formatNummberForDate } from './format/data';
 import { formatProductsForPlan, type PlanStripeNew } from './format/plan';
-import { mailService } from '../services/mail';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET as string, {
   httpClient: Stripe.createFetchHttpClient(),
@@ -100,8 +100,6 @@ export const createStripeCustomer = async (email: string, name: string) => {
         };
       }
     }
-
-    // para teste clock tirar depois (tirar depois) aqui clock_1TLV5GHs4q3jg2YIfvnEZAAl    // test_clock: 'clock_1TLV5GHs4q3jg2YIfvnEZAAl',
 
     const createCustomer = await stripe.customers.create({
       email,
@@ -308,7 +306,7 @@ export const handleSubscriptionSessionCompleted = async (event: {
         ...(plan ? { PLAN: { connect: { ID: plan.ID } } } : {}),
       });
 
-      if (user.STRIPE_SUBSCRIPTION_STATUS === "trialing" && subscriptionStatus === "active" && plan) {
+      if (user.STRIPE_SUBSCRIPTION_STATUS === 'trialing' && subscriptionStatus === 'active') {
         await mailService.sendWelcomeEmail({ EMAIL: user.EMAIL, NAME: user.NAME });
       }
     }
@@ -333,39 +331,14 @@ export const handleCancelPlan = async (event: { data: { object: Stripe.Subscript
 
       const activeHistoryPlays = user.HISTORY_PLAYS.find(history => history.STATUS === 'ativo');
 
-      if (activeHistoryPlays && user.PLAN && user.PLAN.PLAYS < activeHistoryPlays.QTD_PLAYS) {
-        const playDifference = activeHistoryPlays.QTD_PLAYS - user.PLAN.PLAYS;
-        const value = Math.floor(playDifference * user.PLAN.PLAYS_PRICE * 100) / 100;
-
-        await stripe.invoiceItems.create({
-          customer: stripeCustumerId,
-          amount: value,
-          currency: 'brl',
-          description: `Cobrança por excesso de ${playDifference} plays do plano ${user.PLAN.PLAN}`,
-          metadata: {
-            userId: user.ID,
-            historyPlaysId: activeHistoryPlays.ID,
-            type: 'excess_plays',
-          },
-        });
-
-        await stripe.invoices.create({
-          customer: stripeCustumerId,
-          auto_advance: true,
-        });
-
-        await historyPlaysService.update(activeHistoryPlays.ID, {
-          STATUS: 'aguardando pagamento',
-          PRICE_MONTH: value,
-        });
-      }
-
-      if (activeHistoryPlays && user.PLAN && user.PLAN.PLAYS >= activeHistoryPlays.QTD_PLAYS) {
+      if (activeHistoryPlays && user.PLAN) {
         await historyPlaysService.update(activeHistoryPlays.ID, {
           STATUS: 'isento',
           PRICE_MONTH: 0,
         });
       }
+
+      await mailService.sendCancelSubscriptionEmail({ EMAIL: user.EMAIL, NAME: user.NAME });
     }
   } catch (error) {
     handleStripeError(error);
@@ -480,12 +453,9 @@ export const handleInvoicePaid = async (event: {
           });
         }
       }
-    }
 
-    if (user && paid) {
       await mailService.sendPaymentEmail({ EMAIL: user.EMAIL, NAME: user.NAME });
     }
-
   } catch (error) {
     handleStripeError(error);
   }

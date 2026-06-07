@@ -1,12 +1,22 @@
-import e from "express";
-import type { ForgetPassword, MailPages, Notice, validateEmail } from "../../@types/interface/mail";
-import { loadTemplate, transporterInfo } from "../../config/nodemailer";
-import { CustomError } from "../../error";
+import type { ForgetPassword, MailPages, Notice, validateEmail } from '../../@types/interface/mail';
+import { loadTemplate, transporterInfo } from '../../config/nodemailer';
+import { CustomError } from '../../error';
 
 class MailService {
-  async sendNewContactRequestEmail({ EMAIL, MESSAGE, NAME, PHONE }: MailPages): Promise<{ MESSAGE: string }> {
+  async sendNewContactRequestEmail({
+    EMAIL,
+    MESSAGE,
+    NAME,
+    PHONE,
+  }: MailPages): Promise<{ MESSAGE: string }> {
     try {
-      const html = loadTemplate('template_new_request', { type: 'Contato', email: EMAIL, name: NAME, phone: PHONE, message: MESSAGE });
+      const html = loadTemplate('template_new_request', {
+        type: 'Contato',
+        email: EMAIL,
+        name: NAME,
+        phone: PHONE,
+        message: MESSAGE,
+      });
 
       await transporterInfo.sendMail({
         from: process.env.MAIL_USER_3,
@@ -15,7 +25,11 @@ class MailService {
         html,
       });
 
-      const htmlUser = loadTemplate('template_received_your_request', { type: 'Contato', email: EMAIL, name: NAME });
+      const htmlUser = loadTemplate('template_received_your_request', {
+        type: 'Contato',
+        email: EMAIL,
+        name: NAME,
+      });
 
       await transporterInfo.sendMail({
         from: process.env.MAIL_USER_3,
@@ -31,9 +45,18 @@ class MailService {
     }
   }
 
-  async sendPhotosRequestEmail({ EMAIL, MESSAGE, NAME, PHONE }: MailPages, files: Express.Multer.File[] | undefined): Promise<{ MESSAGE: string }> {
+  async sendPhotosRequestEmail(
+    { EMAIL, MESSAGE, NAME, PHONE }: MailPages,
+    files: Express.Multer.File[] | undefined,
+  ): Promise<{ MESSAGE: string }> {
     try {
-      const html = loadTemplate('template_new_request', { type: 'Sugestões', email: EMAIL, name: NAME, phone: PHONE, message: MESSAGE });
+      const html = loadTemplate('template_new_request', {
+        type: 'Sugestões',
+        email: EMAIL,
+        name: NAME,
+        phone: PHONE,
+        message: MESSAGE,
+      });
 
       const attachments = files?.map(file => ({
         filename: file.originalname,
@@ -48,7 +71,11 @@ class MailService {
         ...(attachments ? { attachments } : {}),
       });
 
-      const htmlUser = loadTemplate('template_received_your_request', { type: 'Sugestões', email: EMAIL, name: NAME });
+      const htmlUser = loadTemplate('template_received_your_request', {
+        type: 'Sugestões',
+        email: EMAIL,
+        name: NAME,
+      });
 
       await transporterInfo.sendMail({
         from: process.env.MAIL_USER_3,
@@ -64,14 +91,11 @@ class MailService {
     }
   }
 
-  async sendValidateEmail({EMAIL, TOKEN}: validateEmail): Promise<boolean> {
-    console.log(`🚀 Sending validation email to: ${EMAIL} at ${new Date().toISOString()}`);
-
+  async sendValidateEmail({ EMAIL, TOKEN }: validateEmail): Promise<boolean> {
     try {
       const link = `${process.env.FRONTEND_URL}/acess/validate?token=${TOKEN}`;
 
       const html = loadTemplate('template_validation_email', { link, email: EMAIL });
-
 
       await transporterInfo.sendMail({
         from: process.env.MAIL_USER_3,
@@ -88,7 +112,7 @@ class MailService {
     }
   }
 
-  async sendForgetPasswordEmail({CODE, EMAIL, TOKEN}: ForgetPassword): Promise<boolean> {
+  async sendForgetPasswordEmail({ CODE, EMAIL, TOKEN }: ForgetPassword): Promise<boolean> {
     try {
       const link = `${process.env.FRONTEND_URL}/acess/reset-password?token=${TOKEN}`;
 
@@ -200,7 +224,16 @@ class MailService {
 
   async sendWelcomeEmail({ EMAIL, NAME }: Notice): Promise<boolean> {
     try {
-      const html = loadTemplate('template_welcome_email', { name: NAME, suporte: process.env.MAIL_USER_2 || "", ano: `${new Date().getFullYear()}` });
+      const help = `${process.env.FRONTEND_URL}/#contact`;
+      const policyLink = `${process.env.FRONTEND_URL}/Policy`;
+
+      console.log('Enviando email de boas-vindas para:', EMAIL);
+
+      const html = loadTemplate('template_welcome', {
+        name: NAME,
+        help: help,
+        link: policyLink,
+      });
 
       await transporterInfo.sendMail({
         from: process.env.MAIL_USER_3,
@@ -228,7 +261,6 @@ class MailService {
       });
 
       return true;
-
     } catch (error) {
       console.error('Error sending cancel subscription email:', error);
       return false;

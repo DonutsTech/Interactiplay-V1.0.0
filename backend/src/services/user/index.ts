@@ -1,15 +1,14 @@
 import * as bycrpt from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
 import type { MulterS3File } from '../../@types/file';
+import { UserUpdateEmailByAdmin } from '../../@types/interface/user';
 import { CustomError } from '../../error';
 import type { Prisma } from '../../generated/prisma/client';
 import type { UserGetPayload } from '../../generated/prisma/models';
 import { userModel } from '../../models/user';
-import { photoService } from '../photo';
-import { UserUpdateEmailByAdmin } from '../../@types/interface/user';
-import { campaignModel } from '../../models/campaign';
 import { campaignService } from '../campaign';
 import { historyPlaysService } from '../historyPlays';
+import { photoService } from '../photo';
 import { videoService } from '../video';
 
 class UserService {
@@ -143,7 +142,10 @@ class UserService {
 
       if (
         user &&
-        !(user.AVATAR === 'https://interacti-uploads.s3.us-east-1.amazonaws.com/uploads/images/avatar.png')
+        !(
+          user.AVATAR ===
+          'https://interacti-uploads.s3.us-east-1.amazonaws.com/uploads/images/avatar.png'
+        )
       ) {
         await photoService.deleteImageFile(user.AVATAR);
       }
@@ -184,7 +186,7 @@ class UserService {
         throw new CustomError('Usuário não encontrado', StatusCodes.NOT_FOUND);
       }
 
-      if (user.FIRST_ACESS) {
+      if (!user.FIRST_ACESS) {
         throw new CustomError('Primeiro login já realizado', StatusCodes.BAD_REQUEST);
       }
 
@@ -192,7 +194,7 @@ class UserService {
 
       return updatedUser;
     } catch (error) {
-      throw new CustomError('Erro ao realizar o primeiro login', StatusCodes.INTERNAL_SERVER_ERROR);
+      throw error;
     }
   }
 
@@ -215,7 +217,7 @@ class UserService {
       const updatedUser = await this.update(user.ID, { EMAIL: EMAILNEW });
 
       return updatedUser;
-    }  catch (error) {
+    } catch (error) {
       throw error;
     }
   }
@@ -223,7 +225,7 @@ class UserService {
   async deleteInfoUsers() {
     try {
       const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
       const users = await userModel.findMany({
         where: {
