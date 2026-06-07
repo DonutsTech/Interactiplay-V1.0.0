@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 
+const DEFAULT_META_TEST_EVENT_CODE = 'TEST82888'; //remover
+
 type IncomingPayload = {
   eventName?: string;
   eventId?: string;
@@ -35,7 +37,8 @@ const getClientIp = (request: NextRequest): string | undefined => {
 export async function POST(request: NextRequest) {
   const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim();
   const accessToken = process.env.META_CONVERSIONS_API_TOKEN?.trim();
-  const testEventCode = process.env.META_TEST_EVENT_CODE?.trim();
+  const testEventCode =
+    process.env.META_TEST_EVENT_CODE?.trim() || DEFAULT_META_TEST_EVENT_CODE; //remover
 
   if (!pixelId || !accessToken) {
     return NextResponse.json(

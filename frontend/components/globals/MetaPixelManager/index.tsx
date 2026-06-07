@@ -122,47 +122,29 @@ const MetaPixelManager = () => {
       {isBannerOpen && !isDashboardRoute && (
         <div className={styles.consentRoot}>
           <div className={styles.panel}>
-            <h4 className={styles.title}>Preferencias de cookies</h4>
-            <p className={styles.description}>
-              Utilizamos cookies de marketing para medir conversoes e melhorar
-              campanhas. Voce pode aceitar ou recusar os cookies nao essenciais.
-              Saiba mais em{' '}
-              <Link href="/Policy" className={styles.policyLink}>
-                Politica de Privacidade
-              </Link>
-              .
-            </p>
+              <h4 className={styles.title}>Preferencias de cookies</h4>
+              <p className={styles.description}>
+                Usamos cookies de marketing para medir conversoes e melhorar a
+                experiencia. Ao continuar, voce apenas confirma que entendeu esta
+                informacao. Saiba mais na{' '}
+                <Link href="/Policy" className={styles.policyLink}>
+                  Politica de Privacidade
+                </Link>
+                .
+              </p>
             <div className={styles.actions}>
               <button
                 type="button"
                 className={styles.primaryBtn}
                 onClick={() => handleConsent(true)}
               >
-                Aceitar marketing
-              </button>
-              <button
-                type="button"
-                className={styles.secondaryBtn}
-                onClick={() => handleConsent(false)}
-              >
-                Recusar nao essenciais
+                  Entendi
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {!isBannerOpen && marketingConsent === false && !isDashboardRoute && (
-        <div className={styles.floatingActions}>
-          <button
-            type="button"
-            className={styles.manageBtn}
-            onClick={() => setIsBannerOpen(true)}
-          >
-            Gerenciar cookies
-          </button>
-        </div>
-      )}
     </>
   );
 };
