@@ -35,7 +35,9 @@ const getClientIp = (request: NextRequest): string | undefined => {
 };
 
 export async function POST(request: NextRequest) {
-  const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim();
+  const pixelId =
+    process.env.META_CAPI_PIXEL_ID?.trim() ??
+    process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim();
   const accessToken = process.env.META_CONVERSIONS_API_TOKEN?.trim();
   const testEventCode =
     process.env.META_TEST_EVENT_CODE?.trim() || DEFAULT_META_TEST_EVENT_CODE; //remover
@@ -44,6 +46,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: 'Meta Conversion API nao configurada' },
       { status: 503 }
+    );
+  }
+
+  if (!/^\d+$/.test(pixelId)) {
+    return NextResponse.json(
+      {
+        error:
+          'ID invalido para CAPI. Use o Pixel ID numerico (nao act_, app id, dataset id textual ou outro identificador).',
+        details: {
+          configuredId: pixelId,
+          hint: 'Configure META_CAPI_PIXEL_ID com o Pixel ID numerico do Gerenciador de Eventos.',
+        },
+      },
+      { status: 400 }
     );
   }
 
@@ -117,6 +133,24 @@ export async function POST(request: NextRequest) {
   const result = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (
+      typeof result?.error?.message === 'string' &&
+      result.error.message.includes('field (events)')
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'A Meta rejeitou o endpoint /events para este ID. Verifique se o ID configurado e o Pixel ID numerico correto.',
+          details: {
+            configuredId: pixelId,
+            metaError: result,
+            hint: 'No Gerenciador de Eventos, copie o Pixel ID e salve em META_CAPI_PIXEL_ID.',
+          },
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
         error: 'Falha ao enviar evento para Meta Conversion API',
