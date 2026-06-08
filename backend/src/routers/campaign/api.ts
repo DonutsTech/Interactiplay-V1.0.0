@@ -2,6 +2,7 @@ import type { Router } from 'express';
 import { campaignController } from '../../controllers/campaign';
 import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
 import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
+import { isValidateRole } from '../../middleware/isValidateRole';
 
 class CampaignApiRouter {
   public static create(router: Router): void {
@@ -21,6 +22,7 @@ class CampaignApiRouter {
       '/campaigns',
       isAuthenticateTokenDb,
       isValidateUserPlan,
+      isValidateRole(['ADMIN']),
       campaignController.getCampaignsAll,
     );
     router.post(

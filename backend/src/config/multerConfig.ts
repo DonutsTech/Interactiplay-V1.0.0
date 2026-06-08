@@ -40,6 +40,10 @@ const s3Storage = multerS3({
 
 const storage = multer.diskStorage({});
 
+export const imageMemory = multer({
+  storage: multer.memoryStorage(),
+});
+
 const allImageTypes = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/webp'];
 const allVideoTypes = ['video/mp4'];
 

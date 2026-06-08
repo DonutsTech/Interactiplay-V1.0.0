@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1016.0",
+    "@aws-sdk/client-secrets-manager": "^3.1063.0",
     "@prisma/adapter-pg": "^7.4.1",
     "@prisma/client": "^7.4.1",
     "@types/express": "^5.0.6",
@@ -58,6 +59,7 @@
     "multer-s3": "anacronw/multer-s3#b0f0ffb55c1642b699a032a48c3bc1b942b6a10e",
     "nodemailer": "^8.0.5",
     "pg": "^8.18.0",
+    "redis": "^6.0.0",
     "socket.io": "^4.8.3",
     "stripe": "^20.4.1",
     "uuid": "^13.0.0"

@@ -8,3 +8,15 @@ export interface ForgetPassword {
   TOKEN: string;
   CODE: string;
 }
+
+export interface MailPages {
+  EMAIL: string;
+  NAME: string;
+  PHONE: string;
+  MESSAGE: string;
+}
+
+export interface Notice {
+  EMAIL: string;
+  NAME: string;
+}

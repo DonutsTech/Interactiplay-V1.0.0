@@ -6,6 +6,7 @@ import { CampaignApiRouter, CampaignPublicRouter } from './campaign';
 import ExternalLinkRouter from './externalLink';
 import GanchoRouter from './gancho';
 import HistoryPlaysRouter from './historyPlays';
+import MailRouter from './mail';
 import PixelRouter from './pixel';
 import PlanRouter from './plan';
 import ThumbRouter from './thumb';
@@ -28,6 +29,7 @@ export const applyApiRouters = (router: Router): void => {
     AutoPlayRouter,
     ExternalLinkRouter,
     GanchoRouter,
+    MailRouter,
     PixelRouter,
     ThumbRouter,
     TimeLineRouter,

@@ -6,6 +6,7 @@ import { authService } from '../../services/auth';
 class AuthController {
   async register(request: Request, response: Response, next: NextFunction) {
     try {
+      console.log('teste duplicidade'); // Log the request body for debugging
       const body: RegisterUser = request.body;
       const create = await authService.register(body);
       return response.status(201).json(create);
@@ -78,7 +79,17 @@ class AuthController {
   async paymentCheckout(request: Request, response: Response, next: NextFunction) {
     try {
       const body: PaymentCheckout = request.body;
-      const paymentCheckout = await authService.paymentCheckout({ ...body });
+      const paymentCheckout = await authService.paymentCheckout({ ...body }, true);
+      return response.status(200).json(paymentCheckout);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async paymentCheckoutNew(request: Request, response: Response, next: NextFunction) {
+    try {
+      const body: PaymentCheckout = request.body;
+      const paymentCheckout = await authService.paymentCheckout({ ...body }, false);
       return response.status(200).json(paymentCheckout);
     } catch (error) {
       next(error);

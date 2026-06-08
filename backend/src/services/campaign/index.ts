@@ -362,6 +362,18 @@ class CampaignService {
       throw error;
     }
   }
+
+  async deleteCampaignForUserWithFlowAdmin(id: string) {
+    try {
+      const campaign = await this.getCampaignsAllForUser(id);
+
+      for (const camp of campaign) {
+        await this.deleteCampaignForUserWithFlow(camp.ID);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const campaignService = new CampaignService();

@@ -5,18 +5,23 @@ import type {
   FunctionCheckoutFree,
   FunctionUpdateFinishTrial,
 } from '../@types/interface/function';
+import { getSecret } from '../config/load';
 import { CustomError } from '../error';
 import { handleStripeError } from '../error/errorStripe';
 import type { Plan } from '../generated/prisma/client';
 import { historyPlaysService } from '../services/historyPlays';
+import { mailService } from '../services/mail';
 import { planService } from '../services/plan';
 import { userService } from '../services/user';
 import { formatNummberForDate } from './format/data';
 import { formatProductsForPlan, type PlanStripeNew } from './format/plan';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET as string, {
-  httpClient: Stripe.createFetchHttpClient(),
-});
+export const stripe = new Stripe(
+  (process.env.STRIPE_SECRET as string) || (getSecret('STRIPE_SECRET') as string),
+  {
+    httpClient: Stripe.createFetchHttpClient(),
+  },
+);
 
 export const getStripeProducts = async (): Promise<PlanStripeNew[]> => {
   try {
@@ -31,7 +36,6 @@ export const getStripeProducts = async (): Promise<PlanStripeNew[]> => {
 export const getStripeCustomerByEmail = async (email: string) => {
   try {
     const customers = await stripe.customers.list({ email });
-    console.log('getStripeCustomerByEmail ?', customers.data);
 
     return customers.data[0] || null;
   } catch (error) {
@@ -86,19 +90,25 @@ export const createStripeCustomer = async (email: string, name: string) => {
           STRIPE_TRIAL_START: trialStart ? formatNummberForDate(trialStart) : null,
           ACTIVE: subscription.status === 'active' || subscription.status === 'trialing',
           ...(plan ? { PLAN: { connect: { ID: plan.ID } } } : {}),
-          ...(plan ?  { HISTORY_PLAYS: { create: { QTD_PLAYS: 0,  STATUS:  subscription.status === 'trialing' ? 'teste' : 'ativo' } }} : {}),
+          ...(plan
+            ? {
+                HISTORY_PLAYS: {
+                  create: {
+                    QTD_PLAYS: 0,
+                    STATUS: subscription.status === 'trialing' ? 'teste' : 'ativo',
+                    PRICE_MONTH: 0,
+                  },
+                },
+              }
+            : {}),
         };
       }
     }
-
-    // para teste clock tirar depois (tirar depois) aqui clock_1TLV5GHs4q3jg2YIfvnEZAAl    // test_clock: 'clock_1TLV5GHs4q3jg2YIfvnEZAAl',
 
     const createCustomer = await stripe.customers.create({
       email,
       name,
     });
-
-    // console.log('createStripeCustomer ?', createCustomer);
 
     return {
       STRIPE_CUSTOMER_ID: createCustomer.id,
@@ -157,6 +167,7 @@ export const generatedCheckout = async ({
   token,
   userId,
   price,
+  trivial,
 }: FunctionCheckout) => {
   try {
     const customer = await getStripeCustomerByEmail(email);
@@ -170,8 +181,8 @@ export const generatedCheckout = async ({
       mode: 'subscription',
       client_reference_id: userId,
       customer: customer.id,
-      success_url: `${process.env.FRONTEND_URL}/acess/success?token=${token}`,
-      cancel_url: `${process.env.FRONTEND_URL}/acess/denied?token=${token}`,
+      success_url: `${process.env.FRONTEND_URL || getSecret('FRONTEND_URL')}/acess/success?token=${token}`,
+      cancel_url: `${process.env.FRONTEND_URL || getSecret('FRONTEND_URL')}/acess/denied?token=${token}`,
       line_items: [
         {
           price: price,
@@ -179,7 +190,7 @@ export const generatedCheckout = async ({
         },
       ],
       subscription_data: {
-        trial_period_days: 14,
+        ...(trivial ? { trial_period_days: 14 } : {}),
         metadata: {
           userId,
           planId,
@@ -198,7 +209,6 @@ export const handleCheckoutSessionCompleted = async (event: {
   data: { object: Stripe.Checkout.Session };
 }) => {
   try {
-    console.log('handleCheckoutSessionCompleted ?', JSON.stringify(event.data.object));
     const idUser = event.data.object.client_reference_id as string;
     const stripeSubscriptionId = event.data.object.subscription as string;
     const stripeCustumerId = event.data.object.customer as string;
@@ -271,7 +281,6 @@ export const handleSubscriptionSessionCompleted = async (event: {
   };
 }) => {
   try {
-    console.log('handleSubscriptionSessionCompleted ?', JSON.stringify(event.data.object));
     const subscriptionStatus = event.data.object.status;
     const stripeCustumerId = event.data.object.customer as string;
     const stripeSubscriptionId = event.data.object.id as string;
@@ -300,6 +309,10 @@ export const handleSubscriptionSessionCompleted = async (event: {
           : {}),
         ...(plan ? { PLAN: { connect: { ID: plan.ID } } } : {}),
       });
+
+      if (user.STRIPE_SUBSCRIPTION_STATUS === 'trialing' && subscriptionStatus === 'active') {
+        await mailService.sendWelcomeEmail({ EMAIL: user.EMAIL, NAME: user.NAME });
+      }
     }
   } catch (error) {
     handleStripeError(error);
@@ -313,8 +326,6 @@ export const handleCancelPlan = async (event: { data: { object: Stripe.Subscript
 
     const user = await userService.showStripeCustomerId(stripeCustumerId);
 
-    console.log('handleCancelPlan ?', JSON.stringify(event.data.object));
-
     if (user) {
       await userService.update(user.ID, {
         STRIPE_SUBSCRIPTION_STATUS: subscriptionStatus,
@@ -324,39 +335,14 @@ export const handleCancelPlan = async (event: { data: { object: Stripe.Subscript
 
       const activeHistoryPlays = user.HISTORY_PLAYS.find(history => history.STATUS === 'ativo');
 
-      if (activeHistoryPlays && user.PLAN && user.PLAN.PLAYS < activeHistoryPlays.QTD_PLAYS) {
-        const playDifference = activeHistoryPlays.QTD_PLAYS - user.PLAN.PLAYS;
-        const value = Math.floor(playDifference * user.PLAN.PLAYS_PRICE * 100) / 100;
-
-        await stripe.invoiceItems.create({
-          customer: stripeCustumerId,
-          amount: value,
-          currency: 'brl',
-          description: `Cobrança por excesso de ${playDifference} plays do plano ${user.PLAN.PLAN}`,
-          metadata: {
-            userId: user.ID,
-            historyPlaysId: activeHistoryPlays.ID,
-            type: 'excess_plays',
-          },
-        });
-
-        await stripe.invoices.create({
-          customer: stripeCustumerId,
-          auto_advance: true,
-        });
-
-        await historyPlaysService.update(activeHistoryPlays.ID, {
-          STATUS: 'aguardando pagamento',
-          PRICE_MONTH: value,
-        });
-      }
-
-      if (activeHistoryPlays && user.PLAN && user.PLAN.PLAYS >= activeHistoryPlays.QTD_PLAYS) {
+      if (activeHistoryPlays && user.PLAN) {
         await historyPlaysService.update(activeHistoryPlays.ID, {
           STATUS: 'isento',
           PRICE_MONTH: 0,
         });
       }
+
+      await mailService.sendCancelSubscriptionEmail({ EMAIL: user.EMAIL, NAME: user.NAME });
     }
   } catch (error) {
     handleStripeError(error);
@@ -372,7 +358,6 @@ export const handleInvoicePaid = async (event: {
   };
 }) => {
   try {
-    console.log('handleInvoicePaid - 3 ?', JSON.stringify(event.data.object));
     const stripeCustumerId = event.data.object.customer as string;
     const paid = event.data.object.paid as boolean;
     const line = event.data.object.lines.data;
@@ -413,6 +398,14 @@ export const handleInvoicePaid = async (event: {
           }
 
           if (user.HISTORY_PLAYS.length > 0) {
+            const currentPlaysTest = user.HISTORY_PLAYS.find(history => history.STATUS === 'teste');
+
+            if (currentPlaysTest) {
+              await historyPlaysService.update(currentPlaysTest.ID, {
+                STATUS: 'isento',
+              });
+            }
+
             const currentPlays = user.HISTORY_PLAYS.find(history => history.STATUS === 'ativo');
 
             if (currentPlays && user.PLAN && user.PLAN.PLAYS < currentPlays.QTD_PLAYS) {
@@ -421,7 +414,7 @@ export const handleInvoicePaid = async (event: {
 
               await stripe.invoiceItems.create({
                 customer: stripeCustumerId,
-                amount: value,
+                amount: Math.round(value * 100),
                 currency: 'brl',
                 description: `Cobrança por excesso de ${playDifference} plays do plano ${user.PLAN.PLAN}`,
                 metadata: {
@@ -464,6 +457,8 @@ export const handleInvoicePaid = async (event: {
           });
         }
       }
+
+      await mailService.sendPaymentEmail({ EMAIL: user.EMAIL, NAME: user.NAME });
     }
   } catch (error) {
     handleStripeError(error);
@@ -472,7 +467,6 @@ export const handleInvoicePaid = async (event: {
 
 export const handleInvoicePaymentFailed = async (event: { data: { object: Stripe.Invoice } }) => {
   try {
-    console.log('handleInvoicePaymentFailed - 4 ?', JSON.stringify(event.data.object));
     const stripeCustumerId = event.data.object.customer as string;
     const line = event.data.object.lines.data;
 
@@ -511,31 +505,3 @@ export const createPortalCustomer = async (idCustomer: string) => {
 
   return { PORTAL_URL: subscription.url };
 };
-
-// para deletar depois (depois) aqui clock_1TLV5GHs4q3jg2YIfvnEZAAl
-// export const advanceTestClock = async (clockId: string, targetTimestamp?: number) => {
-//   try {
-//     const clock = await stripe.testHelpers.testClocks.retrieve(clockId);
-
-//     // Se não especificar uma data, avança para o próximo mês
-//     const currentTime = clock.frozen_time;
-//     const targetTime = targetTimestamp || getNextMonthTimestamp(currentTime);
-
-//     const advancedClock = await stripe.testHelpers.testClocks.advance(clockId, {
-//       frozen_time: targetTime,
-//     });
-
-//     console.log('Test clock avançado para:', new Date(targetTime * 1000));
-//     return advancedClock;
-//   } catch (error) {
-//     handleStripeError(error);
-//   }
-// }
-
-// export const getNextMonthTimestamp = (currentTimestamp: number) => {
-//   const currentDate = new Date(currentTimestamp * 1000);
-//   const nextMonth = new Date(currentDate);
-//   nextMonth.setMonth(nextMonth.getMonth() + 1);
-
-//   return Math.floor(nextMonth.getTime() / 1000);
-// }

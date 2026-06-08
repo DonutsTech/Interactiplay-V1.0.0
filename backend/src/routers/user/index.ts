@@ -3,6 +3,7 @@ import { userController } from '../../controllers/user';
 import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
 import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
 import { imageUpload } from '../../config/multerConfig';
+import { isValidateRole } from '../../middleware/isValidateRole';
 
 class UserRouter {
   public static create(router: Router): void {
@@ -25,6 +26,21 @@ class UserRouter {
       isAuthenticateTokenDb,
       isValidateUserPlan,
       userController.fristLogin,
+    )
+    router.post(
+      '/admin/update-user-email',
+      isAuthenticateTokenDb,
+      isValidateUserPlan,
+      isValidateRole(['ADMIN']),
+      schemaValidator('user/updateEmail'),
+      userController.updateUserEmailByAdmin,
+    )
+    router.delete(
+      '/admin/delete-info-users',
+      isAuthenticateTokenDb,
+      isValidateUserPlan,
+      isValidateRole(['ADMIN']),
+      userController.deleteInfoUsers
     )
   }
 }

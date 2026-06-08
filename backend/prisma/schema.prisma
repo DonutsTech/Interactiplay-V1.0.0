@@ -35,7 +35,7 @@ model User {
   NAME                        String
   EMAIL                       String          @unique
   PHONE                       String
-  AVATAR                      String          @default("https://interacti-uploads.s3.us-east-1.amazonaws.com/uploads/images/avatar_default.png")
+  AVATAR                      String          @default("https://interacti-uploads.s3.us-east-1.amazonaws.com/uploads/images/avatar.png")
   HASHED_PASSWORD             String
   HASHED_TOKEN                String?
   CREATED_AT                  DateTime?       @default(now()) @db.Timestamp(0)

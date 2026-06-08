@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import type { PaymentCheckout, ResetPassword } from '../../@types/interface/auth';
 import type { LoginUser, RegisterUser } from '../../@types/interface/user';
 import type { Payload } from '../../@types/payload';
+import { getSecret } from '../../config/load';
 import { CustomError } from '../../error';
 import type { User } from '../../generated/prisma/client';
 import { userModel } from '../../models/user';
@@ -20,7 +21,7 @@ import { userService } from '../user';
 
 class AuthService {
   createToken(user: User) {
-    return jwt.sign({ ID: user.ID, ROLE: user.ROLE }, process.env.JWT_SECRET_KEY as string, {
+    return jwt.sign({ ID: user.ID, ROLE: user.ROLE }, getSecret('JWT_SECRET_KEY') as string, {
       subject: user.ID,
       expiresIn: '7d',
     });
@@ -28,7 +29,7 @@ class AuthService {
 
   checkingToken(token: string): Payload {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string) as Payload;
+      const decoded = jwt.verify(token, getSecret('JWT_SECRET_KEY') as string) as Payload;
 
       return decoded;
     } catch (error) {
@@ -76,11 +77,18 @@ class AuthService {
 
   async verificationStripedSubscription(user: User): Promise<string> {
     try {
-
       if (user.STRIPE_SUBSCRIPTION_STATUS === '' || user.STRIPE_SUBSCRIPTION_STATUS === '') {
         throw new CustomError<User & { PORTAL_URL: string }>(
           'Assinatura não encontrada, por favor realize a assinatura para acessar o conteúdo',
           StatusCodes.FORBIDDEN,
+          { ...user, PORTAL_URL: '' },
+        );
+      }
+
+      if (user.STRIPE_SUBSCRIPTION_STATUS === 'canceled') {
+        throw new CustomError<User & { PORTAL_URL: string }>(
+          'Assinatura cancelada, por favor realize uma nova assinatura para acessar o conteúdo',
+          StatusCodes.PARTIAL_CONTENT,
           { ...user, PORTAL_URL: '' },
         );
       }
@@ -218,7 +226,7 @@ class AuthService {
     }
   }
 
-  async paymentCheckout(data: PaymentCheckout) {
+  async paymentCheckout(data: PaymentCheckout, trivial: boolean) {
     try {
       const plan = await planService.showId(data.ID_PLAN);
 
@@ -234,6 +242,7 @@ class AuthService {
         token,
         userId: user.ID,
         price: plan.STRIPE_PLAN_PRICE,
+        trivial,
       });
 
       if (!stripe) {

@@ -1,12 +1,13 @@
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { createReadStream } from 'fs';
+import { getSecret } from './load';
 
 export const s3 = new S3Client({
-  region: process.env.AWS_REGION!,
+  region: process.env.AWS_REGION! || getSecret('AWS_REGION')!,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID! || getSecret('AWS_ACCESS_KEY_ID')!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY! || getSecret('AWS_SECRET_ACCESS_KEY')!,
   },
 });
 

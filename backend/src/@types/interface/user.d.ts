@@ -13,3 +13,8 @@ export interface ResetPasswordUser {
   HASHED_PASSWORD: string;
   CODE: string;
 }
+
+export interface UserUpdateEmailByAdmin {
+  EMAILOLD: string;
+  EMAILNEW: string;
+}
