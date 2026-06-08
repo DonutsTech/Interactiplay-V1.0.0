@@ -2,14 +2,32 @@ import dotenv from 'dotenv';
 import http from 'http';
 import path from 'path';
 import App from './config/app';
-import load from './config/load-secrets';
 import { SocketConfig } from './config/socket';
 import { initAdmin } from './utils/initAdmin';
 import { initPlan } from './utils/initPlan';
 //import { initADM } from './utils/initAdmin';
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+
+const client = new SecretsManagerClient({ region: 'us-east-1' });
+
+async function load() {
+  const res = await client.send(
+    new GetSecretValueCommand({
+      SecretId: 'interactplay-N4pCIe',
+    }),
+  );
+
+  const secret = JSON.parse(res.SecretString || '{}');
+
+  Object.entries(secret).forEach(([key, value]) => {
+    process.env[key] = String(value);
+  });
+
+  console.log('Secrets carregados com sucesso');
+}
 
 load().catch(error => {
-  console.error('Erro ao carregar segredos:', error);
+  console.error('Erro ao carregar secrets:', error);
   process.exit(1);
 });
 
