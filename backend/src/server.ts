@@ -1,31 +1,43 @@
 import dotenv from 'dotenv';
 import http from 'http';
 import path from 'path';
+
 import App from './config/app';
+import { loadSecrets } from './config/load-secrets';
 import { SocketConfig } from './config/socket';
 import { initAdmin } from './utils/initAdmin';
 import { initPlan } from './utils/initPlan';
-//import { initADM } from './utils/initAdmin';
 
-dotenv.config({
-  path: path.resolve('.env'),
-});
+async function bootstrap() {
+  dotenv.config({
+    path: path.resolve('.env'),
+  });
 
-const PORT = process.env.PORT || 4000;
+  if (process.env.NODE_ENV === 'production') {
+    await loadSecrets();
+  }
 
-const app = new App().express;
+  const PORT = process.env.PORT || 4000;
 
-const server = http.createServer(app);
+  const app = new App().express;
 
-const socketConfig = new SocketConfig(server);
+  const server = http.createServer(app);
 
-server.listen(PORT, () => {
-  initAdmin();
-  initPlan();
-  console.log(`Server is running on port ${PORT}`);
-});
+  new SocketConfig(server);
 
-server.on('error', error => {
-  console.error('Erro ao iniciar servidor:', error);
+  server.listen(PORT, () => {
+    initAdmin();
+    initPlan();
+    console.log(`Server is running on port ${PORT}`);
+  });
+
+  server.on('error', error => {
+    console.error('Erro ao iniciar servidor:', error);
+    process.exit(1);
+  });
+}
+
+bootstrap().catch(error => {
+  console.error('Erro ao carregar secrets:', error);
   process.exit(1);
 });
