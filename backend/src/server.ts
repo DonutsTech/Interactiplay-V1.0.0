@@ -7,6 +7,15 @@ import { initAdmin } from './utils/initAdmin';
 import { initPlan } from './utils/initPlan';
 //import { initADM } from './utils/initAdmin';
 
+require('./config/secrets')
+  .getAWSCredential()
+  .then(() => {
+    console.log('Credenciais AWS carregadas com sucesso');
+  })
+  .catch((error: any) => {
+    console.error('Erro ao carregar credenciais AWS:', error);
+  });
+
 dotenv.config({
   path: path.resolve('.env'),
 });
