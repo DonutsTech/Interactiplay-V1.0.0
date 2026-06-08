@@ -1,5 +1,4 @@
 import type { ForgetPassword, MailPages, Notice, validateEmail } from '../../@types/interface/mail';
-import { getSecret } from '../../config/load';
 import { loadTemplate, transporterInfo } from '../../config/nodemailer';
 import { CustomError } from '../../error';
 
@@ -20,8 +19,8 @@ class MailService {
       });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
-        to: process.env.MAIL_USER_1 || getSecret('MAIL_USER_1'),
+        from: process.env.MAIL_USER_3,
+        to: process.env.MAIL_USER_1,
         subject: 'Nova Solicitação de Contato',
         html,
       });
@@ -33,7 +32,7 @@ class MailService {
       });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Recebemos sua solicitação de contato',
         html: htmlUser,
@@ -65,8 +64,8 @@ class MailService {
       }));
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
-        to: process.env.MAIL_USER_2 || getSecret('MAIL_USER_2'),
+        from: process.env.MAIL_USER_3,
+        to: process.env.MAIL_USER_2,
         subject: 'Nova Solicitação do usuario',
         html,
         ...(attachments ? { attachments } : {}),
@@ -79,7 +78,7 @@ class MailService {
       });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Recebemos sua solicitação',
         html: htmlUser,
@@ -94,12 +93,12 @@ class MailService {
 
   async sendValidateEmail({ EMAIL, TOKEN }: validateEmail): Promise<boolean> {
     try {
-      const link = `${process.env.FRONTEND_URL || getSecret('FRONTEND_URL')}/acess/validate?token=${TOKEN}`;
+      const link = `${process.env.FRONTEND_URL}/acess/validate?token=${TOKEN}`;
 
       const html = loadTemplate('template_validation_email', { link, email: EMAIL });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Validação de Email',
         html,
@@ -115,12 +114,12 @@ class MailService {
 
   async sendForgetPasswordEmail({ CODE, EMAIL, TOKEN }: ForgetPassword): Promise<boolean> {
     try {
-      const link = `${process.env.FRONTEND_URL || getSecret('FRONTEND_URL')}/acess/reset-password?token=${TOKEN}`;
+      const link = `${process.env.FRONTEND_URL}/acess/reset-password?token=${TOKEN}`;
 
       const html = loadTemplate('template_reset_password', { link, email: EMAIL, code: CODE });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Redefinição de Senha',
         html,
@@ -138,7 +137,7 @@ class MailService {
       const html = loadTemplate('template_password_changed', { email });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: email,
         subject: 'Senha Alterada',
         html,
@@ -156,7 +155,7 @@ class MailService {
       const html = loadTemplate('template_notice_plan_75', { name: NAME });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Aviso de uso 75% dos plays',
         html,
@@ -174,7 +173,7 @@ class MailService {
       const html = loadTemplate('template_notice_plan_100', { name: NAME });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Aviso de uso 100% dos plays',
         html,
@@ -192,7 +191,7 @@ class MailService {
       const html = loadTemplate('template_notice_plan_test', { name: NAME });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Aviso de Uso do Plano - Teste',
         html,
@@ -210,7 +209,7 @@ class MailService {
       const html = loadTemplate('template_notice_plays', { name: NAME });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: `Você acumulou mais 1.000 plays extras`,
         html,
@@ -225,8 +224,8 @@ class MailService {
 
   async sendWelcomeEmail({ EMAIL, NAME }: Notice): Promise<boolean> {
     try {
-      const help = `${process.env.FRONTEND_URL || getSecret('FRONTEND_URL')}/#contact`;
-      const policyLink = `${process.env.FRONTEND_URL || getSecret('FRONTEND_URL')}/Policy`;
+      const help = `${process.env.FRONTEND_URL}/#contact`;
+      const policyLink = `${process.env.FRONTEND_URL}/Policy`;
 
       console.log('Enviando email de boas-vindas para:', EMAIL);
 
@@ -237,7 +236,7 @@ class MailService {
       });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Sua assinatura está ativa! Bem-vindo oficialmente!',
         html,
@@ -255,7 +254,7 @@ class MailService {
       const html = loadTemplate('template_cancel', { name: NAME });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Sua assinatura foi cancelada',
         html,
@@ -273,7 +272,7 @@ class MailService {
       const html = loadTemplate('template_payment', { name: NAME });
 
       await transporterInfo.sendMail({
-        from: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+        from: process.env.MAIL_USER_3,
         to: EMAIL,
         subject: 'Pagamento confirmado',
         html,

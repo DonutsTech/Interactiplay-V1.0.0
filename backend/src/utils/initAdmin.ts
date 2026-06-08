@@ -1,4 +1,3 @@
-import { getSecret } from '../config/load';
 import { Role } from '../enums/role.enum';
 import { User } from '../generated/prisma/browser';
 import type { UserCreateInput } from '../generated/prisma/models';
@@ -41,23 +40,18 @@ export async function initAdmin() {
   try {
     const master: UserCreateInput = {
       NAME: 'Matheus Master',
-      EMAIL: (process.env.ADMIN_EMAIL as string) || (getSecret('ADMIN_EMAIL') as string),
-      PHONE: (process.env.ADMIN_PHONE as string) || (getSecret('ADMIN_PHONE') as string),
-      HASHED_PASSWORD:
-        (process.env.ADMIN_PASSWORD as string) || (getSecret('ADMIN_PASSWORD') as string),
+      EMAIL: process.env.ADMIN_EMAIL as string,
+      PHONE: process.env.ADMIN_PHONE as string,
+      HASHED_PASSWORD: process.env.ADMIN_PASSWORD as string,
       ROLE: Role.ADMIN,
       VALIDATION_EMAIL: true,
     };
 
     const donuts: UserCreateInput = {
       NAME: 'Donuts Master',
-      EMAIL:
-        (process.env.ADMIN_EMAIL_DONUTS as string) || (getSecret('ADMIN_EMAIL_DONUTS') as string),
-      PHONE:
-        (process.env.ADMIN_PHONE_DONUTS as string) || (getSecret('ADMIN_PHONE_DONUTS') as string),
-      HASHED_PASSWORD:
-        (process.env.ADMIN_PASSWORD_DONUTS as string) ||
-        (getSecret('ADMIN_PASSWORD_DONUTS') as string),
+      EMAIL: process.env.ADMIN_EMAIL_DONUTS as string,
+      PHONE: process.env.ADMIN_PHONE_DONUTS as string,
+      HASHED_PASSWORD: process.env.ADMIN_PASSWORD_DONUTS as string,
       ROLE: Role.ADMIN,
       VALIDATION_EMAIL: true,
     };

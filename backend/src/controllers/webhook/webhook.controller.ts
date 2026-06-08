@@ -27,8 +27,6 @@ class WebhookController {
       return;
     }
 
-    console.log('Evento recebido:', event.type);
-
     const isNewEvent = await stripeEventService.createIfNotExists(event);
 
     if (!isNewEvent) {
