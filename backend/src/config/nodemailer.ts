@@ -2,17 +2,18 @@ import fs from 'fs';
 import { cwd } from 'node:process';
 import nodemailer from 'nodemailer';
 import path from 'path';
+import { getSecret } from './load';
 
 export const transporterContact = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: Number(process.env.MAIL_PORT),
+  host: process.env.MAIL_HOST || getSecret('MAIL_HOST'),
+  port: Number(process.env.MAIL_PORT) || Number(getSecret('MAIL_PORT')),
   secure: true,
   tls: {
     rejectUnauthorized: false,
   },
   auth: {
-    user: process.env.MAIL_USER_1,
-    pass: process.env.MAIL_PASS,
+    user: process.env.MAIL_USER_1 || getSecret('MAIL_USER_1'),
+    pass: process.env.MAIL_PASS || getSecret('MAIL_PASS'),
   },
   connectionTimeout: 10000,
   greetingTimeout: 5000,
@@ -20,15 +21,15 @@ export const transporterContact = nodemailer.createTransport({
 } as any);
 
 export const transporterSupport = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: Number(process.env.MAIL_PORT),
+  host: process.env.MAIL_HOST || getSecret('MAIL_HOST'),
+  port: Number(process.env.MAIL_PORT) || Number(getSecret('MAIL_PORT')),
   secure: true,
   tls: {
     rejectUnauthorized: false,
   },
   auth: {
-    user: process.env.MAIL_USER_2,
-    pass: process.env.MAIL_PASS,
+    user: process.env.MAIL_USER_2 || getSecret('MAIL_USER_2'),
+    pass: process.env.MAIL_PASS || getSecret('MAIL_PASS'),
   },
   connectionTimeout: 10000,
   greetingTimeout: 5000,
@@ -36,15 +37,15 @@ export const transporterSupport = nodemailer.createTransport({
 } as any);
 
 export const transporterInfo = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: Number(process.env.MAIL_PORT),
+  host: process.env.MAIL_HOST || getSecret('MAIL_HOST'),
+  port: Number(process.env.MAIL_PORT) || Number(getSecret('MAIL_PORT')),
   secure: true,
   tls: {
     rejectUnauthorized: false,
   },
   auth: {
-    user: process.env.MAIL_USER_3,
-    pass: process.env.MAIL_PASS,
+    user: process.env.MAIL_USER_3 || getSecret('MAIL_USER_3'),
+    pass: process.env.MAIL_PASS || getSecret('MAIL_PASS'),
   },
   connectionTimeout: 10000,
   greetingTimeout: 5000,

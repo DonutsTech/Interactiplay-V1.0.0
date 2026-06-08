@@ -1,21 +1,23 @@
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 
-const client = new SecretsManagerClient({ region: 'us-east-1' });
+const client = new SecretsManagerClient({
+  region: 'us-east-1',
+});
 
-async function load() {
-  const res = await client.send(
+let cache: Record<string, string> = {};
+
+export async function loadSecrets() {
+  const data = await client.send(
     new GetSecretValueCommand({
-      SecretId: 'interactplay-N4pCIe',
+      SecretId: 'interactplay',
     }),
   );
 
-  const secret = JSON.parse(res.SecretString || '{}');
+  cache = JSON.parse(data.SecretString || '{}');
 
-  Object.entries(secret).forEach(([key, value]) => {
-    process.env[key] = String(value);
-  });
-
-  console.log('✅ Secrets carregados e cacheado');
+  console.log('Secrets carregados');
 }
 
-export default load;
+export function getSecret(key: string) {
+  return cache[key] || '';
+}

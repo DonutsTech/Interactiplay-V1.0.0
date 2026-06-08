@@ -5,6 +5,7 @@ import type {
   FunctionCheckoutFree,
   FunctionUpdateFinishTrial,
 } from '../@types/interface/function';
+import { getSecret } from '../config/load';
 import { CustomError } from '../error';
 import { handleStripeError } from '../error/errorStripe';
 import type { Plan } from '../generated/prisma/client';
@@ -15,9 +16,12 @@ import { userService } from '../services/user';
 import { formatNummberForDate } from './format/data';
 import { formatProductsForPlan, type PlanStripeNew } from './format/plan';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET as string, {
-  httpClient: Stripe.createFetchHttpClient(),
-});
+export const stripe = new Stripe(
+  (process.env.STRIPE_SECRET as string) || (getSecret('STRIPE_SECRET') as string),
+  {
+    httpClient: Stripe.createFetchHttpClient(),
+  },
+);
 
 export const getStripeProducts = async (): Promise<PlanStripeNew[]> => {
   try {
@@ -177,8 +181,8 @@ export const generatedCheckout = async ({
       mode: 'subscription',
       client_reference_id: userId,
       customer: customer.id,
-      success_url: `${process.env.FRONTEND_URL}/acess/success?token=${token}`,
-      cancel_url: `${process.env.FRONTEND_URL}/acess/denied?token=${token}`,
+      success_url: `${process.env.FRONTEND_URL || getSecret('FRONTEND_URL')}/acess/success?token=${token}`,
+      cancel_url: `${process.env.FRONTEND_URL || getSecret('FRONTEND_URL')}/acess/denied?token=${token}`,
       line_items: [
         {
           price: price,
