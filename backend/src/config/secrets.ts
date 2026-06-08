@@ -18,6 +18,7 @@ export const getAWSCredential = async () => {
     const secret = JSON.parse(data.SecretString || '{}');
 
     for (const envKey of Object.keys(secret)) {
+      console.log(`Setting environment variable: ${envKey}`);
       process.env[envKey] = secret[envKey];
     }
   }
