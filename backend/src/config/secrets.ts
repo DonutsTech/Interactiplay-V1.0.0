@@ -14,8 +14,12 @@ export const getAWSCredential = async () => {
     }),
   );
 
+  console.log('Fetched secrets from AWS Secrets Manager', data);
+
   if ('SecretString' in data) {
     const secret = JSON.parse(data.SecretString || '{}');
+
+    console.log('Parsed secrets:', secret);
 
     for (const envKey of Object.keys(secret)) {
       console.log(`Setting environment variable: ${envKey}`);
