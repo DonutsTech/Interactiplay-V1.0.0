@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import http from 'http';
 import path from 'path';
 import App from './config/app';
-import { getAWSCredential } from './config/secrets';
 import { SocketConfig } from './config/socket';
 import { initAdmin } from './utils/initAdmin';
 import { initPlan } from './utils/initPlan';
@@ -12,27 +11,21 @@ dotenv.config({
   path: path.resolve('.env'),
 });
 
-async function main() {
-  await getAWSCredential();
+const PORT = process.env.PORT || 4000;
 
-  const PORT = process.env.PORT || 4000;
+const app = new App().express;
 
-  const app = new App().express;
+const server = http.createServer(app);
 
-  const server = http.createServer(app);
+const socketConfig = new SocketConfig(server);
 
-  const socketConfig = new SocketConfig(server);
+server.listen(PORT, () => {
+  initAdmin();
+  initPlan();
+  console.log(`Server is running on port ${PORT}`);
+});
 
-  server.listen(PORT, () => {
-    initAdmin();
-    initPlan();
-    console.log(`Server is running on port ${PORT}`);
-  });
-
-  server.on('error', error => {
-    console.error('Erro ao iniciar servidor:', error);
-    process.exit(1);
-  });
-}
-
-main();
+server.on('error', error => {
+  console.error('Erro ao iniciar servidor:', error);
+  process.exit(1);
+});
