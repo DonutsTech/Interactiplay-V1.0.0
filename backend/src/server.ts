@@ -2,10 +2,16 @@ import dotenv from 'dotenv';
 import http from 'http';
 import path from 'path';
 import App from './config/app';
+import load from './config/load-secrets';
 import { SocketConfig } from './config/socket';
 import { initAdmin } from './utils/initAdmin';
 import { initPlan } from './utils/initPlan';
 //import { initADM } from './utils/initAdmin';
+
+load().catch(error => {
+  console.error('Erro ao carregar segredos:', error);
+  process.exit(1);
+});
 
 dotenv.config({
   path: path.resolve('.env'),
