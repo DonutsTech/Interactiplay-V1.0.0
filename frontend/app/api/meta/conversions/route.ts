@@ -37,7 +37,11 @@ export async function POST(request: NextRequest) {
     process.env.META_CAPI_PIXEL_ID?.trim() ??
     process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim();
   const accessToken = process.env.META_CONVERSIONS_API_TOKEN?.trim();
-  const testEventCode = process.env.META_TEST_EVENT_CODE?.trim();
+  const testEventsEnabled =
+    process.env.META_CAPI_ENABLE_TEST_EVENTS?.trim().toLowerCase() === 'true';
+  const testEventCode = testEventsEnabled
+    ? process.env.META_TEST_EVENT_CODE?.trim()
+    : undefined;
 
   if (!pixelId || !accessToken) {
     return NextResponse.json(
@@ -70,10 +74,28 @@ export async function POST(request: NextRequest) {
 
   const eventName = payload.event_name?.trim();
   const eventId = payload.event_id?.trim();
+  const eventSourceUrl =
+    payload.event_source_url?.trim() ?? request.headers.get('referer')?.trim();
 
   if (!eventName || !eventId) {
     return NextResponse.json(
       { error: 'event_name e event_id sao obrigatorios' },
+      { status: 400 }
+    );
+  }
+
+  if (!eventSourceUrl) {
+    return NextResponse.json(
+      { error: 'event_source_url e obrigatorio para eventos web' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    new URL(eventSourceUrl);
+  } catch {
+    return NextResponse.json(
+      { error: 'event_source_url invalido' },
       { status: 400 }
     );
   }
@@ -139,7 +161,7 @@ export async function POST(request: NextRequest) {
         event_time: Math.floor(Date.now() / 1000),
         event_id: eventId,
         action_source: 'website',
-        event_source_url: payload.event_source_url,
+        event_source_url: eventSourceUrl,
         custom_data: payload.custom_data,
         user_data: userData,
       },
