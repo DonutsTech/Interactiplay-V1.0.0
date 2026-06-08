@@ -4,14 +4,14 @@ import { NextRequest, NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 
 type IncomingPayload = {
-  eventName?: string;
-  eventId?: string;
-  customData?: Record<string, string | number | boolean>;
-  userData?: {
+  event_name?: string;
+  event_id?: string;
+  custom_data?: Record<string, string | number | boolean>;
+  user_data?: {
     email?: string;
     phone?: string;
   };
-  eventSourceUrl?: string;
+  event_source_url?: string;
 };
 
 const normalizeEmail = (value?: string): string =>
@@ -68,18 +68,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Payload invalido' }, { status: 400 });
   }
 
-  const eventName = payload.eventName?.trim();
-  const eventId = payload.eventId?.trim();
+  const eventName = payload.event_name?.trim();
+  const eventId = payload.event_id?.trim();
 
   if (!eventName || !eventId) {
     return NextResponse.json(
-      { error: 'eventName e eventId sao obrigatorios' },
+      { error: 'event_name e event_id sao obrigatorios' },
       { status: 400 }
     );
   }
 
-  const normalizedEmail = normalizeEmail(payload.userData?.email);
-  const normalizedPhone = normalizePhone(payload.userData?.phone);
+  const normalizedEmail = normalizeEmail(payload.user_data?.email);
+  const normalizedPhone = normalizePhone(payload.user_data?.phone);
   const userAgent = request.headers.get('user-agent') ?? undefined;
   const clientIp = getClientIp(request);
   const fbc = request.headers
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
         error:
           'user_data vazio. A Meta exige pelo menos um identificador: email, phone, fbc, fbp ou client_ip_address.',
         details: {
-          receivedUserData: payload.userData,
+          receivedUserData: payload.user_data,
           derivedUserData: userData,
           hint: 'Envie pelo menos email ou phone do usuario, ou passe fbc/fbp via cookie no header.',
         },
@@ -139,15 +139,15 @@ export async function POST(request: NextRequest) {
         event_time: Math.floor(Date.now() / 1000),
         event_id: eventId,
         action_source: 'website',
-        event_source_url: payload.eventSourceUrl,
-        custom_data: payload.customData,
+        event_source_url: payload.event_source_url,
+        custom_data: payload.custom_data,
         user_data: userData,
       },
     ],
     ...(testEventCode ? { test_event_code: testEventCode } : {}),
   };
 
-  const endpoint = `https://graph.facebook.com/v22.0/${pixelId}/events?access_token=${accessToken}`;
+  const endpoint = `https://graph.facebook.com/v25.0/${pixelId}/events?access_token=${accessToken}`;
 
   const response = await fetch(endpoint, {
     method: 'POST',
