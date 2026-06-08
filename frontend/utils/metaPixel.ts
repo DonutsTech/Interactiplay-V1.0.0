@@ -84,7 +84,7 @@ export const setMarketingConsent = (marketing: boolean): void => {
 };
 
 export const initializeMetaPixel = (): boolean => {
-  if (!isBrowser() || !hasMetaPixelId() || !getMarketingConsent()) {
+  if (!isBrowser() || !getMarketingConsent()) {
     return false;
   }
 
@@ -92,12 +92,17 @@ export const initializeMetaPixel = (): boolean => {
     return false;
   }
 
-  if (!window.__metaPixelInitialized) {
-    window.fbq('init', getMetaPixelId());
-    window.__metaPixelInitialized = true;
+  if (window.__metaPixelInitialized) {
+    return true;
   }
 
-  return true;
+  if (hasMetaPixelId()) {
+    window.fbq('init', getMetaPixelId());
+    window.__metaPixelInitialized = true;
+    return true;
+  }
+
+  return false;
 };
 
 export const trackMetaEvent = (
@@ -107,7 +112,7 @@ export const trackMetaEvent = (
 ): boolean => {
   const eventId = options?.eventId ?? generateEventId();
 
-  if (isBrowser() && getMarketingConsent() && hasMetaPixelId()) {
+  if (isBrowser() && getMarketingConsent()) {
     void postMetaCapiEvent({
       eventName,
       eventId,

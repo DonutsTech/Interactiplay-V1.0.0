@@ -10,7 +10,6 @@ import {
   MARKETING_CONSENT_STORAGE_KEY,
   getMarketingConsent,
   getMetaPixelId,
-  hasMetaPixelId,
   setMarketingConsent,
   trackMetaPageView,
 } from '@/utils/metaPixel';
@@ -22,9 +21,48 @@ const MetaPixelManager = () => {
     null
   );
   const [isBannerOpen, setIsBannerOpen] = useState(false);
+  const [runtimePixelId, setRuntimePixelId] = useState('');
   const lastTrackedPathRef = useRef('');
 
   const pixelId = getMetaPixelId();
+  const resolvedPixelId = pixelId || runtimePixelId;
+  const hasResolvedPixelId = resolvedPixelId.length > 0;
+
+  useEffect(() => {
+    if (pixelId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchPixelId = async () => {
+      try {
+        const response = await fetch('/api/meta/pixel-id', {
+          method: 'GET',
+          cache: 'no-store',
+        });
+
+        if (!response.ok || cancelled) {
+          return;
+        }
+
+        const data = (await response.json()) as { pixelId?: string };
+        const value = data.pixelId?.trim() ?? '';
+
+        if (!cancelled && value) {
+          setRuntimePixelId(value);
+        }
+      } catch {
+        // Falha silenciosa para nao impactar carregamento da pagina.
+      }
+    };
+
+    void fetchPixelId();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pixelId]);
 
   useEffect(() => {
     const consent = getMarketingConsent();
@@ -101,7 +139,7 @@ const MetaPixelManager = () => {
 
   return (
     <>
-      {marketingConsent === true && hasMetaPixelId() && !isDashboardRoute && (
+      {marketingConsent === true && hasResolvedPixelId && !isDashboardRoute && (
         <Script id="meta-pixel-bootstrap" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)
@@ -112,7 +150,8 @@ const MetaPixelManager = () => {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${pixelId}');
+            fbq('init', '${resolvedPixelId}');
+            window.__metaPixelInitialized = true;
           `}
         </Script>
       )}
