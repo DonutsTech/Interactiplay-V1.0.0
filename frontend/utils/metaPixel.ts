@@ -30,7 +30,9 @@ export const MARKETING_CONSENT_STORAGE_KEY =
 export const MARKETING_CONSENT_EVENT = 'interactiplay:consent-updated';
 
 export const getMetaPixelId = (): string =>
-  process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim() ?? '';
+  process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim() ??
+  process.env.NEXT_PUBLIC_META_CAPI_PIXEL_ID?.trim() ??
+  '';
 
 export const hasMetaPixelId = (): boolean => getMetaPixelId().length > 0;
 
