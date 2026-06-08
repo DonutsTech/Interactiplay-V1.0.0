@@ -35,7 +35,8 @@ const getClientIp = (request: NextRequest): string | undefined => {
 export async function POST(request: NextRequest) {
   const pixelId =
     process.env.META_CAPI_PIXEL_ID?.trim() ??
-    process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim();
+    process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim() ??
+    process.env.NEXT_PUBLIC_META_CAPI_PIXEL_ID?.trim();
   const accessToken = process.env.META_CONVERSIONS_API_TOKEN?.trim();
   const testEventsEnabled =
     process.env.META_CAPI_ENABLE_TEST_EVENTS?.trim().toLowerCase() === 'true';
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
         details: {
           hasPixelId: Boolean(pixelId),
           hasAccessToken: Boolean(accessToken),
-          hint: 'Configure META_CAPI_PIXEL_ID (ou NEXT_PUBLIC_FACEBOOK_PIXEL_ID) e META_CONVERSIONS_API_TOKEN no ambiente de execucao.',
+          hint: 'Configure META_CAPI_PIXEL_ID e META_CONVERSIONS_API_TOKEN no ambiente de execucao.',
         },
       },
       { status: 503 }
