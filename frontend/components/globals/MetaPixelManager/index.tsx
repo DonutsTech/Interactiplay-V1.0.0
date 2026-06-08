@@ -29,14 +29,12 @@ const MetaPixelManager = () => {
   useEffect(() => {
     const consent = getMarketingConsent();
     setMarketingConsentState(consent);
-    setIsBannerOpen(consent === null);
+    setIsBannerOpen(consent !== true);
 
     const handleConsentUpdate = () => {
       const updatedConsent = getMarketingConsent();
       setMarketingConsentState(updatedConsent);
-      if (updatedConsent === null) {
-        setIsBannerOpen(true);
-      }
+      setIsBannerOpen(updatedConsent !== true);
     };
 
     const handleStorage = (event: StorageEvent) => {
