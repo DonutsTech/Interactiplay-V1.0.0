@@ -71,7 +71,7 @@ export const updateUser = async (body: UpdateUserData): Promise<MeResponse | Err
   }
 };
 
-export const postFristAcess = async (): Promise<{ STATUS: number; MESSAGE: string } | ErrorMessage> => {
+export const postFirstAccess = async (): Promise<{ STATUS: number; MESSAGE: string } | ErrorMessage> => {
   try {
     const token = getToken();
 
