@@ -82,6 +82,14 @@ export async function POST(request: NextRequest) {
   const normalizedPhone = normalizePhone(payload.userData?.phone);
   const userAgent = request.headers.get('user-agent') ?? undefined;
   const clientIp = getClientIp(request);
+  const fbc = request.headers
+    .get('cookie')
+    ?.match(/(?:^|;)\s*_fbc=([^;]+)/)?.[1]
+    ?.trim();
+  const fbp = request.headers
+    .get('cookie')
+    ?.match(/(?:^|;)\s*_fbp=([^;]+)/)?.[1]
+    ?.trim();
 
   const userData: Record<string, string | string[]> = {};
 
@@ -99,6 +107,29 @@ export async function POST(request: NextRequest) {
 
   if (userAgent) {
     userData.client_user_agent = userAgent;
+  }
+
+  if (fbc) {
+    userData.fbc = fbc;
+  }
+
+  if (fbp) {
+    userData.fbp = fbp;
+  }
+
+  if (Object.keys(userData).length === 0) {
+    return NextResponse.json(
+      {
+        error:
+          'user_data vazio. A Meta exige pelo menos um identificador: email, phone, fbc, fbp ou client_ip_address.',
+        details: {
+          receivedUserData: payload.userData,
+          derivedUserData: userData,
+          hint: 'Envie pelo menos email ou phone do usuario, ou passe fbc/fbp via cookie no header.',
+        },
+      },
+      { status: 400 }
+    );
   }
 
   const body = {
