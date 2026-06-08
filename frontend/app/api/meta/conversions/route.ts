@@ -45,7 +45,14 @@ export async function POST(request: NextRequest) {
 
   if (!pixelId || !accessToken) {
     return NextResponse.json(
-      { error: 'Meta Conversion API nao configurada' },
+      {
+        error: 'Meta Conversion API nao configurada',
+        details: {
+          hasPixelId: Boolean(pixelId),
+          hasAccessToken: Boolean(accessToken),
+          hint: 'Configure META_CAPI_PIXEL_ID (ou NEXT_PUBLIC_FACEBOOK_PIXEL_ID) e META_CONVERSIONS_API_TOKEN no ambiente de execucao.',
+        },
+      },
       { status: 503 }
     );
   }
