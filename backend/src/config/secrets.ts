@@ -1,29 +1,23 @@
-import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+import axios from 'axios';
+import fs from 'fs';
 
-const secret_name = 'interactplay';
+export async function getAWSCredential() {
+  const token = fs.readFileSync('/var/run/awssmatoken', 'utf8').trim();
 
-const client = new SecretsManagerClient({
-  region: 'us-east-1',
-});
-
-export const getAWSCredential = async () => {
-  const data = await client.send(
-    new GetSecretValueCommand({
-      SecretId: secret_name,
-      VersionStage: 'AWSCURRENT', // VersionStage defaults to AWSCURRENT if unspecified
-    }),
+  const { data } = await axios.get(
+    'http://localhost:2773/secretsmanager/get?secretId=interactplay',
+    {
+      headers: {
+        'X-Aws-Parameters-Secrets-Token': token,
+      },
+    },
   );
 
-  console.log('Fetched secrets from AWS Secrets Manager', data);
+  const secrets = JSON.parse(data.SecretString);
 
-  if ('SecretString' in data) {
-    const secret = JSON.parse(data.SecretString || '{}');
+  Object.entries(secrets).forEach(([key, value]) => {
+    process.env[key] = String(value);
+  });
 
-    console.log('Parsed secrets:', secret);
-
-    for (const envKey of Object.keys(secret)) {
-      console.log(`Setting environment variable: ${envKey}`);
-      process.env[envKey] = secret[envKey];
-    }
-  }
-};
+  return secrets;
+}
