@@ -4,7 +4,7 @@ import { IoCloseCircle } from 'react-icons/io5';
 import styles from './Welcome.module.scss';
 import { useCallback, useContext, useState } from 'react';
 import { AuthUserContext } from '@/context/AuthUserContext';
-import { postFristAcess } from '@/service/auth/me';
+import { postFirstAccess } from '@/service/auth/me';
 import { useRouter } from 'next/navigation';
 
 type WelcomeProps = {
@@ -20,7 +20,7 @@ const Welcome = ({ onDismiss }: WelcomeProps) => {
     setIsClosed(true);
     onDismiss();
 
-    const response = await postFristAcess();
+    const response = await postFirstAccess();
     if (!('STATUS' in response) || response.STATUS < 400) {
       await loadAuthUser();
       router.refresh();
