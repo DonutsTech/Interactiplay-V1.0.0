@@ -15,6 +15,8 @@ import { userService } from '../services/user';
 import { formatNummberForDate } from './format/data';
 import { formatProductsForPlan, type PlanStripeNew } from './format/plan';
 
+console.log('STRIPE_SECRET =>', process.env.STRIPE_SECRET);
+
 export const stripe = new Stripe(process.env.STRIPE_SECRET as string, {
   httpClient: Stripe.createFetchHttpClient(),
 });
