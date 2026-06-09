@@ -10,7 +10,7 @@ const onDragStart = (event: DragEvent, nodeType: string, id: string) => {
   event.dataTransfer.setData('application/reactflow', nodeType);
   event.dataTransfer.setData('videoId', id);
   event.dataTransfer.effectAllowed = 'move';
-  console.log('Drag started with video ID:', id);
+  // console.log('Drag started with video ID:', id);
 };
 
 

@@ -83,7 +83,7 @@ const Formulario: React.FC = () => {
         MESSAGE: form.mensagem,
       };
       const res = await fetch(
-        "https://api.experimenteumdonuts.app.br/api/send-email-contact",
+        "https://api.interactiplay.com.br/api/send-email-contact",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

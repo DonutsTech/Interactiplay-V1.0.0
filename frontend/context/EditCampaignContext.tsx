@@ -41,7 +41,7 @@ export const EditCampaignProvider = ({ children }: { children: ReactNode }) => {
 
   const { handleRequest } = useError();
 
-  console.log(editingCampaign)
+  // console.log(editingCampaign)
 
   const fecthCampaignForEdit = useCallback(async (id: string) => {
     const data = await handleRequest(
@@ -53,7 +53,7 @@ export const EditCampaignProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    console.log('Fetched campaign data:', data);
+    // console.log('Fetched campaign data:', data);
 
     if (data && 'ID' in data) {
       setEditingCampaign(data);

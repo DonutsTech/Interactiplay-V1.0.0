@@ -63,7 +63,7 @@ const TestErrorContext = () => {
         successMessage: 'Requisição bem-sucedida! ✅',
       }
     );
-    console.log('Resultado:', result);
+    // console.log('Resultado:', result);
   };
 
   const handleTestHandleRequestError = async () => {
@@ -72,11 +72,11 @@ const TestErrorContext = () => {
       {
         loadingMessage: 'Tentando buscar dados...',
         onError: (error) => {
-          console.log('Erro capturado:', error);
+          // console.log('Erro capturado:', error);
         },
       }
     );
-    console.log('Resultado (deve ser null):', result);
+    // console.log('Resultado (deve ser null):', result);
   };
 
   const handleTestHandleRequestException = async () => {
@@ -86,7 +86,7 @@ const TestErrorContext = () => {
         loadingMessage: 'Executando operação...',
       }
     );
-    console.log('Resultado (deve ser null):', result);
+    // console.log('Resultado (deve ser null):', result);
   };
 
   const handleTestToastWithAction = () => {
@@ -95,7 +95,7 @@ const TestErrorContext = () => {
         text: 'Escolher Plano',
         onClick: () => {
           alert('Redirecionando para /acess/plans');
-          console.log('Ação do botão executada!');
+          // console.log('Ação do botão executada!');
         },
       },
     });
@@ -109,10 +109,10 @@ const TestErrorContext = () => {
     
     if (confirmed) {
       showSuccess('✅ Você confirmou a ação!');
-      console.log('Usuário CONFIRMOU');
+      // console.log('Usuário CONFIRMOU');
     } else {
       showInfo('❌ Você cancelou a ação.');
-      console.log('Usuário CANCELOU');
+      // console.log('Usuário CANCELOU');
     }
   };
 
@@ -130,10 +130,10 @@ const TestErrorContext = () => {
     
     if (confirmed) {
       showSuccess('Item excluído com sucesso!');
-      console.log('Item EXCLUÍDO');
+      // console.log('Item EXCLUÍDO');
     } else {
       showInfo('Exclusão cancelada.');
-      console.log('Exclusão CANCELADA');
+      // console.log('Exclusão CANCELADA');
     }
   };
 

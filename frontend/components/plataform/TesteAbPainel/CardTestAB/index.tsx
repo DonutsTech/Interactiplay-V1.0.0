@@ -30,7 +30,7 @@ const CardTestAB = ({
     campaignBName: 'Campanha B',
   });
 
-  console.log('testAB recebido em CardTestAB:', testAB);
+  // console.log('testAB recebido em CardTestAB:', testAB);
 
   useEffect(() => {
     if (!(testAB.CAMPAIGN_A && testAB.CAMPAIGN_B)) {

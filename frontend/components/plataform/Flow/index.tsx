@@ -155,8 +155,8 @@ const Flow = ({ id = undefined }: FlowProps) => {
           y: event.clientY,
         });
 
-        console.log('Drop event:', event);
-        console.log('videoId ', videoId);
+        // console.log('Drop event:', event);
+        // console.log('videoId ', videoId);
         const video = videos.find((vid) => vid.ID === videoId);
 
         if (!video) {

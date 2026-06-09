@@ -102,7 +102,7 @@ export const createCampaign = async (
       },
     });
 
-    console.log('Resposta da API ao criar campanha:', data);
+    // console.log('Resposta da API ao criar campanha:', data);
 
     if (!data) {
       throw MESSEGE_VALIDITY;

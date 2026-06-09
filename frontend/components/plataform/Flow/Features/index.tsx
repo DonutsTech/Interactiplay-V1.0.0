@@ -141,7 +141,7 @@ const Features = ({ campaing, onClose, id }: IFeaturesProps) => {
                       className={styles.toggle_input}
                       checked={isToggled}
                       onChange={(e) => {
-                        console.log('Toggle changed:', e.target.checked);
+                        // console.log('Toggle changed:', e.target.checked);
                         setIsToggled(e.target.checked);
                       }}
                     />

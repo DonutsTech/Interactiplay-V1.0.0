@@ -10,7 +10,7 @@ const RotaCheck = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
-  console.log('RotaCheck authUser:', authUser);
+  // console.log('RotaCheck authUser:', authUser);
 
   useEffect(() => {
     const checkAuth = async () => {
