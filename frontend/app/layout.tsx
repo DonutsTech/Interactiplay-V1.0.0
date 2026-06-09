@@ -8,8 +8,7 @@ import { ToastContainer } from 'react-toastify';
 import MetaPixelManager from '@/components/globals/MetaPixelManager';
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-  'https://www.experimenteumdonuts.app.br';
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://interactiplay.com.br/";
 
 const poppins = Poppins({
   variable: '--font-poppins',
