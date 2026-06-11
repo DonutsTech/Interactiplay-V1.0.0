@@ -1,8 +1,8 @@
 import type { Router } from 'express';
 import { campaignController } from '../../controllers/campaign';
 import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
-import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
 import { isValidateRole } from '../../middleware/isValidateRole';
+import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
 
 class CampaignApiRouter {
   public static create(router: Router): void {
@@ -43,6 +43,13 @@ class CampaignApiRouter {
       isAuthenticateTokenDb,
       isValidateUserPlan,
       campaignController.deleteCampaignForUserWithFlow,
+    );
+    router.post(
+      '/campaigns/test',
+      isAuthenticateTokenDb,
+      isValidateUserPlan,
+      isValidateRole(['ADMIN']),
+      campaignController.updateCamapignNew,
     );
   }
 }

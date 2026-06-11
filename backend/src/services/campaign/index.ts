@@ -257,14 +257,48 @@ class CampaignService {
       await campaignModel.updateBy({
         where: { ID: create.ID },
         data: {
-          EMBED_IFRAME: `<iframe src="https://api.experimenteumdonuts.app.br/widget/index.html" name='{"campaign": "${create.ID}"}'></iframe>`,
-          EMBED_JS: `<div interactiplay data-campaign="${create.ID}"></div> <script src="https://api.experimenteumdonuts.app.br/widget/index.mjs"></script>`,
+          EMBED_IFRAME: `<iframe src="https://${process.env['BACKEND_URL']}/widget/index.html" name='{"campaign": "${create.ID}"}'></iframe>`,
+          EMBED_JS: `<div interactiplay data-campaign="${create.ID}"></div> <script src="https://${process.env['BACKEND_URL']}/widget/index.mjs"></script>`,
         },
       });
 
       const campaign = await this.getCampaignById(create.ID);
 
       return campaign;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateCampaignTestABNew() {
+    try {
+      const campain = await this.getCampaignsAll();
+
+      for (const camp of campain) {
+        await this.updateCampaignForUser(camp.ID);
+      }
+
+      const test = await testABService.getTestABAll();
+
+      for (const t of test) {
+        await testABService.updateTestABForUser(t.ID);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateCampaignForUser(id: string) {
+    try {
+      await this.existsById(id);
+
+      await campaignModel.updateBy({
+        where: { ID: id },
+        data: {
+          EMBED_IFRAME: `<iframe src="https://${process.env['BACKEND_URL']}/widget/index.html" name='{"campaign": "${id}"}'></iframe>`,
+          EMBED_JS: `<div interactiplay data-campaign="${id}"></div> <script src="https://${process.env['BACKEND_URL']}/widget/index.mjs"></script>`,
+        },
+      });
     } catch (error) {
       throw error;
     }

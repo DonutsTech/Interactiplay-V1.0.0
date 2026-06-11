@@ -181,14 +181,28 @@ class TestABService {
       result = await testABModel.updateBy({
         where: { ID: result.ID },
         data: {
-          EMBED_IFRAME: `<iframe src="https://api.experimenteumdonuts.app.br/widget/index.html" name='{"testab": "${result.ID}"}'></iframe>`,
-          EMBED_JS: `<div interactiplay data-testab="${result.ID}"></div> <script src="https://api.experimenteumdonuts.app.br/widget/index.mjs"></script>`,
+          EMBED_IFRAME: `<iframe src="https://${process.env['BACKEND_URL']}/widget/index.html" name='{"testab": "${result.ID}"}'></iframe>`,
+          EMBED_JS: `<div interactiplay data-testab="${result.ID}"></div> <script src="https://${process.env['BACKEND_URL']}/widget/index.mjs"></script>`,
           ANALYTICS_A: { connect: { ID: analyticsA.ID } },
           ANALYTICS_B: { connect: { ID: analyticsB.ID } },
         },
       });
 
       return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateTestABForUser(id: string) {
+    try {
+      await testABModel.updateBy({
+        where: { ID: id },
+        data: {
+          EMBED_IFRAME: `<iframe src="https://${process.env['BACKEND_URL']}/widget/index.html" name='{"testab": "${id}"}'></iframe>`,
+          EMBED_JS: `<div interactiplay data-testab="${id}"></div> <script src="https://${process.env['BACKEND_URL']}/widget/index.mjs"></script>`,
+        },
+      });
     } catch (error) {
       throw error;
     }

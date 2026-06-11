@@ -73,6 +73,15 @@ class CampaignController {
       next(error);
     }
   }
+
+  async updateCamapignNew(request: Request, response: Response, next: NextFunction) {
+    try {
+      await campaignService.updateCampaignTestABNew();
+      return response.status(200).json({ message: 'Campaign updated successfully' });
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const campaignController = new CampaignController();
