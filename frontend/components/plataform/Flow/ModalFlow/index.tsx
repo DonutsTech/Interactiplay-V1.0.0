@@ -275,7 +275,7 @@ const ModalFlow = ({ onClose, type = 'node' }: ModalFlowProps) => {
   const onPointerUpBtn = (e: React.PointerEvent) => {
     try {
       (e.target as Element).releasePointerCapture(e.pointerId);
-      console.log('Posição atualizada:', { ctaTop, ctaLeft, btnTop, btnLeft });
+      // console.log('Posição atualizada:', { ctaTop, ctaLeft, btnTop, btnLeft });
     } catch {}
     draggingRef.current = false;
   };

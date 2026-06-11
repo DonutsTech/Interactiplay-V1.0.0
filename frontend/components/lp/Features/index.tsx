@@ -27,7 +27,7 @@ const Features = () => {
       reverse: true,
     },
     {
-      video: "/media/videos/SmartPlay.mp4",
+      video: "/media/videos/Analytics_PV.mp4",
       title: "Analytics",
       description:
         "Com o Analytics Interactiplay, você acompanha cliques, visualizações, tempo assistido e engajamento em tempo real, otimizando estratégias e potencializando resultados com dados precisos e insights práticos.",

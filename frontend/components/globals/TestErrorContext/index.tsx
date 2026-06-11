@@ -146,8 +146,8 @@ const TestErrorContext = () => {
         type: 'error',
         confirmText: 'Confirmar remoção',
         cancelText: 'Cancelar',
-        onConfirm: () => console.log('Callback onConfirm executado!'),
-        onCancel: () => console.log('Callback onCancel executado!'),
+        onConfirm: () => console.log(''),
+        onCancel: () => console.log(''),
       }
     );
     

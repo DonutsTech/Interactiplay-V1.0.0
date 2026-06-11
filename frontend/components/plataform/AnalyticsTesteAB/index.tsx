@@ -39,7 +39,7 @@ const AnalyticsTesteAB = ({ testAB, onClose }: IAnalyticsTesteABProps) => {
     socket.emit('testABAnalytics', testAB.ID);
 
     const handleData = (payload: ITestABAnalyticsSocketData) => {
-      console.log('[AnalyticsTesteAB] testABAnalyticsData recebido:', payload);
+      // console.log('[AnalyticsTesteAB] testABAnalyticsData recebido:', payload);
       setData(payload);
       setLoading(false);
     };

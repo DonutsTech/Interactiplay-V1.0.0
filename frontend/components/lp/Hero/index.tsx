@@ -56,29 +56,9 @@ const Hero = () => {
 
         <div className={styles.hero_container_right}>
           <div className={styles.hero_container_right_videoWrapper}>
-            {/* {mounted && (
-              Mockup provisório, substituir depois por Campanha interativo
-              <video
-                src="/media/videos/app.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                className={styles.hero_container_videoMobile}
-                preload="metadata"
-              >
-                Seu navegador não suporta vídeo.
-              </video>
-              <iframe
-                src="https://api.experimenteumdonuts.app.br/widget/index.html"
-                name='{"campaign": "55bc55fb-be85-4055-9cf9-059216369070"}'
-              ></iframe>
-
-              
-            )} */}
             <iframe
-              src="https://api.experimenteumdonuts.app.br/widget/index.html"
-              name='{"campaign": "7cb6bc3f-ed92-4ae5-969a-d8554489a3a1"}'
+              src="https://api.interactiplay.com.br/widget/index.html"
+              name='{"campaign": "e9e03529-d74c-4cae-8033-76b5a28a6fc8"}'
               style={{
                 width: "100%",
                 height: "100%",

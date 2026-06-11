@@ -12,6 +12,7 @@ import logo from '@/assets/icons/logo_menu_mobile.svg';
 import Image from 'next/image';
 import gsap from 'gsap';
 import AcervoPocket from './AcervoPocket';
+import { useVideos } from '@/context/VideosContext';
 
 const MENU_WIDTH = 300;
 
@@ -22,6 +23,7 @@ interface MenuAcervoRef {
 const MenuAcervo = forwardRef<MenuAcervoRef>((props, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuContainerRef = useRef<HTMLDivElement>(null);
+  const { refreshVideos } = useVideos();
 
   // Expor método closeMenu via ref
   useImperativeHandle(ref, () => ({
@@ -54,6 +56,12 @@ const MenuAcervo = forwardRef<MenuAcervoRef>((props, ref) => {
       gsap.set(menuContainerRef.current, { x: MENU_WIDTH + 48, autoAlpha: 1 });
     }
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    refreshVideos();
+  }, [isOpen, refreshVideos]);
 
   return (
     <div ref={menuContainerRef} className={styles.menu}>
