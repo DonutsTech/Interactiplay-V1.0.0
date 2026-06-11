@@ -1,9 +1,10 @@
 import type { Router } from 'express';
-import { userController } from '../../controllers/user';
-import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
-import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
 import { imageUpload } from '../../config/multerConfig';
+import { userController } from '../../controllers/user';
+import { Role } from '../../enums/role.enum';
+import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
 import { isValidateRole } from '../../middleware/isValidateRole';
+import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
 
 class UserRouter {
   public static create(router: Router): void {
@@ -26,22 +27,22 @@ class UserRouter {
       isAuthenticateTokenDb,
       isValidateUserPlan,
       userController.fristLogin,
-    )
+    );
     router.post(
       '/admin/update-user-email',
       isAuthenticateTokenDb,
       isValidateUserPlan,
-      isValidateRole(['ADMIN']),
+      isValidateRole([Role.ADMIN]),
       schemaValidator('user/updateEmail'),
       userController.updateUserEmailByAdmin,
-    )
+    );
     router.delete(
       '/admin/delete-info-users',
       isAuthenticateTokenDb,
       isValidateUserPlan,
-      isValidateRole(['ADMIN']),
-      userController.deleteInfoUsers
-    )
+      isValidateRole([Role.ADMIN]),
+      userController.deleteInfoUsers,
+    );
   }
 }
 

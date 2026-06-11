@@ -1,5 +1,6 @@
 import type { Router } from 'express';
 import { campaignController } from '../../controllers/campaign';
+import { Role } from '../../enums/role.enum';
 import { isAuthenticateTokenDb, schemaValidator } from '../../middleware';
 import { isValidateRole } from '../../middleware/isValidateRole';
 import { isValidateUserPlan } from '../../middleware/isValidateUserPlan';
@@ -22,7 +23,7 @@ class CampaignApiRouter {
       '/campaigns',
       isAuthenticateTokenDb,
       isValidateUserPlan,
-      isValidateRole(['ADMIN']),
+      isValidateRole([Role.ADMIN]),
       campaignController.getCampaignsAll,
     );
     router.post(
@@ -48,7 +49,7 @@ class CampaignApiRouter {
       '/campaigns/test',
       isAuthenticateTokenDb,
       isValidateUserPlan,
-      isValidateRole(['ADMIN']),
+      isValidateRole([Role.ADMIN]),
       campaignController.updateCamapignNew,
     );
   }
