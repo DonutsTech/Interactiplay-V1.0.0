@@ -47,7 +47,7 @@ const Analytics = ({ campaign, onClose }: IAnalyticsProps) => {
 
   if (!data) return null;
 
-  // console.log('Analytics data:', data);
+  console.log('Analytics data:', data);
   return (
     <div className={styles.analytics}>
       <div className={styles.overlay} onClick={onClose} />
