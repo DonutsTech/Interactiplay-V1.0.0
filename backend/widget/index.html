@@ -4,10 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>InteractiPlay Widget</title>
-
   </head>
   <body>
-    <div interactiplay data-campaign="" data-testab=""></div>
   <script>
     let config = {};
 
@@ -17,13 +15,37 @@
       console.error("Config inválida no name");
     }
 
-    const app = document.querySelector('[interactiplay]');
-    app.dataset.campaign = config.campaign || "";
-    app.dataset.testab = config.testab || "";
-    app.style = config.style || "";
+    const hasCampaign = config.campaign && config.campaign.length > 0;
+    const hasTestab = config.testab && config.testab.length > 0;
 
+    if (hasCampaign || hasTestab) {
+
+      const app = document.createElement("div");
+      app.setAttribute("interactiplay", "");
+
+      if (hasCampaign) {
+        app.dataset.campaign = config.campaign;
+      }
+
+      if (hasTestab) {
+        app.dataset.testab = config.testab;
+      }
+
+      if (config.style) {
+        app.style = config.style;
+      }
+
+      document.body.appendChild(app);
+
+      const script = document.createElement("script");
+      script.type = "module";
+      script.src = "index.mjs";
+      script.crossOrigin = "anonymous";
+      document.body.appendChild(script);
+    } else {
+      console.warn("campaign/testab ausente ou inválido. Widget não carregado.");
+    }
   </script>
-  <script type="module" crossorigin src="index.mjs"></script>
 </body>
 </html>
 >
