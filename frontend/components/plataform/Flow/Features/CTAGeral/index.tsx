@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { ctaBtnStyle as ctaBtnStyleBG, ctaPStyle } from '@/@types/embed';
-import ToggleActive from '@/components/globals/ToggleActive';
-import BtnG from '@/components/plataform/BtnG';
-import { useEditCampaign } from '@/context/EditCampaignContext';
-import { useError } from '@/context/ErrorContext';
+import { ctaBtnStyle as ctaBtnStyleBG, ctaPStyle } from "@/@types/embed";
+import ToggleActive from "@/components/globals/ToggleActive";
+import BtnG from "@/components/plataform/BtnG";
+import { useEditCampaign } from "@/context/EditCampaignContext";
+import { useError } from "@/context/ErrorContext";
 import {
   ExternalLinkRequest,
   postCampaignExternalLink,
-} from '@/service/externalLink';
-import { getSlider } from '@/utils/rangeUtils';
-import { isURL } from '@/utils/urlValidator';
-import { formatDuration } from '@/utils/videoUtils';
-import { useEffect, useState } from 'react';
-import styles from './CTAGeral.module.scss';
+} from "@/service/externalLink";
+import { getSlider } from "@/utils/rangeUtils";
+import { isURL } from "@/utils/urlValidator";
+import { formatDuration } from "@/utils/videoUtils";
+import { useEffect, useState } from "react";
+import styles from "./CTAGeral.module.scss";
 
 interface IPayloadCTAGeral {
   ctaText: string;
@@ -38,14 +38,14 @@ const CTAGeral = ({ duration }: Iprops) => {
   const { isLoading, setIsLoading, showError, showSuccess } = useError();
 
   const [CtaGeralPayload, setCtaGeralPayload] = useState<IPayloadCTAGeral>({
-    ctaText: '',
-    alignCTA: 'center',
-    styleCTA: 'normal',
-    colorCTA: '#000000',
-    textBtn: '',
-    linkBtn: '',
-    corBtn: '#000125',
-    corTextBtn: '#F2F2F2',
+    ctaText: "",
+    alignCTA: "center",
+    styleCTA: "normal",
+    colorCTA: "#000000",
+    textBtn: "",
+    linkBtn: "",
+    corBtn: "#000125",
+    corTextBtn: "#F2F2F2",
     cantosBtn: 0,
     delay: 0,
   });
@@ -53,20 +53,20 @@ const CTAGeral = ({ duration }: Iprops) => {
   useEffect(() => {
     if (editingCampaign?.FEATURE?.EXTERNAL_LINK?.ATIVE) {
       const externalLink = editingCampaign.FEATURE.EXTERNAL_LINK;
-      const styleText: ctaPStyle = JSON.parse(externalLink.STYLE_TEXT || '{}');
+      const styleText: ctaPStyle = JSON.parse(externalLink.STYLE_TEXT || "{}");
       const buttonStyle: ctaBtnStyleBG = JSON.parse(
-        externalLink.BUTTON_STYLE || '{}'
+        externalLink.BUTTON_STYLE || "{}",
       );
       setCtaGeralActive(true);
       setCtaGeralPayload({
-        ctaText: externalLink.TEXT || '',
-        alignCTA: styleText.alinhamentoCta || 'center',
-        styleCTA: styleText.estiloCta || 'normal',
-        colorCTA: styleText.corCta || '#000000',
-        textBtn: externalLink.BUTTON_TEXT || '',
-        linkBtn: externalLink.LINK_URL || '',
-        corBtn: buttonStyle.corBG || '#000125',
-        corTextBtn: buttonStyle.corTX || '#F2F2F2',
+        ctaText: externalLink.TEXT || "",
+        alignCTA: styleText.alinhamentoCta || "center",
+        styleCTA: styleText.estiloCta || "normal",
+        colorCTA: styleText.corCta || "#000000",
+        textBtn: externalLink.BUTTON_TEXT || "",
+        linkBtn: externalLink.LINK_URL || "",
+        corBtn: buttonStyle.corBG || "#000125",
+        corTextBtn: buttonStyle.corTX || "#F2F2F2",
         cantosBtn: buttonStyle.borderRadius || 0,
         delay: styleText.delay || 0,
       });
@@ -78,14 +78,14 @@ const CTAGeral = ({ duration }: Iprops) => {
   const clean = () => {
     setCtaGeralActive(false);
     setCtaGeralPayload({
-      ctaText: '',
-      alignCTA: 'center',
-      styleCTA: 'normal',
-      colorCTA: '#000000',
-      textBtn: '',
-      linkBtn: '',
-      corBtn: '#000125',
-      corTextBtn: '#F2F2F2',
+      ctaText: "",
+      alignCTA: "center",
+      styleCTA: "normal",
+      colorCTA: "#000000",
+      textBtn: "",
+      linkBtn: "",
+      corBtn: "#000125",
+      corTextBtn: "#F2F2F2",
       cantosBtn: 0,
       delay: 0,
     });
@@ -93,13 +93,13 @@ const CTAGeral = ({ duration }: Iprops) => {
 
   const disabled =
     CtaGeralActive &&
-    (CtaGeralPayload.textBtn === '' || CtaGeralPayload.linkBtn === '');
+    (CtaGeralPayload.textBtn === "" || CtaGeralPayload.linkBtn === "");
 
   const handleSave = async () => {
     setIsLoading(true);
     try {
       if (!editingCampaign) {
-        showError('Nenhuma campanha selecionada para editar.');
+        showError("Nenhuma campanha selecionada para editar.");
         return;
       }
 
@@ -125,24 +125,24 @@ const CTAGeral = ({ duration }: Iprops) => {
       };
 
       const result = await postCampaignExternalLink(
-        editingCampaign?.ID || '',
-        body as ExternalLinkRequest
+        editingCampaign?.ID || "",
+        body as ExternalLinkRequest,
       );
 
-      if ('STATUS' in result && result.STATUS !== 200) {
-        showError('Erro ao salvar CTA Geral. Tente novamente.');
+      if ("STATUS" in result && result.STATUS !== 200) {
+        showError("Erro ao salvar CTA Geral. Tente novamente.");
         return;
       }
 
-      showSuccess(`CTA Geral ${CtaGeralActive ? 'ativada' : 'desativada'}!`);
+      showSuccess(`CTA Geral ${CtaGeralActive ? "ativada" : "desativada"}!`);
 
       if (!CtaGeralActive) {
         clean();
       }
     } catch (error) {
-      console.error('Error saving CTA Geral:', error);
+      console.error("Error saving CTA Geral:", error);
     } finally {
-      fecthCampaignForEdit(editingCampaign?.ID || '');
+      fecthCampaignForEdit(editingCampaign?.ID || "");
       setIsLoading(false);
     }
   };
@@ -151,7 +151,7 @@ const CTAGeral = ({ duration }: Iprops) => {
     <div className={styles.tool}>
       <div className={styles.tool_content}>
         <div
-          className={`${styles.toggle} ${!CtaGeralActive ? styles.toggle_solo : ''}`}
+          className={`${styles.toggle} ${!CtaGeralActive ? styles.toggle_solo : ""}`}
         >
           <ToggleActive
             active={CtaGeralActive}
@@ -165,7 +165,7 @@ const CTAGeral = ({ duration }: Iprops) => {
                 <p className={styles.textBox_title}>Texto do CTA</p>
                 <textarea
                   className={styles.textBox_text}
-                  placeholder="Digite a HeadLine aqui...(máx 100 caracteres)"
+                  placeholder="Digite o texto do CTA aqui...(máx 100 caracteres)"
                   maxLength={104}
                   value={CtaGeralPayload.ctaText}
                   onChange={(e) =>
@@ -175,11 +175,16 @@ const CTAGeral = ({ duration }: Iprops) => {
                     })
                   }
                   style={{
-                    textAlign: CtaGeralPayload.alignCTA as 'left' | 'center' | 'right',
+                    textAlign: CtaGeralPayload.alignCTA as
+                      | "left"
+                      | "center"
+                      | "right",
                     fontWeight:
-                      CtaGeralPayload.styleCTA === 'bold' ? 'bold' : 'normal',
+                      CtaGeralPayload.styleCTA === "bold" ? "bold" : "normal",
                     fontStyle:
-                      CtaGeralPayload.styleCTA === 'italic' ? 'italic' : 'normal',
+                      CtaGeralPayload.styleCTA === "italic"
+                        ? "italic"
+                        : "normal",
                   }}
                 />
               </div>
@@ -337,7 +342,7 @@ const CTAGeral = ({ duration }: Iprops) => {
                         background: getSlider(
                           CtaGeralPayload.cantosBtn,
                           0,
-                          100
+                          100,
                         ),
                       }}
                     />
@@ -369,7 +374,7 @@ const CTAGeral = ({ duration }: Iprops) => {
                       background: getSlider(
                         CtaGeralPayload.delay,
                         0,
-                        duration - 1
+                        duration - 1,
                       ),
                     }}
                   />

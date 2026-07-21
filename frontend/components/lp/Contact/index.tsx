@@ -1,12 +1,12 @@
-import Formulario from '@/components/globals/Formulario';
-import styles from './Contact.module.scss';
-import Link from 'next/link';
+import Formulario from "@/components/globals/Formulario";
+import Link from "next/link";
+import { IoLogoWhatsapp } from "react-icons/io";
 import {
   RiInstagramFill,
   RiLinkedinBoxFill,
   RiYoutubeFill,
-} from 'react-icons/ri';
-import { IoLogoWhatsapp } from 'react-icons/io';
+} from "react-icons/ri";
+import styles from "./Contact.module.scss";
 
 const iconsProps = {
   size: 48,
@@ -29,34 +29,34 @@ const Contact = () => {
           </p>
           <div className={styles.contact_container_left_redes}>
             <Link
-              href={'https://www.instagram.com/'}
+              href={"https://www.instagram.com/interactiplay/"}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram da InteractiPlay"
               title="Acesse o nosso Instagram"
               className={`${styles.contact_container_left_redes_link} ${styles.instagram}`}
             >
-              <RiInstagramFill {...iconsProps} className={styles.icon}/>
+              <RiInstagramFill {...iconsProps} className={styles.icon} />
             </Link>
             <Link
-              href={'https://www.linkedin.com/'}
+              href={"https://www.linkedin.com/company/interactiplay/"}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn da InteractiPlay"
               title="Acesse o nosso LinkedIn"
               className={`${styles.contact_container_left_redes_link} ${styles.linkedin}`}
             >
-              <RiLinkedinBoxFill {...iconsProps} className={styles.icon}/>
+              <RiLinkedinBoxFill {...iconsProps} className={styles.icon} />
             </Link>
             <Link
-              href={'https://www.youtube.com/'}
+              href={"https://www.youtube.com/@interactiplayhq"}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="YouTube da InteractiPlay"
               title="Acesse o nosso canal no YouTube"
               className={`${styles.contact_container_left_redes_link} ${styles.youtube}`}
             >
-              <RiYoutubeFill {...iconsProps} className={styles.icon}/>
+              <RiYoutubeFill {...iconsProps} className={styles.icon} />
             </Link>
             <Link
               href={`https://wa.me/553491449810? text=Olá!%20Gostaria%20de%20tirar%20minhas%20dúvidas%20sobre%20a%20Interactiplay.`}
@@ -65,7 +65,7 @@ const Contact = () => {
               className={`${styles.contact_container_left_redes_link} ${styles.whatsapp}`}
               title="Entrar em contato via WhatsApp"
             >
-              <IoLogoWhatsapp {...iconsProps} className={styles.icon}/>
+              <IoLogoWhatsapp {...iconsProps} className={styles.icon} />
             </Link>
           </div>
         </div>

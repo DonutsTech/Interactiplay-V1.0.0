@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useIsMobile } from '@/context/isMobileContext';
-import styles from './FooterComplete.module.scss';
-import logoInteracti from '@/assets/images/logo_white_dg.svg';
-import Image from 'next/image';
-import Link from 'next/link';
+import logoInteracti from "@/assets/images/logo_white_dg.svg";
+import { useIsMobile } from "@/context/isMobileContext";
+import Image from "next/image";
+import Link from "next/link";
+import styles from "./FooterComplete.module.scss";
 
+import { IoLogoWhatsapp } from "react-icons/io";
 import {
   RiInstagramFill,
   RiLinkedinBoxFill,
   RiYoutubeFill,
-} from 'react-icons/ri';
-import { IoLogoWhatsapp } from 'react-icons/io';
+} from "react-icons/ri";
 
 interface FooterLink {
   label: string;
@@ -30,69 +30,69 @@ interface FooterSection {
 
 const FooterComplete = () => {
   const pagesLinks: FooterLink[] = [
-    { label: 'Início', href: '/#hero' },
-    { label: 'Recursos', href: '/#features' },
-    { label: 'Preços', href: '/#plan' },
-    { label: 'Contato', href: '/#contact' },
+    { label: "Início", href: "/#hero" },
+    { label: "Recursos", href: "/#features" },
+    { label: "Preços", href: "/#plan" },
+    { label: "Contato", href: "/#contact" },
   ];
 
   const { width } = useIsMobile();
 
   const iconsProps = {
     size: width && width < 768 ? 20 : 40,
-    color: '#f2f2f2',
+    color: "#f2f2f2",
   };
 
   const platformLinks: FooterLink[] = [
     {
-      label: 'Planos',
-      href: '/#plan',
+      label: "Planos",
+      href: "/#plan",
     },
     {
-      label: 'Cadastre-se',
-      href: '/acess/cadastro',
+      label: "Cadastre-se",
+      href: "/acess/cadastro",
     },
     {
-      label: 'Login',
-      href: '/acess/login',
+      label: "Login",
+      href: "/acess/login",
     },
   ];
 
   const aboutLinks: FooterLink[] = [
-    { label: 'Política de uso', href: '/Policy' },
+    { label: "Política de uso", href: "/Policy" },
   ];
 
   const socialLinks: SocialLink[] = [
     {
-      label: 'Instagram',
-      href: 'https://www.instagram.com/',
+      label: "Instagram",
+      href: "https://www.instagram.com/interactiplay/",
       className: styles.social_icon_link_instagram,
-      imgIcon: <RiInstagramFill {...iconsProps} className={styles.icon}/>,
+      imgIcon: <RiInstagramFill {...iconsProps} className={styles.icon} />,
     },
     {
-      label: 'LinkedIn',
-      href: 'https://www.linkedin.com/',
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/company/interactiplay/",
       className: styles.social_icon_link_linkedin,
-      imgIcon: <RiLinkedinBoxFill {...iconsProps} className={styles.icon}/>,
+      imgIcon: <RiLinkedinBoxFill {...iconsProps} className={styles.icon} />,
     },
     {
-      label: 'Youtube',
-      href: 'https://www.youtube.com/',
+      label: "Youtube",
+      href: "https://www.youtube.com/@interactiplayhq",
       className: styles.social_icon_link_youtube,
-      imgIcon: <RiYoutubeFill {...iconsProps} className={styles.icon}/>,
+      imgIcon: <RiYoutubeFill {...iconsProps} className={styles.icon} />,
     },
     {
-      label: 'WhatsApp',
-      href: 'https://wa.me/553491449810?text=Olá!%20Gostaria%20de%20tirar%20minhas%20dúvidas%20sobre%20a%20Interactiplay.',
+      label: "WhatsApp",
+      href: "https://wa.me/553491449810?text=Olá!%20Gostaria%20de%20tirar%20minhas%20dúvidas%20sobre%20a%20Interactiplay.",
       className: styles.social_icon_link_whatsapp,
-      imgIcon: <IoLogoWhatsapp {...iconsProps} className={styles.icon}/>,
+      imgIcon: <IoLogoWhatsapp {...iconsProps} className={styles.icon} />,
     },
   ];
 
   const sections: FooterSection[] = [
-    { title: 'Páginas', links: pagesLinks },
-    { title: 'Plataforma', links: platformLinks },
-    { title: 'Sobre', links: aboutLinks },
+    { title: "Páginas", links: pagesLinks },
+    { title: "Plataforma", links: platformLinks },
+    { title: "Sobre", links: aboutLinks },
   ];
 
   return (
@@ -130,8 +130,8 @@ const FooterComplete = () => {
             {socialLinks.map((link, index) => (
               <Link
                 href={link.href}
-                target='_blank'
-                rel='noopener noreferrer'
+                target="_blank"
+                rel="noopener noreferrer"
                 key={index}
                 aria-label={link.label}
                 title={`Acessar ${link.label}`}
@@ -151,9 +151,9 @@ const FooterComplete = () => {
           href="https://www.donutstech.com.br/"
         >
           <p className={styles.footer_copyright_donuts}>
-            Feito com amor e açucar - DonutsTech{' '}
+            Feito com amor e açucar - DonutsTech{" "}
             <Image
-              src={'/media/icons/donutstechIcon.png'}
+              src={"/media/icons/donutstechIcon.png"}
               alt="Logo"
               width={24}
               height={19}

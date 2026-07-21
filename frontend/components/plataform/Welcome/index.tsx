@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { IoCloseCircle } from 'react-icons/io5';
-import styles from './Welcome.module.scss';
-import { useCallback, useContext, useState } from 'react';
-import { AuthUserContext } from '@/context/AuthUserContext';
-import { postFirstAccess } from '@/service/auth/me';
-import { useRouter } from 'next/navigation';
+import { AuthUserContext } from "@/context/AuthUserContext";
+import { postFirstAccess } from "@/service/auth/me";
+import { useRouter } from "next/navigation";
+import { useCallback, useContext, useState } from "react";
+import { IoCloseCircle } from "react-icons/io5";
+import styles from "./Welcome.module.scss";
 
 type WelcomeProps = {
   onDismiss: () => void;
@@ -21,7 +21,7 @@ const Welcome = ({ onDismiss }: WelcomeProps) => {
     onDismiss();
 
     const response = await postFirstAccess();
-    if (!('STATUS' in response) || response.STATUS < 400) {
+    if (!("STATUS" in response) || response.STATUS < 400) {
       await loadAuthUser();
       router.refresh();
     }
@@ -44,14 +44,14 @@ const Welcome = ({ onDismiss }: WelcomeProps) => {
         <div className={styles.header}>
           <h4 className={styles.title}>
             {authUser
-              ? `Bem-vindo, ${authUser.USER.NAME.split(' ')[0]}!`
-              : 'Bem-vindo ao InteractiPlay!'}
+              ? `Bem-vindo, ${authUser.USER.NAME.split(" ")[0]}!`
+              : "Bem-vindo ao InteractiPlay!"}
           </h4>
         </div>
         <div className={styles.body}>
           <div className={styles.embed}>
             <video controls className={styles.video}>
-              <source src="/media/videos/SmartPlay.mp4" type="video/mp4" />
+              <source src="/media/videos/welcome.mp4" type="video/mp4" />
               Seu navegador não suporta o elemento de vídeo.
             </video>
           </div>

@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { subTitleStyle, titleStyle } from '@/@types/embed';
-import ToggleActive from '@/components/globals/ToggleActive';
-import BtnG from '@/components/plataform/BtnG';
-import { useEditCampaign } from '@/context/EditCampaignContext';
-import { useError } from '@/context/ErrorContext';
-import { postCampaignGancho } from '@/service/gancho';
-import { useEffect, useState } from 'react';
-import styles from './HeadLine.module.scss';
+import { subTitleStyle, titleStyle } from "@/@types/embed";
+import ToggleActive from "@/components/globals/ToggleActive";
+import BtnG from "@/components/plataform/BtnG";
+import { useEditCampaign } from "@/context/EditCampaignContext";
+import { useError } from "@/context/ErrorContext";
+import { postCampaignGancho } from "@/service/gancho";
+import { useEffect, useState } from "react";
+import styles from "./HeadLine.module.scss";
 
 interface IPayloadHeadLine {
   headLine: string;
@@ -25,13 +25,13 @@ const HeadLine = () => {
   const { isLoading, setIsLoading, showError, showSuccess } = useError();
 
   const [headLinerPayload, setHeadLinerPayload] = useState<IPayloadHeadLine>({
-    headLine: '',
-    styleHL: 'normal',
-    colorHL: '#000000',
-    subHeadLine: '',
-    alignSHL: 'center',
-    styleSHL: 'normal',
-    colorSHL: '#000000',
+    headLine: "",
+    styleHL: "normal",
+    colorHL: "#000000",
+    subHeadLine: "",
+    alignSHL: "center",
+    styleSHL: "normal",
+    colorSHL: "#000000",
   });
 
   useEffect(() => {
@@ -39,19 +39,19 @@ const HeadLine = () => {
       const ganchoFeature = editingCampaign.FEATURE.GANCHO;
       setHeadLineActive(ganchoFeature.ATIVE);
       const titleStyle: titleStyle = JSON.parse(
-        ganchoFeature.TITLE_STYLE || '{}'
+        ganchoFeature.TITLE_STYLE || "{}",
       );
       const subTitleStyle: subTitleStyle = JSON.parse(
-        ganchoFeature.SUBTITLE_STYLE || '{}'
+        ganchoFeature.SUBTITLE_STYLE || "{}",
       );
       setHeadLinerPayload({
-        headLine: ganchoFeature.TITLE || '',
-        styleHL: titleStyle.estiloHL || 'normal',
-        colorHL: titleStyle.corHL || '#000000',
-        subHeadLine: ganchoFeature.SUBTITLE || '',
-        alignSHL: subTitleStyle.alinhamentoSHL || 'center',
-        styleSHL: subTitleStyle.estiloSHL || 'normal',
-        colorSHL: subTitleStyle.corSHL || '#000000',
+        headLine: ganchoFeature.TITLE || "",
+        styleHL: titleStyle.estiloHL || "normal",
+        colorHL: titleStyle.corHL || "#000000",
+        subHeadLine: ganchoFeature.SUBTITLE || "",
+        alignSHL: subTitleStyle.alinhamentoSHL || "center",
+        styleSHL: subTitleStyle.estiloSHL || "normal",
+        colorSHL: subTitleStyle.corSHL || "#000000",
       });
     } else {
       setHeadLineActive(false);
@@ -61,13 +61,13 @@ const HeadLine = () => {
 
   const clean = () => {
     setHeadLinerPayload({
-      headLine: '',
-      styleHL: 'normal',
-      colorHL: '#000000',
-      subHeadLine: '',
-      alignSHL: 'center',
-      styleSHL: 'normal',
-      colorSHL: '#000000',
+      headLine: "",
+      styleHL: "normal",
+      colorHL: "#000000",
+      subHeadLine: "",
+      alignSHL: "center",
+      styleSHL: "normal",
+      colorSHL: "#000000",
     });
   };
 
@@ -75,7 +75,7 @@ const HeadLine = () => {
     setIsLoading(true);
     try {
       if (!editingCampaign) {
-        showError('Nenhuma campanha selecionada para editar.');
+        showError("Nenhuma campanha selecionada para editar.");
         return;
       }
 
@@ -88,7 +88,7 @@ const HeadLine = () => {
         }),
         SUBTITLE: headLinerPayload.subHeadLine,
         SUBTITLE_ANIMATION: false,
-        SUBTITLE_ANIMATION_TYPE: '',
+        SUBTITLE_ANIMATION_TYPE: "",
         SUBTITLE_STYLE: JSON.stringify({
           alinhamentoSHL: headLinerPayload.alignSHL,
           estiloSHL: headLinerPayload.styleSHL,
@@ -98,20 +98,20 @@ const HeadLine = () => {
 
       const result = await postCampaignGancho(editingCampaign.ID, body);
 
-      if ('STATUS' in result && result.STATUS !== 200) {
-        showError('Erro ao salvar Head Line. Tente novamente.');
+      if ("STATUS" in result && result.STATUS !== 200) {
+        showError("Erro ao salvar Head Line. Tente novamente.");
         return;
       }
 
-      showSuccess(`HeadLine ${headLineActive ? 'ativada' : 'desativada'}.`);
+      showSuccess(`Headline ${headLineActive ? "ativada" : "desativada"}.`);
 
       if (!headLineActive) {
         clean();
       }
     } catch (err: any) {
-      console.error('Error in handleSave:', err);
+      console.error("Error in handleSave:", err);
     } finally {
-      fecthCampaignForEdit(editingCampaign?.ID || '');
+      fecthCampaignForEdit(editingCampaign?.ID || "");
       setIsLoading(false);
     }
   };
@@ -120,7 +120,7 @@ const HeadLine = () => {
     <div className={styles.tool}>
       <div className={styles.tool_content}>
         <div
-          className={`${styles.toggle} ${!headLineActive ? styles.toggle_solo : ''}`}
+          className={`${styles.toggle} ${!headLineActive ? styles.toggle_solo : ""}`}
         >
           <ToggleActive
             active={headLineActive}
@@ -202,7 +202,15 @@ const HeadLine = () => {
                       subHeadLine: e.target.value,
                     })
                   }
-                  style={{ textAlign: headLinerPayload.alignSHL as any, fontWeight: headLinerPayload.styleSHL === 'bold' ? 'bold' : 'normal', fontStyle: headLinerPayload.styleSHL === 'italic' ? 'italic' : 'normal' }}
+                  style={{
+                    textAlign: headLinerPayload.alignSHL as any,
+                    fontWeight:
+                      headLinerPayload.styleSHL === "bold" ? "bold" : "normal",
+                    fontStyle:
+                      headLinerPayload.styleSHL === "italic"
+                        ? "italic"
+                        : "normal",
+                  }}
                 />
                 <div className={styles.subHeadline_box_styles}>
                   <p>Alinhamento</p>
