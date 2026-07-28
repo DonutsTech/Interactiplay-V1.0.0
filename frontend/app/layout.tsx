@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
   ],
   openGraph: {
-    title: "Interactiplay - ISL Campanha interativa",
+    title: "Interactiplay - ISL campanha de vídeos interativos",
     description:
       "Crie campanhas interativas e aumente o engajamento do seu público com a Interactiplay.",
     url: SITE_URL,
