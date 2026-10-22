@@ -22,6 +22,7 @@ export default class App {
   private midleware(): void {
     this.express.use(express.json({ limit: '50mb' }));
     this.express.use(express.urlencoded({ limit: '50mb', extended: true }));
+    this.express.set('trust proxy', true);
 
     this.express.use('/api', corsRestrictedConfig);
     this.express.use('/data', corsRestrictedConfig);
