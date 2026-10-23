@@ -28,7 +28,7 @@ export function getMetadata(file: string, timeoutMs = 15000): Promise<VideoMetad
       '1', // Usa apenas 1 thread para ser mais rápido
     ]);
 
-    command.ffprobe((err, metadata) => {
+    command.ffprobe((err: any, metadata: any) => {
       clearTimeout(timeout);
 
       if (err) {
@@ -36,7 +36,11 @@ export function getMetadata(file: string, timeoutMs = 15000): Promise<VideoMetad
       }
 
       try {
-        const videoStream = metadata.streams.find(stream => stream.codec_type === 'video');
+        const streams = Array.isArray(metadata?.streams)
+          ? (metadata.streams as Array<{ codec_type?: string; width?: number; height?: number }>)
+          : [];
+
+        const videoStream = streams.find(stream => stream.codec_type === 'video');
 
         if (!videoStream) {
           return reject(new CustomError('Stream de vídeo não encontrado', 400));

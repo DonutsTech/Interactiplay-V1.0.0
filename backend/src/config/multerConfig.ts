@@ -1,16 +1,19 @@
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import path from 'path';
+import type { Request } from 'express';
 import { CustomError } from '../error';
 import { s3 } from './s3';
 
 export const MAX_SIZE = 2147483648;
+type MulterStorageKeyCallback = (error: Error | null, key: string) => void;
+type MulterFileFilterCallback = (error: Error | null, acceptFile?: boolean) => void;
 
 const s3Storage = multerS3({
   s3: s3,
   bucket: 'interacti-uploads',
   contentType: multerS3.AUTO_CONTENT_TYPE,
-  key: (req, file, cb) => {
+  key: (_req: Request, file: Express.Multer.File, cb: MulterStorageKeyCallback) => {
     const now = new Date();
     const dateString = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
     const time = now.getTime();
@@ -50,7 +53,7 @@ const allVideoTypes = ['video/mp4'];
 export const imageUpload = multer({
   storage: s3Storage,
   limits: { fileSize: 50 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req: Request, file: Express.Multer.File, cb: MulterFileFilterCallback) => {
     if (allImageTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -62,7 +65,7 @@ export const imageUpload = multer({
 export const videoUpload = multer({
   storage: storage,
   limits: { fileSize: MAX_SIZE, files: 1 },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req: Request, file: Express.Multer.File, cb: MulterFileFilterCallback) => {
     if (file.size > MAX_SIZE) {
       cb(new CustomError(`O tamanho do arquivo excede o limite de ${file.size} bytes`));
     }

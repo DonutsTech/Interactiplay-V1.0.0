@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import multer from 'multer';
 import { CustomError } from '../error';
 
-export function setErrors(err: Error, _req: Request, res: Response, _next: NextFunction) {
+export function setErrors(err: unknown, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof CustomError) {
     return res.status(err.statusCode as number).json({
       STATUS: err.statusCode,
