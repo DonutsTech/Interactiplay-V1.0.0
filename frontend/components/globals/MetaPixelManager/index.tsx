@@ -42,13 +42,14 @@ const MetaPixelManager = () => {
           cache: 'no-store',
         });
 
-        console.log(response, 'teste');
-
         if (!response.ok || cancelled) {
           return;
         }
 
         const data = (await response.json()) as { pixelId?: string };
+
+        console.log(data);
+
         const value = data.pixelId?.trim() ?? '';
 
         if (!cancelled && value) {
