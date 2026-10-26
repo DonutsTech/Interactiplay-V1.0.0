@@ -1,10 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import Script from 'next/script';
-import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import styles from './MetaPixelManager.module.scss';
 import {
   MARKETING_CONSENT_EVENT,
   MARKETING_CONSENT_STORAGE_KEY,
@@ -13,6 +8,11 @@ import {
   setMarketingConsent,
   trackMetaPageView,
 } from '@/utils/metaPixel';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import Script from 'next/script';
+import { useEffect, useRef, useState } from 'react';
+import styles from './MetaPixelManager.module.scss';
 
 const MetaPixelManager = () => {
   const pathname = usePathname();
@@ -41,6 +41,8 @@ const MetaPixelManager = () => {
           method: 'GET',
           cache: 'no-store',
         });
+
+        console.log(response, 'teste');
 
         if (!response.ok || cancelled) {
           return;
