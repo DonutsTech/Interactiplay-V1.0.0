@@ -1,24 +1,23 @@
 'use client';
 
-import styles from './FormCadastro.module.scss';
-import { useContext, useMemo, useState } from 'react';
-import logo from '@/assets/images/logo_white_dg.svg';
-import Image from 'next/image';
-import InputForm from '@/components/globals/InputForm';
-import { faEnvelope, faPhone, faUser } from '@fortawesome/free-solid-svg-icons';
-import { phoneMask, validarCelularBRCompleto } from '@/utils/PhoneUtils';
-import InputPassword from '../InputPassword';
-import ButtonAcess from '../ButtonAcess';
-import { isPasswordValid } from '@/utils/isPasswordValid';
-import Link from 'next/link';
-import ModalTermos from './ModalTermos';
-import { UserContext } from '@/context/UserContext';
 import { Register } from '@/@types/auth';
-import { postRegister } from '@/service/auth';
-import { sanitizeByRegex } from '@/utils/stringUtils';
-import { useRouter } from 'next/navigation';
+import logo from '@/assets/images/logo_white_dg.svg';
+import InputForm from '@/components/globals/InputForm';
 import { useError } from '@/context/ErrorContext';
-import { trackMetaEvent } from '@/utils/metaPixel';
+import { UserContext } from '@/context/UserContext';
+import { postRegister } from '@/service/auth';
+import { isPasswordValid } from '@/utils/isPasswordValid';
+import { phoneMask, validarCelularBRCompleto } from '@/utils/PhoneUtils';
+import { sanitizeByRegex } from '@/utils/stringUtils';
+import { faEnvelope, faPhone, faUser } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useContext, useMemo, useState } from 'react';
+import ButtonAcess from '../ButtonAcess';
+import InputPassword from '../InputPassword';
+import styles from './FormCadastro.module.scss';
+import ModalTermos from './ModalTermos';
 
 interface RegisterPackage {
   name: string;
@@ -103,6 +102,7 @@ const FormCadastro = () => {
     });
 
     if (response) {
+      /*
       trackMetaEvent('Lead', {
         content_name: 'cadastro',
       }, {
@@ -111,6 +111,7 @@ const FormCadastro = () => {
           phone: registerPackage.phone,
         },
       });
+      */
 
       setUser((prevUser) => ({
         ...prevUser,

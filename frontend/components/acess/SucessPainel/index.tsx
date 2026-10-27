@@ -5,7 +5,6 @@ import { AuthUserContext } from '@/context/AuthUserContext';
 import { useIsLoading } from '@/context/ErrorContext';
 import { UserContext } from '@/context/UserContext';
 import { setToken } from '@/service/token';
-import { trackMetaEvent } from '@/utils/metaPixel';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
@@ -50,6 +49,7 @@ const SucessPainel = () => {
         if (!hasTrackedConversion.current) {
           const userEmail = loadedUser.USER.EMAIL;
 
+          /*
           trackMetaEvent('CompleteRegistration', undefined, {
             userData: {
               email: userEmail,
@@ -61,6 +61,7 @@ const SucessPainel = () => {
               email: userEmail,
             },
           });
+          */
 
           hasTrackedConversion.current = true;
         }

@@ -49,7 +49,7 @@ export const getMarketingConsent = (): boolean | null => {
   }
 };
 
-export const generateEventId = (): string => {
+const generateEventId = (): string => {
   if (isBrowser() && typeof window.crypto?.randomUUID === 'function') {
     return window.crypto.randomUUID();
   }
