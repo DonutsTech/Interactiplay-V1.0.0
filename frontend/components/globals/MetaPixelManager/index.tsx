@@ -27,8 +27,12 @@ const MetaPixelManager = () => {
   useEffect(() => {
     if (!loaded) return;
 
+    if (marketingConsent === null) return;
+
+    console.log('funcionou o page view')
+
     metaPixelEventPageView();
-  }, [pathname, loaded]);
+  }, [pathname, loaded, marketingConsent]);
 
   const handleConsent = (accepted: boolean) => {
     setMarketingConsent(accepted);
