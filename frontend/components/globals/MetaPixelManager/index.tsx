@@ -35,7 +35,7 @@ const MetaPixelManager = () => {
   };
 
   useEffect(() => {
-    if (marketingConsent === true && loaded && !pageViewTracked) {
+    if (loaded && !pageViewTracked) {
       console.log('funcionou o page view');
       metaPixelEventPageView();
       setPageViewTracked(true);
