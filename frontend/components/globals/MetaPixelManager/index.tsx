@@ -1,33 +1,87 @@
 'use client';
 
-import {
-  MARKETING_CONSENT_EVENT,
-  MARKETING_CONSENT_STORAGE_KEY,
-  getMarketingConsent,
-  getMetaPixelId,
-  setMarketingConsent,
-  trackMetaPageView,
-} from '@/utils/metaPixel';
+import { getMarketingConsent, metaPixelEventPageView, setMarketingConsent } from '@/utils/metaPixel';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import * as pixel from '../../../lib/fpixel';
 import styles from './MetaPixelManager.module.scss';
 
 const MetaPixelManager = () => {
   const pathname = usePathname();
   const isDashboardRoute = pathname?.startsWith('/dashboard') ?? false;
+
+  const [loaded, setLoaded] = useState(false);
   const [marketingConsent, setMarketingConsentState] = useState<boolean | null>(
     null
   );
   const [isBannerOpen, setIsBannerOpen] = useState(false);
-  const [runtimePixelId, setRuntimePixelId] = useState('');
-  const lastTrackedPathRef = useRef('');
 
-  const pixelId = getMetaPixelId();
-  const resolvedPixelId = pixelId || runtimePixelId;
-  const hasResolvedPixelId = resolvedPixelId.length > 0;
+  useEffect(() => {
+    const consent = getMarketingConsent();
+    setMarketingConsentState(consent);
+    setIsBannerOpen(consent !== true);
+  }, []);
 
+  useEffect(() => {
+    if (!loaded) return;
+
+    metaPixelEventPageView();
+  }, [pathname, loaded]);
+
+  const handleConsent = (accepted: boolean) => {
+    setMarketingConsent(accepted);
+    setMarketingConsentState(accepted);
+    setIsBannerOpen(false);
+  };
+
+  return (
+    <>
+    {
+      marketingConsent === true && !isDashboardRoute &&
+        <Script
+          id="fb-pixel"
+          src="/scripts/pixel.js"
+          strategy="afterInteractive"
+          onLoad={() => setLoaded(true)}
+          data-pixel-id={pixel.FB_PIXEL_ID}
+        />
+    }
+    {isBannerOpen && !isDashboardRoute && (
+      <div className={styles.consentRoot}>
+        <div className={styles.panel}>
+          <h4 className={styles.title}>Preferencias de cookies</h4>
+          <p className={styles.description}>
+            Usamos cookies de marketing para medir conversoes e melhorar a
+            experiencia. Ao continuar, voce apenas confirma que entendeu esta
+            informacao. Saiba mais na{' '}
+          <Link href="/Policy" className={styles.policyLink}>
+            Politica de Privacidade
+          </Link>
+            .
+          </p>
+          <div className={styles.actions}>
+            <button
+              type="button"
+              className={styles.primaryBtn}
+              onClick={() => {
+                handleConsent(true);
+              }}
+            >
+              Entendi
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
+  );
+};
+
+export default MetaPixelManager;
+
+/*
   useEffect(() => {
     if (pixelId) {
       return;
@@ -47,8 +101,6 @@ const MetaPixelManager = () => {
         }
 
         const data = (await response.json()) as { pixelId?: string };
-
-        console.log(data);
 
         const value = data.pixelId?.trim() ?? '';
 
@@ -187,6 +239,4 @@ const MetaPixelManager = () => {
 
     </>
   );
-};
-
-export default MetaPixelManager;
+*/
