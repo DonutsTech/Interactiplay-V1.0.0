@@ -13,8 +13,8 @@ const MetaPixelManager = () => {
   const isDashboardRoute = pathname?.startsWith('/dashboard') ?? false;
 
   const [loaded, setLoaded] = useState(false);
-  const [marketingConsent, setMarketingConsentState] = useState<boolean | null>(
-    null
+  const [marketingConsent, setMarketingConsentState] = useState<boolean | null | undefined>(
+    undefined
   );
   const [isBannerOpen, setIsBannerOpen] = useState(false);
 
@@ -27,11 +27,10 @@ const MetaPixelManager = () => {
   useEffect(() => {
     if (!loaded) return;
 
-    if (marketingConsent === null) return;
-
-    console.log('funcionou o page view')
-
-    metaPixelEventPageView();
+    if (marketingConsent === null) {
+      metaPixelEventPageView();
+      console.log('funcionou o page view')
+    };
   }, [pathname, loaded, marketingConsent]);
 
   const handleConsent = (accepted: boolean) => {
