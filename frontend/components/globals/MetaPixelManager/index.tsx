@@ -16,34 +16,36 @@ const MetaPixelManager = () => {
   const [marketingConsent, setMarketingConsentState] = useState<boolean | null | undefined>(
     undefined
   );
+  const [pageViewTracked, setPageViewTracked] = useState(false);
   const [isBannerOpen, setIsBannerOpen] = useState(false);
 
   useEffect(() => {
     const consent = getMarketingConsent();
+    const consentFalse = consent !== true;
     setMarketingConsentState(consent);
-    setIsBannerOpen(consent !== true);
+    setIsBannerOpen(consentFalse);
+    setPageViewTracked(consentFalse);
     console.log('consent:', consent);
   }, []);
 
-  useEffect(() => {
-    if (!loaded) return;
-
-    if (marketingConsent === null) {
-      metaPixelEventPageView();
-      console.log('funcionou o page view')
-    };
-  }, [pathname, loaded, marketingConsent]);
-
   const handleConsent = (accepted: boolean) => {
+    setIsBannerOpen(false);
     setMarketingConsent(accepted);
     setMarketingConsentState(accepted);
-    setIsBannerOpen(false);
   };
+
+  useEffect(() => {
+    if (marketingConsent === true && loaded && !pageViewTracked) {
+      console.log('funcionou o page view');
+      metaPixelEventPageView();
+      setPageViewTracked(true);
+    }
+  }, [marketingConsent, loaded, pathname]);
 
   return (
     <>
     {
-      marketingConsent === true && !isDashboardRoute &&
+       marketingConsent === true && !isDashboardRoute &&
         <Script
           id="fb-pixel"
           src="/scripts/pixel.js"
