@@ -22,6 +22,7 @@ const MetaPixelManager = () => {
     const consent = getMarketingConsent();
     setMarketingConsentState(consent);
     setIsBannerOpen(consent !== true);
+    console.log('consent:', consent);
   }, []);
 
   useEffect(() => {
