@@ -1,8 +1,8 @@
 class MetaPixelService {
   async trackEvent(body: any) {
     try {
-      const META_PIXEL_ID = `1889709742190868`;
-      const ACCESS_TOKEN = `EAAiiP0SQZBT4BS1h7zjDZAgiFjLpPmCuSxoOCwnWjfxZAQw7liWkDkOHZBqkIuoMOgZBUWmVVUJtWoSw2F3HOxZA1hVFWWAM6E1kUhLIvR4qXrd2PjlFrZBhW17vri2x9jeLGbxZAhRN0A12s6jTPQARVvU6fvZAQjIykTQ5V7liZADzryjImYIXNkvaHsgr0bKacB2K4STZBgSbycRUikiR5kkx4KTbxkRYJZAUhOZBICiZC8XH9PoGxk8CaS327zYw48wC2ZBZCUSUWwKURpHaMjWsfY1C23FnFDAvqBaZCH19O7B0MQ42ZAZAoZBGxVZAgBMV8ZAkz5kORL`;
+      const META_PIXEL_ID = process.env.META_PIXEL_ID;
+      const ACCESS_TOKEN = process.env.META_PIXEL_ACCESS_TOKEN;
       const result = await fetch(`https://graph.facebook.com/v26.0/${META_PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`, {
         method: 'POST',
         headers: {
@@ -10,7 +10,7 @@ class MetaPixelService {
         },
         body: JSON.stringify({
           data: [body],
-          test_event_code: "TEST5843"
+          test_event_code: process.env.META_TEST_EVENT_CODE
         })
       });
       const data = await result.json();
