@@ -37,8 +37,13 @@ const MetaPixelManager = () => {
     if (loaded && !pageViewTracked) {
       const trackPageView = async () => {
         console.log('funcionou o page view');
-        await metaPixelEventPageView();
-        setPageViewTracked(true);
+         try {
+          await metaPixelEventPageView();
+        } catch (error) {
+          console.error('Erro ao trackear page view:', error);
+        } finally {
+          setPageViewTracked(true);
+        }
       };
       trackPageView();
     }
