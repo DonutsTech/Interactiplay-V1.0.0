@@ -87,6 +87,7 @@ export const metaPixelEventPageView = async () => {
 
   try {
     if (typeof window !== 'undefined' && typeof (window as any).fbq === 'function') {
+      console.log('Firing Meta Pixel PageView event');
       pixel.pageview(eventId);
     } else {
       throw new Error('Meta Pixel is not initialized or blocked');

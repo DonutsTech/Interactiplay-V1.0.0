@@ -25,7 +25,6 @@ const MetaPixelManager = () => {
     setMarketingConsentState(consent);
     setIsBannerOpen(consentFalse);
     setPageViewTracked(consentFalse);
-    console.log('consent:', consent);
   }, []);
 
   const handleConsent = (accepted: boolean) => {
@@ -36,9 +35,12 @@ const MetaPixelManager = () => {
 
   useEffect(() => {
     if (loaded && !pageViewTracked) {
-      console.log('funcionou o page view');
-      metaPixelEventPageView();
-      setPageViewTracked(true);
+      const trackPageView = async () => {
+        console.log('funcionou o page view');
+        await metaPixelEventPageView();
+        setPageViewTracked(true);
+      };
+      trackPageView();
     }
   }, [marketingConsent, loaded, pathname]);
 
