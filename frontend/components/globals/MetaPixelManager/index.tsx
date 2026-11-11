@@ -53,13 +53,17 @@ const MetaPixelManager = () => {
     <>
     {
        marketingConsent === true && !isDashboardRoute &&
-        <Script
-          id="fb-pixel"
-          src="/scripts/pixel.js"
-          strategy="afterInteractive"
-          onLoad={() => setLoaded(true)}
-          data-pixel-id={pixel.FB_PIXEL_ID}
-        />
+       (
+        <>
+          <div onLoad={() => setLoaded(true)} />
+          <Script
+            id="fb-pixel"
+            src="/scripts/pixel.js"
+            strategy="afterInteractive"
+            data-pixel-id={pixel.FB_PIXEL_ID}
+          />
+        </>
+       )
     }
     {isBannerOpen && !isDashboardRoute && (
       <div className={styles.consentRoot}>
