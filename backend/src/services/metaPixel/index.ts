@@ -10,7 +10,6 @@ class MetaPixelService {
         },
         body: JSON.stringify({
           data: [body],
-          test_event_code: process.env.META_TEST_EVENT_CODE
         })
       });
       const data = await result.json();
