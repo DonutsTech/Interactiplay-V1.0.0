@@ -46,6 +46,7 @@ export interface MetaPixelResponse {
 
 export const postMetaPixelEvent = async (body: MetaPixelResponse) => {
   try {
+    console.log('Posting Meta Pixel event with body:', body);
     const { data } = await api.post('/meta-pixel', body);
     return data;
   } catch (error) {

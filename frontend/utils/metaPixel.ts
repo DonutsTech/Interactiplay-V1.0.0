@@ -92,7 +92,7 @@ export const metaPixelEventPageView = async () => {
       throw new Error('Meta Pixel is not initialized or blocked');
     }
   } catch (error) {
-    console.warn('Meta pixel blocked or not initialized');
+    console.log('Meta pixel blocked or not initialized, TESTE');
 
     try {
       await postMetaPixelEvent({
