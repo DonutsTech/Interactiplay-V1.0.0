@@ -41,6 +41,7 @@ const MetaPixelManager = () => {
   }
 
   const handleScriptError = () => {
+    console.log('Script load error occurred');
     if (!pageViewTracked) {
       console.log('Tracking page view error event');
       metaPixelEventPageViewError();
