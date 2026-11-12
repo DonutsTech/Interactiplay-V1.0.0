@@ -33,7 +33,10 @@ const MetaPixelManager = () => {
   };
 
   useEffect(() => {
+    console.log('entrou')
+
     if (marketingConsent === true && !pageViewTracked) {
+      console.log('entrou do tracking')
       if (typeof window.fbq !== 'function') {
         console.log('Tracking page view error');
         metaPixelEventPageViewError();
