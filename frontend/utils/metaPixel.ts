@@ -87,10 +87,13 @@ export const metaPixelEventPageViewError = async () => {
   const eventSourceUrl = window.location.href;
   const eventId = generateEventId();
 
-  const fbp = getCookie('_fbp');
+  let fbp = getCookie('_fbp');
   const fbc = getCookie('_fbc') || getFbclidFromUrl();
 
-  console.log('Meta pixel blocked or not initialized, TESTE');
+  if (!fbp) {
+    fbp = `fb.1.${Date.now()}.${window.crypto.randomUUID()}`;
+    localStorage.setItem('_fbp_fallback', fbp);
+  }
 
   try {
     await postMetaPixelEvent({

@@ -21,7 +21,7 @@ const MetaPixelManager = () => {
   useEffect(() => {
     const consent = getMarketingConsent();
     const consentFalse = consent !== true;
-    setPageViewTracked(consentFalse);
+    setPageViewTracked(consent === true);
     setIsBannerOpen(consentFalse);
     setMarketingConsentState(consent);
   }, []);
@@ -33,15 +33,11 @@ const MetaPixelManager = () => {
   };
 
   useEffect(() => {
-    console.log('entrou')
 
     if (marketingConsent === true && !pageViewTracked) {
-      console.log('entrou do tracking')
       if (typeof window.fbq !== 'function') {
-        console.log('Tracking page view error');
         metaPixelEventPageViewError();
       } else {
-        console.log('Tracking page view load');
         metaPixelEventPageViewLoad();
       }
       setPageViewTracked(true);
