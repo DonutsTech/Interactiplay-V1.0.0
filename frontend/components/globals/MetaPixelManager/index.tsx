@@ -21,9 +21,9 @@ const MetaPixelManager = () => {
   useEffect(() => {
     const consent = getMarketingConsent();
     const consentFalse = consent !== true;
-    setMarketingConsentState(consent);
-    setIsBannerOpen(consentFalse);
     setPageViewTracked(consentFalse);
+    setIsBannerOpen(consentFalse);
+    setMarketingConsentState(consent);
   }, []);
 
   const handleConsent = (accepted: boolean) => {
@@ -32,22 +32,18 @@ const MetaPixelManager = () => {
     setMarketingConsentState(accepted);
   };
 
-  const handleScriptLoad = () => {
-    if (!pageViewTracked) {
-      console.log('Tracking page view load event');
-      metaPixelEventPageViewLoad();
+  useEffect(() => {
+    if (marketingConsent === true && !pageViewTracked) {
+      if (typeof window.fbq !== 'function') {
+        console.log('Tracking page view error');
+        metaPixelEventPageViewError();
+      } else {
+        console.log('Tracking page view load');
+        metaPixelEventPageViewLoad();
+      }
       setPageViewTracked(true);
     }
-  }
-
-  const handleScriptError = () => {
-    console.log('Script load error occurred');
-    if (!pageViewTracked) {
-      console.log('Tracking page view error event');
-      metaPixelEventPageViewError();
-      setPageViewTracked(true);
-    }
-  };
+  }, [pageViewTracked]);
 
   return (
     <>
@@ -57,8 +53,6 @@ const MetaPixelManager = () => {
             id="fb-pixel"
             src="/scripts/pixel.js"
             strategy="afterInteractive"
-            onLoad={handleScriptLoad}
-            onError={handleScriptError}
             data-pixel-id={pixel.FB_PIXEL_ID}
           />
       }
