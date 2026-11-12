@@ -46,7 +46,7 @@ const MetaPixelManager = () => {
       }
       setPageViewTracked(true);
     }
-  }, [pageViewTracked]);
+  }, [pageViewTracked, marketingConsent]);
 
   return (
     <>
