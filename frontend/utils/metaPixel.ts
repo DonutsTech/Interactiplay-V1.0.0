@@ -77,39 +77,35 @@ const getFbclidFromUrl = (): string | undefined => {
   return undefined;
 };
 
-export const metaPixelEventPageView = async () => {
-  const evantName = 'PageView';
+export const metaPixelEventPageViewLoad = async () => {
+  const eventId = generateEventId();
+  pixel.pageview(eventId);
+}
+
+export const metaPixelEventPageViewError = async () => {
+  const eventName = 'PageView';
   const eventSourceUrl = window.location.href;
   const eventId = generateEventId();
 
   const fbp = getCookie('_fbp');
   const fbc = getCookie('_fbc') || getFbclidFromUrl();
 
-  try {
-    if (typeof window !== 'undefined' && typeof (window as any).fbq === 'function') {
-      console.log('Firing Meta Pixel PageView event');
-      pixel.pageview(eventId);
-    } else {
-      throw new Error('Meta Pixel is not initialized or blocked');
-    }
-  } catch (error) {
-    console.log('Meta pixel blocked or not initialized, TESTE');
+  console.log('Meta pixel blocked or not initialized, TESTE');
 
-    try {
-      await postMetaPixelEvent({
-        event_name: evantName,
-        event_source_url: eventSourceUrl,
-        event_id: eventId,
-        action_source: 'website',
-        event_time: Math.floor(Date.now() / 1000).toString(),
-        user_data: {
-          fbp,
-          fbc,
-        }
-      });
-    } catch (error) {
-      console.error('Failed to post Meta Pixel event', error);
-    }
+  try {
+    await postMetaPixelEvent({
+      event_name: eventName,
+      event_source_url: eventSourceUrl,
+      event_id: eventId,
+      action_source: 'website',
+      event_time: Math.floor(Date.now() / 1000).toString(),
+      user_data: {
+        fbp,
+        fbc,
+      }
+    });
+  } catch (error) {
+    console.error('Failed to post Meta Pixel event', error);
   }
 }
 /*

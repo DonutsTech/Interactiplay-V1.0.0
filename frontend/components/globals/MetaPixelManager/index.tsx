@@ -1,6 +1,6 @@
 'use client';
 
-import { getMarketingConsent, metaPixelEventPageView, setMarketingConsent } from '@/utils/metaPixel';
+import { getMarketingConsent, metaPixelEventPageViewError, metaPixelEventPageViewLoad, setMarketingConsent } from '@/utils/metaPixel';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
@@ -12,7 +12,6 @@ const MetaPixelManager = () => {
   const pathname = usePathname();
   const isDashboardRoute = pathname?.startsWith('/dashboard') ?? false;
 
-  const [loaded, setLoaded] = useState(false);
   const [marketingConsent, setMarketingConsentState] = useState<boolean | null | undefined>(
     undefined
   );
@@ -33,65 +32,62 @@ const MetaPixelManager = () => {
     setMarketingConsentState(accepted);
   };
 
-  useEffect(() => {
-    if (loaded && !pageViewTracked) {
-      const trackPageView = async () => {
-        console.log('funcionou o page view');
-         try {
-          await metaPixelEventPageView();
-        } catch (error) {
-          console.error('Erro ao trackear page view:', error);
-        } finally {
-          setPageViewTracked(true);
-        }
-      };
-      trackPageView();
+  const handleScriptLoad = () => {
+    if (!pageViewTracked) {
+      console.log('Tracking page view load event');
+      metaPixelEventPageViewLoad();
+      setPageViewTracked(true);
     }
-  }, [marketingConsent, loaded, pathname]);
+  }
+
+  const handleScriptError = () => {
+    if (!pageViewTracked) {
+      console.log('Tracking page view error event');
+      metaPixelEventPageViewError();
+      setPageViewTracked(true);
+    }
+  };
 
   return (
     <>
-    {
-       marketingConsent === true && !isDashboardRoute &&
-       (
-        <>
-          <div onLoad={() => setLoaded(true)} />
+      {
+        marketingConsent === true && !isDashboardRoute &&
           <Script
             id="fb-pixel"
             src="/scripts/pixel.js"
             strategy="afterInteractive"
+            onLoad={handleScriptLoad}
+            onError={handleScriptError}
             data-pixel-id={pixel.FB_PIXEL_ID}
           />
-        </>
-       )
-    }
-    {isBannerOpen && !isDashboardRoute && (
-      <div className={styles.consentRoot}>
-        <div className={styles.panel}>
-          <h4 className={styles.title}>Preferencias de cookies</h4>
-          <p className={styles.description}>
-            Usamos cookies de marketing para medir conversoes e melhorar a
-            experiencia. Ao continuar, voce apenas confirma que entendeu esta
-            informacao. Saiba mais na{' '}
-          <Link href="/Policy" className={styles.policyLink}>
-            Politica de Privacidade
-          </Link>
-            .
-          </p>
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.primaryBtn}
-              onClick={() => {
-                handleConsent(true);
-              }}
-            >
-              Entendi
-            </button>
+      }
+      {isBannerOpen && !isDashboardRoute && (
+        <div className={styles.consentRoot}>
+          <div className={styles.panel}>
+            <h4 className={styles.title}>Preferencias de cookies</h4>
+            <p className={styles.description}>
+              Usamos cookies de marketing para medir conversoes e melhorar a
+              experiencia. Ao continuar, voce apenas confirma que entendeu esta
+              informacao. Saiba mais na{' '}
+              <Link href="/Policy" className={styles.policyLink}>
+                Politica de Privacidade
+              </Link>
+              .
+            </p>
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className={styles.primaryBtn}
+                onClick={() => {
+                  handleConsent(true);
+                }}
+              >
+                Entendi
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      )}
     </>
   );
 };
